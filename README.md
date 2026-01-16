@@ -4,7 +4,7 @@ A Django-based e-learning platform for counselor training courses across multipl
 
 ## Project Overview 
 
-Project location on system-> D:\Projects\Counselor Git Project\counselor_project
+Project location on system-> D:\Projects\Counselor Git Project\counselor_project 
 
 This project is designed for **ten countries**, each with its own specialized course. The course structure follows a hierarchical model:
 - **Countries** → **Courses** → **Chapters** → **Parts** → **Quizzes**
