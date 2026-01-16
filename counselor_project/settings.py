@@ -168,6 +168,8 @@ MEDIA_URL = f'{FORCE_SCRIPT_NAME}/media/' if FORCE_SCRIPT_NAME else '/media/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+# Add this line for production static file collection
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
