@@ -4,7 +4,7 @@ __pycache__/
 db.sqlite3
 *.log
 .env
-# */settings.py
+*/settings.py
 counselor_project/urls.py
 staticfiles/
 
