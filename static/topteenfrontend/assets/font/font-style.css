@@ -1,0 +1,509 @@
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Black.eot');
+    src: url('GalanoGrotesqueAlt-Black.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Black.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Black.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-BoldItalic.eot');
+    src: url('GalanoGrotesqueAlt-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-BoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-BoldItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Bold.eot');
+    src: url('GalanoGrotesqueAlt-Bold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Bold.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Bold.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt Black It';
+    src: url('GalanoGrotesqueAlt-BlackItalic.eot');
+    src: url('GalanoGrotesqueAlt-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-BlackItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-BlackItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Heavy.eot');
+    src: url('GalanoGrotesqueAlt-Heavy.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Heavy.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Heavy.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt Light It';
+    src: url('GalanoGrotesqueAlt-LightItalic.eot');
+    src: url('GalanoGrotesqueAlt-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-LightItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-LightItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Light.eot');
+    src: url('GalanoGrotesqueAlt-Light.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Light.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Light.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt SmBold It';
+    src: url('GalanoGrotesqueAlt-SemiBoldItalic.eot');
+    src: url('GalanoGrotesqueAlt-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-SemiBoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-SemiBoldItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt Medium It';
+    src: url('GalanoGrotesqueAlt-MediumItalic.eot');
+    src: url('GalanoGrotesqueAlt-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-MediumItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-MediumItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Italic.eot');
+    src: url('GalanoGrotesqueAlt-Italic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Italic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Italic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-ExtraBold.eot');
+    src: url('GalanoGrotesqueAlt-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-ExtraBold.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-ExtraBold.woff') format('woff'),
+        url('GalanoGrotesqueAlt-ExtraBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt ExLight It';
+    src: url('GalanoGrotesqueAlt-ExtraLightItalic.eot');
+    src: url('GalanoGrotesqueAlt-ExtraLightItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-ExtraLightItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-ExtraLightItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-ExtraLightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Thin.eot');
+    src: url('GalanoGrotesqueAlt-Thin.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Thin.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Thin.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Medium.eot');
+    src: url('GalanoGrotesqueAlt-Medium.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Medium.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Medium.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-Regular.eot');
+    src: url('GalanoGrotesqueAlt-Regular.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-Regular.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-Regular.woff') format('woff'),
+        url('GalanoGrotesqueAlt-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-BlackItalic.eot');
+    src: url('GalanoGrotesque-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-BlackItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-BlackItalic.woff') format('woff'),
+        url('GalanoGrotesque-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-SemiBold.eot');
+    src: url('GalanoGrotesqueAlt-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-SemiBold.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-SemiBold.woff') format('woff'),
+        url('GalanoGrotesqueAlt-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt Heavy It';
+    src: url('GalanoGrotesqueAlt-HeavyItalic.eot');
+    src: url('GalanoGrotesqueAlt-HeavyItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-HeavyItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-HeavyItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-HeavyItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt';
+    src: url('GalanoGrotesqueAlt-ExtraLight.eot');
+    src: url('GalanoGrotesqueAlt-ExtraLight.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-ExtraLight.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-ExtraLight.woff') format('woff'),
+        url('GalanoGrotesqueAlt-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Black.eot');
+    src: url('GalanoGrotesque-Black.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Black.woff2') format('woff2'),
+        url('GalanoGrotesque-Black.woff') format('woff'),
+        url('GalanoGrotesque-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt ExBold It';
+    src: url('GalanoGrotesqueAlt-ExtraBoldItalic.eot');
+    src: url('GalanoGrotesqueAlt-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-ExtraBoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-ExtraBoldItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-ExtraBoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque Alt Thin It';
+    src: url('GalanoGrotesqueAlt-ThinItalic.eot');
+    src: url('GalanoGrotesqueAlt-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesqueAlt-ThinItalic.woff2') format('woff2'),
+        url('GalanoGrotesqueAlt-ThinItalic.woff') format('woff'),
+        url('GalanoGrotesqueAlt-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Heavy.eot');
+    src: url('GalanoGrotesque-Heavy.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Heavy.woff2') format('woff2'),
+        url('GalanoGrotesque-Heavy.woff') format('woff'),
+        url('GalanoGrotesque-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque ExBold';
+    src: url('GalanoGrotesque-ExtraBoldItalic.eot');
+    src: url('GalanoGrotesque-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-ExtraBoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-ExtraBoldItalic.woff') format('woff'),
+        url('GalanoGrotesque-ExtraBoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-ExtraBold.eot');
+    src: url('GalanoGrotesque-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-ExtraBold.woff2') format('woff2'),
+        url('GalanoGrotesque-ExtraBold.woff') format('woff'),
+        url('GalanoGrotesque-ExtraBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Bold.eot');
+    src: url('GalanoGrotesque-Bold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Bold.woff2') format('woff2'),
+        url('GalanoGrotesque-Bold.woff') format('woff'),
+        url('GalanoGrotesque-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque ExLight';
+    src: url('GalanoGrotesque-ExtraLightItalic.eot');
+    src: url('GalanoGrotesque-ExtraLightItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-ExtraLightItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-ExtraLightItalic.woff') format('woff'),
+        url('GalanoGrotesque-ExtraLightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-BoldItalic.eot');
+    src: url('GalanoGrotesque-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-BoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-BoldItalic.woff') format('woff'),
+        url('GalanoGrotesque-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-HeavyItalic.eot');
+    src: url('GalanoGrotesque-HeavyItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-HeavyItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-HeavyItalic.woff') format('woff'),
+        url('GalanoGrotesque-HeavyItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-ExtraLight.eot');
+    src: url('GalanoGrotesque-ExtraLight.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-ExtraLight.woff2') format('woff2'),
+        url('GalanoGrotesque-ExtraLight.woff') format('woff'),
+        url('GalanoGrotesque-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Light.eot');
+    src: url('GalanoGrotesque-Light.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Light.woff2') format('woff2'),
+        url('GalanoGrotesque-Light.woff') format('woff'),
+        url('GalanoGrotesque-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Italic.eot');
+    src: url('GalanoGrotesque-Italic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Italic.woff2') format('woff2'),
+        url('GalanoGrotesque-Italic.woff') format('woff'),
+        url('GalanoGrotesque-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-LightItalic.eot');
+    src: url('GalanoGrotesque-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-LightItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-LightItalic.woff') format('woff'),
+        url('GalanoGrotesque-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-ThinItalic.eot');
+    src: url('GalanoGrotesque-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-ThinItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-ThinItalic.woff') format('woff'),
+        url('GalanoGrotesque-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Regular.eot');
+    src: url('GalanoGrotesque-Regular.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Regular.woff2') format('woff2'),
+        url('GalanoGrotesque-Regular.woff') format('woff'),
+        url('GalanoGrotesque-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Thin.eot');
+    src: url('GalanoGrotesque-Thin.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Thin.woff2') format('woff2'),
+        url('GalanoGrotesque-Thin.woff') format('woff'),
+        url('GalanoGrotesque-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-Medium.eot');
+    src: url('GalanoGrotesque-Medium.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-Medium.woff2') format('woff2'),
+        url('GalanoGrotesque-Medium.woff') format('woff'),
+        url('GalanoGrotesque-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque SmBold';
+    src: url('GalanoGrotesque-SemiBoldItalic.eot');
+    src: url('GalanoGrotesque-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-SemiBoldItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-SemiBoldItalic.woff') format('woff'),
+        url('GalanoGrotesque-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-MediumItalic.eot');
+    src: url('GalanoGrotesque-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-MediumItalic.woff2') format('woff2'),
+        url('GalanoGrotesque-MediumItalic.woff') format('woff'),
+        url('GalanoGrotesque-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Galano Grotesque';
+    src: url('GalanoGrotesque-SemiBold.eot');
+    src: url('GalanoGrotesque-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('GalanoGrotesque-SemiBold.woff2') format('woff2'),
+        url('GalanoGrotesque-SemiBold.woff') format('woff'),
+        url('GalanoGrotesque-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+
+
+
+@font-face {
+    font-family: 'DIN Condensed';
+    src: url('DINCondensed-Regular.eot');
+    src: url('DINCondensed-Regular.eot?#iefix') format('embedded-opentype'),
+        url('DINCondensed-Regular.woff2') format('woff2'),
+        url('DINCondensed-Regular.woff') format('woff'),
+        url('DINCondensed-Regular.ttf') format('truetype'),
+        url('DINCondensed-Regular.svg#DINCondensed-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DIN Condensed';
+    src: url('DINCondensed-Light.eot');
+    src: url('DINCondensed-Light.eot?#iefix') format('embedded-opentype'),
+        url('DINCondensed-Light.woff2') format('woff2'),
+        url('DINCondensed-Light.woff') format('woff'),
+        url('DINCondensed-Light.ttf') format('truetype'),
+        url('DINCondensed-Light.svg#DINCondensed-Light') format('svg');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}

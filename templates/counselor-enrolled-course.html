@@ -1,0 +1,1735 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  
+  <!-- Preloading stylesheets -->
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min_test.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/enrollcourse.css' %}">
+
+  <link rel="stylesheet" href="{ static (' topteenfrontend/assets/css/custom-min.css')}" type="text/css" media="all" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400;1,500;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+
+
+
+<body>
+
+  <div class="ld-focus-header">
+    <div class="ld-brand-logo">
+      <a href="#">
+        <img src="https://www.topteen.in/static/topteenfrontend/assets/images/logo.svg" alt="Logo">
+      </a>
+    </div>
+  
+    <div class="ld-progress">
+      <div class="ld-progress-wrap">
+        <div class="ld-progress-heading">
+          <div class="ld-progress-stats">
+            <div class="ld-progress-percentage">
+              {{completed_percent_value}}% Complete
+            </div>
+            <div class="ld-progress-steps">
+              {{number_of_completed_parts}}/{{total_parts}} Steps
+            </div>
+          </div>
+        </div>
+        <div class="ld-progress-bar">
+          <div class="ld-progress-bar-percentage" style="width: {{completed_percent_value}}%;"></div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="flex items-center gap-2 top-right-flex">
+      <a href="{% url 'counselor:counselor_enrolled_course_param' course %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+        <i class="fas fa-sync-alt"></i> Resume course
+    </a>    
+
+      <a href="{% url 'counselor:icef_view' %}" class="btn purple-button px-md-5 bg-[#4CC9F0] rounded-[10px] text-xs text-whi fw-600">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back
+      </a>
+    </div>
+  </div>
+  
+
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+  <main class="container-fluid mx-auto px-[15px] lg:px-0 w-full  pb-[60px] lg:pb-0 ">
+    <div class="row">
+      <!-- Left part Desktop -->
+      <div class="col-md-3 rounded-[10px] mx-auto bg-[#FBFBFB] course-sidebar">
+        <div class=" sticky top-[87px]">
+          <div class="my-corse-head px-2 py-3 bg-[#ffffff] m-2">
+            <h4 class="fw-bold mb-0">{{course.title}} </h4>
+            <p>{{ course_title }}</p>
+          </div>
+          <div class="sidebar-content">
+          <div id="accordion-collapse" data-accordion="collapse" class=" px-2 custom-accordion-left">
+            
+            <!-- single accordian -->
+
+            {% for chapter in course.chapters.all %}
+              <!-- Chapter Section -->
+               {% if chapter.id == resume_chapter_id %}
+              <h2 id="accordion-collapse-heading-{{ chapter.id }}" class="mb-0">
+                  <button type="button"
+                    class="chapter-title flex items-center justify-between w-full p-3 fs-16 rtl:text-right text-gray-500 border-b border-gray-200  focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3 "
+                    data-accordion-target="#accordion-collapse-body-{{ chapter.id }}" aria-expanded="true"
+                    aria-controls="accordion-collapse-body-{{ chapter.id }}"> <span>{{ chapter.title }}</span>
+                    <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5 5 1 1 5" />
+                    </svg>
+                  </button>
+              </h2>
+              {% else %}
+              <h2 id="accordion-collapse-heading-{{ chapter.id }}" class="mb-0">
+                <button type="button"
+                  class="chapter-title flex items-center justify-between w-full p-3 fs-16 rtl:text-right text-gray-500 border-b border-gray-200  focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3 "
+                  data-accordion-target="#accordion-collapse-body-{{ chapter.id }}" aria-expanded="false"
+                  aria-controls="accordion-collapse-body-{{ chapter.id }}"> <span>{{ chapter.title }}</span>
+                  <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5 5 1 1 5" />
+                  </svg>
+                </button>
+            </h2>
+            {% endif %}
+
+            <div id="accordion-collapse-body-{{ chapter.id }}" class="hidden" aria-labelledby="accordion-collapse-heading-{{ chapter.id }}">
+
+              {% for part in chapter.parts.all %}
+                <div class="data-show">
+                  <button 
+                    type="button" 
+                    class="list-data text content-btn d-flex justify-between w-full t-button 
+                          {% if part.id not in complete_status and part.title != 'Introduction' and part.id != show_part_id %}disabled-button{% endif %}" 
+                    data-target="content-{{ part.id }}"
+                    onclick="fetchCurrentPart('{{ course.title|escapejs }}', {{ part.id }} , 1, {{ show_part_id }}); toggleAccordion(this, {{ part.id }});"
+                  >
+                    <div class="chapter-detail"> {{ part.title }} </div>
+                    <div class="test-read-full unread-circle">                         
+                      <div class="progress-container" data-video-id="video-{{ part.id }}">
+                        <svg>
+                          <circle class="bg-circle" cx="12.5" cy="12.5" r="10.5"></circle>
+                          <circle class="progress-circle" cx="12.5" cy="12.5" r="10.5"></circle>
+                        </svg>
+                        {% if part.id in complete_status or part.title == "Introduction" %}
+                          <div class="tick" style="display: block;">
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                          </div>
+                        {% else %}
+                          <div class="tick" style="display: none;">
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                          </div>
+                        {% endif %}
+                        <div class="tooltip">Progress: 0%</div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+            
+                {% if part.title != "Introduction" %}
+                  {% if part.id in complete_status %}
+                    <button 
+                      id="quiz-{{ part.id }}" 
+                      type="button" 
+                      class="quiz-button list-data text justify-between w-full bg-white t-button enabled" 
+                      data-target="contentquiz-{{ part.id }}"
+                      onclick="fetchCurrentPart('{{ course.title|escapejs }}', {{ part.id }} , 0, {{ show_part_id }}); toggleAccordion(this, {{ part.id }});"
+                    >
+                      <div class="chapter-detail"> Quiz 
+                        {% if found|get:part.id %}
+                          <!--span class="badge bg-success ms-2" style="font-size: 0.7em;">Completed</span-->
+                        {% endif %}
+                      </div>
+                      <div class="test-read-full unread-circle"> 
+                        {% if found|get:part.id %}
+                          <div class="tick" style="display: block;">
+                            <i class="fa-solid fa-circle-check text-success" aria-hidden="true"></i>
+                          </div>
+                        {% else %}
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i> 
+                        <i class="fa-solid fa-unlock" aria-hidden="true"></i> 
+                        {% endif %}
+                      </div>
+                    </button>
+                  {% else %}
+                    <button 
+                      id="quiz-{{ part.id }}" 
+                      type="button" 
+                      class="quiz-button list-data text justify-between w-full bg-white" 
+                      data-target="contentquiz-{{ part.id }}"
+                    >
+                      <div class="chapter-detail"> Quiz </div>
+                      <div class="test-read-full unread-circle"> 
+                        <i class="fa-solid fa-lock" aria-hidden="true"></i> 
+                        <i class="fa-solid fa-unlock" aria-hidden="true"></i> 
+                      </div>
+                    </button>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            
+            </div>
+                
+            {%endfor%}
+
+            <!-- single accordian -->
+
+        
+            <!-- Certification -->
+             
+            <h2 id="accordion-collapse-heading-00" class="mb-0">
+              <button type="button"
+                class="flex items-center justify-between w-full p-3 fs-16 rtl:text-right text-gray-800 border-b border-gray-200  focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3 "
+                data-accordion-target="#accordion-collapse-body-00" aria-expanded="true"
+                aria-controls="accordion-collapse-body-00"> <span class="text-left"> Claim Your Course Certificate</span>
+                <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5 5 1 1 5" />
+                </svg>
+              </button>
+            </h2>
+            <div id="accordion-collapse-body-00" class="hidden" aria-labelledby="accordion-collapse-heading-00">
+              <div class="data-show">
+                <div class="list-data text">                 
+                  {% if certificate_grant %}
+                  <button type="button" id="certificate" class="button list-data text cursor-not-allowed content-btn d-flex justify-between w-full bg-white" data-target="certificate-clam">
+                    <div class="chapter-detail"> Claim Your Course Certificate </div>
+                    <div class="test-read-full unread-circle"> <i class="fa-solid fa-unlock" aria-hidden="true"></i> </div>
+                  </button>
+                  {% else %}
+                  <button type="button" id="certificate" class="button list-data text cursor-not-allowed d-flex justify-between w-full bg-white" data-target="certificate-clam">
+                    <div class="chapter-detail"> Claim Your Course Certificate </div>
+                    <div class="test-read-full unread-circle"> <i class="fa-solid fa-lock" aria-hidden="true"></i> </div>
+                  </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <!-- Certification -->
+          </div>
+        </div>
+
+
+        </div>
+      </div>
+      <!-- End of Left part Desktop -->
+
+      <!-- Right Part -->
+      <div class="col-md-9  z-20 pt-0">
+        <!-- certificate clam tab block -->
+        <div id="certificate-clam" class="content " style="display: none;">
+          <div class="bg-[#FBFBFB] p-3 rounded">
+
+                <!-- Share Course Modal button -->
+        <div class="flex justify-between mb-3 md:flex-row flex-col">
+          <div class="mb-[16px] lg:px-0 px-2 mt-[12px] lg:mt-0">
+            
+          </div>
+          <div class="l-p-sm">
+            <div class="flex flex-row justify-between">
+              <button type="button" data-modal-target="share-course-modal" data-modal-toggle="share-course-modal"
+                class="hidden ms-1 text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    d="M17.5 3A3.5 3.5 0 0 0 14 7L8.1 9.8A3.5 3.5 0 0 0 2 12a3.5 3.5 0 0 0 6.1 2.3l6 2.7-.1.5a3.5 3.5 0 1 0 1-2.3l-6-2.7a3.5 3.5 0 0 0 0-1L15 9a3.5 3.5 0 0 0 6-2.4c0-2-1.6-3.5-3.5-3.5Z" />
+                </svg>
+                Share course </button>
+            </div>
+
+        
+            
+          </div>
+        </div> 
+        <!-- Share Course Modal button -->
+
+
+              <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="myTab1" data-tabs-toggle="#myTabContentintro1" role="tablist">
+                  <li class="mr-2" role="presentation">
+                      <button class="inline-block p-4 rounded-t-lg " id="certificate-1" data-tabs-target="#certificate-id" type="button" role="tab" aria-controls="certificate-id" aria-selected="false"></button>
+                  </li>
+              </ul>
+              <div id="myTabContenintro1" >
+                <div class="hidden p-4 bg-gray-50 rounded-lg dark:bg-gray-800" id="certificate-id" role="tabpanel" aria-labelledby="certificate-1">
+                  
+                  <div id="tab0" class="tab-content active"> 
+                    
+                    
+                    
+             <div class="cert-container print-m-0">
+                      <div id="content2" class="cert"> 
+                        
+                        
+                        <img
+                              src="{% static 'certificate_bg.svg' %}"
+                              class="cert-bg"
+                              alt=""
+                            />
+                        <div class="cert-content">
+                          <div class="top-content"> 
+                            
+                            <span style=" font-family:Aldrich; color:#50405D; font-size:14px;   margin-top: 26px;">Dated: {{ issued_date }}</span> 
+                            
+                            <span style=" font-family:Aldrich; color:#50405D; font-size:14px;">Sr. No. 2585458</span> 
+                          
+                          </div>
+                          <div style="font-size: 14px;font-family: 'Merriweather'; margin-top:102px; color: #494949;">This certificate is awarded to</div>
+                    
+                          <div style="font-size: 40px; font-family: 'Alegreya SC'; margin-top:5px;"><span style="padding:0px 10px; border-bottom:1px solid #D89330; color: #D89330;     line-height: .75rem;">{{ user_name }} </span></div>
+                          <div style="width:487px; margin:0px auto; margin-top:25px; font-family:'Merriweather'; font-size: 13px; color:#494949;"> for successfully completing the  <span style="color:#D89330;">“Advanced Career Counselling Course”   </span> earning a final grade of  <span style="color:#3f3d79; font-size:19px; font-weight:600; margin-left: 6px;"> “{{ grade }}”.</span> </div>
+                    
+                    
+                    
+                          <div class="bottom-txt" style="display: flex; justify-content: center;">
+                    
+                            <div class="h-s">
+                              <div class="dum-sig" style=" border-bottom:1px solid #D89330; margin-bottom: 5px;"> <img style="width:100px;" src="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='64' height='31' fill='none' viewBox='0 0 64 31'%3e%3cpath fill='url(%23a)' d='M0 0h64v31H0z'/%3e%3cdefs%3e%3cpattern id='a' width='1' height='1' patternContentUnits='objectBoundingBox'%3e%3cuse xlink:href='%23b' transform='matrix(.0018 0 0 .0037 0 -.004)'/%3e%3c/pattern%3e%3cimage xlink:href='data:image/png%3bbase64%2ciVBORw0KGgoAAAANSUhEUgAAAi0AAAEQCAYAAAB85UScAABF7klEQVR42u2dB7RdVbWGZzo1QOiEGnqRKgLSgnRERKSIdPCBSBEURFEgIKAoIigoAgrSQYQXUJQeEKV3pBOKlBCSkISQkOqbv2vul2s4e59z9ym3fd8YcyCS3LLO3mvNNcs/zQAAAAAAAKDb0iv%2b2TusF0sCAAAAHe2czO22sNvKbpu6fcFtP7cj3L7tdqzboW57ug11Wy3%2bfB%2bWDwAAAJpF33BSlnDb0u1rbme6Xe52t9sLbv9yG%2bP2sdtMt2luk9zedxvp9g%2b3i912c1uIJQUAAIBGMa/b8m7bWYqaXBwOyituH7hNdZvl9u922IxwYE5zW5wlBgAAgDIobbOo2waWUjo/cRvh9qbbR5aiJ/9ukI11%2b244RgAAAAA1oVTNZ9yOcrvK7Um3cZaiIv9uor3ktjXLDwAAAEWoPmV1twPcLnF7wlLKp2w0RX9PtSwT3Ea5vWuplkX/PjnHAVJ66az4WQAAAAD%2bg9qPB7mt67a/22/CURlX0lH50FLa6FG34W4XuJ3gdrDbrm5bWSrY3dntELfL3MZX%2bDp/cRvMxwMAAACKYqzq9tU2jsr4Eo7KFEsRlAfcfu/2Lbcdwwlaym1BSx1GeQ7TSm63V/i697sN4WMCAADomchJUGfOtm6nu91nqfC1PY6KUjdK7zzldo3bMW5buK1iSWulbzt/poFuN1T4Pne6LcdHBgAA0LMYYCmqonTM1ZZak6e0w1GRropqUe5wO9uSUNz6lgp161W2XdPtkQrf83pLHUsAAADQzZEzoVoV1Y8oqqJ0i%2bpUatVPUYGs0j73uv3YkqrtcuEA9WrgzyhHauwc33tWOEdz8TECAAB0X/q5rWCpVuUKS%2b3Dk2t0VOQsTHR73O3Xbntbktifr0k/q1R0K6WGpJ67vzGfCAAAoFuygNsmbj9w%2b5ulotpaoir6M2o/lgaLWpwV%2bVARrQpoezfx5%2b0VTtEoq1yEuwYfKQAAQPdBTsVillI357s9Z6lQttaC2pfdrnU7zG0dS0WxrRpauLzbLRUcK0WFTjZSQwAAAN0CpYBWtKR98ge3t6y2DiA5CKprUdfQKZa6fhpRTNte5nE7zlIqas6f8TG39fiIAQAAujaKPigicrylTp73rbYU0HS3NyxFVTSFeVXruEiGHKShlupm5vw5Nfl5mBFlAQAA6JLokFc0ZHNL0vaPxuFeSwpoUvz5H1nSZlEqqXcH/z7qQFKB8LQKP%2b8It7X4yAEAALoWci6WtCR3f5Hb81abtooiL6Pd/up2RDgB83SS30ldSEoLjbPK050Pd%2bvPRw8AANA1UCGs5OsPcvuj29tWW72KHJoX3C62NONHyre9OtnvtYvbP62yJoxqc1DABQAA6CLOygrhrPzJUr1KLSkgFbP%2b3e00Sy3PAzvp77e2pSGIlRwwdT193tBlAQAA6NRoVs/KltqOdaiPtdpTQHJuvm6psLZfJ/4dl7EUAarUjv2BpcLi%2bXgUAAAAOieqWVEa6BuWphzXElmRs/KOpS6gfS2lU/p28t9TzsjJOc6YinGvdFuWxwEAAKDzoUJTDQk81lK3zHirbWDhSLffWqoLWdw6vguoFhT9OdCSjkyl30vKvRvzSAAAAHQu5nX7tCVRt4fcPrTaimtVuPpzSy3Li1jXqvvYzu3ZnN/tVbc9jW4hAACATuWsSGPlJ%2bGA1CKz/2E4NnJwPhNfoyshx2pDSwXClX4/1eN80zpPKzYAAECPZu5wOE51e8Yqi6lVEoN72O1ES0MLu6oyrH72m6xyp5BmC/3YkmAeAAAAdCByNJQGUguyJifXIginKcuq7zjB0tydrpwyWd2SvkyliJLW4lJLonkAAADQQcjR%2bJTbDyxFSz6q0Vm52%2b2Y%2bLtdfeaOupl%2b5/axVRaQ%2b7MlvRYAAADoAAZYGmLYHmdlTBzgGl64knVujZVaWdTtHKs8F0lpIk2W3ozHBQAAoPVIH2UVS7N0HrbahhhKi%2bVmt/0sCa717SZrIYdF6bBKM4WkLfOg2w6WVH8BAACgRWSzgaREe69Vb13Wof2e23C3fdyWsu4lV6/J0T%2b0FD2q9PurCPkL3chBAwAA6BIsHo7Hn3OiCnlpoAMsRVa622wddQApLZan5vuapagSWiwAAAAtYgm3PSxNIq5Fbl8Oza2WalY0BLF3N1wTDWb8riXNlUproOnURxhaLAAAAC07mKXqenkcwrV0A91lKXWkAtvumhIZZGkMwTs56/BeODQDeYQAAACaizqCNnE7z%2b0lqyySNqdgmopNjw5npTsXnC5oaQDie5ZfbHxc/DkAAABoEmo9XstSncZjVllvZM5Bhpqto86ZDcLZ6c4ocvIdy08JKS02zFC7BQAAaBoSdVvbZmutTK7irEx3e9ntXEvaIz2hbkMpoe9ZfoRFDssZltqfAQAAoMGo5mRFS4q0Gu5XTRhOaaKRbhe4bek2fw9Zp6xLaHQVhwV5fgAAgCYgvRR199zpNrEGZ%2bVfbhe7bW09qyNGDsv3Lb9rSg6L0mNEWAAAABqMCkR3crvaamtfltbK9W67uy3cw9ZKDssJVRyWn1gSmAMAAIAGobqVzd0udHvDklJtkbPygdtfLUVjupuKbS0s4naK26ic9dH/f6olwT0AAABoAHI2JPB2vNsTljp%2bipwVzRCS1so33Fa2nik/X03pdqylLqFBPF4AAACNQUq2kt1XxGSCVddaecDt2z3YWRFKn6lLqKjo9lQcFgAAgMagrp5tLdWtKI1RlApSke3zbqe7rWPdX2ulCNWm/MDyU0KKvJxpFN0CAADUjcThpLei4tCXqjgr%2bm9vuV3itpUxI0eOiNqWxxQ4LHJoFuYxAwAAKI/qVpa1NKBPKZ5qSrbj3W5x281Icwil0RRpyptcLUfmZNYKAACgPnTz39PtT24fVnFW5Mw8ZGlG0HIs3X/QOvw8HLlKa6balpNwWAAAAMqj2hNJ6P/aUpqnWirotTicN7SeXbfSlmXcflXg7GXTmpklBAAAUAJ19axmqcPlGavewqxajCstFeYuwPL9P5pGLYXfvNEFirB8hzUDAAAox2C3Q91GWPVU0BS3u63nisMVsabb5bFGldbuXbcTcVgAAADaz7xuO7r9wapL7091e9JSp4siMn1Zvv9Hjtt6bsNjnSqt35tuh%2bOwAAAAtI/%2bllqYf%2bz2oiVNlWoTmH/m9mlLsv0wmz6WaoBudpues4Yab3BkOIkAAABQY0RARaLHuD1i1etWVH9xrdv2bvOxfJ9A0abPuz3oNiNnDV9wO5j1AwAAqB2JvO3gdo3l64a0nRN0j9v/uC3N0lVE0apdw/nL67BSOm0vt7lZLgAAgOoofZGlgl6x4hZmRV6ecjvObdX4u/BJFDU5yNKYgryU2qNuuxi1PwAAADWhmTcHut1r1dVsNRfnIkv1GdSt5KP5S0e5vVrgsChKtT0OCwAAQHUygbjfWf6QvsykJ3Kn277GwL5qSJZfOjbvWn6k6la3jdx6s1wAAADFqND2225PWHGhrQpHn3MbZrQw14K0bM6x/MGHimRd57Y%2bSwUAAFBMprnyR7cJVr0rSCJonzOmMNeCVG4lyz85Zz0lyKexByuyVAAAAPmoWFZFs8Msaa7MKHBWdOj%2b3ZL67ZIsXU2sY6ntO89h0UBEzV5ahqUCAADIZxG3fSzJ6k%2b2YoG4l9zOdFvd6AqqBdWkqDZFU67zROPesaQQvDjLBQAAUJl%2bltRpz7c0ibkoFTTR7SZLImjzs3Q1ofoepc5UoJwXuXrbUu0Qk5oBAAAqIEXbZeOwfLwgApB1sjxsST5%2bWZauZiQat5slnZU8TRvpsxzmNpDlAgAA%2bCQqmM2GG0604uiKWnJVOKpOln4sXbvWeG%2b3pwvWVuJ7exgFzAAAAJ9A0RUV2p5kSdG2aLihNFfuioN3EZauXSjNowjWSMtvEb8/HEfawwEAAOZA6QfNt7nNUltttULbU4xC2zKokPZkyxfim2qpIHczHBYAAID/Rk6HBN/OcnvNilNB0mS5wZJsPPL77UcaLBe6fWD5onFKya3NUgEAAPw3C1qaDHy7pXRPnrOiIlwV4yqloULbXixdu9B6rWvFGiyKbl3qtgbLBQAAMJu%2bcYiea0n/o9pwQ80V%2boxRaFsGdQhtbcUtzYq8nG10XgEAAPwXC1sqnr3PiqcxK7rymKV22yVYtlJomOTusY55Rc3SvlF90GIsFwAAQELRFYnEqabiPavexvxLtw2NYtCyLBQO30sF66z/doghxAcAAPD/qDNof6stuqJ5QQdZishAORQ1OdXyU28SknvEUhRmAMsFAACQOoMULdFU4FFWHF1501KNi2pdqF0pj3RuFKWaUOAYqq18KOsMAACQUKRE0ZUHLMnsVxOJ29NSNxGUQx1CG7jd6DbF8jVY1DK%2bvtGBBQAA8J9uFXX6/MZSbUotInGKDiASVx6leHYI5y%2bv4FYdQorArIzDAgAAkGopvm5pAF/RgMNMJG47Y65NvcxnqQbomQKHRYXPp7ktyXIBAEBPR9GVz1rSU3m/wFlRAegLbt81NEEa5SSe4PZGwXr/01IX0QIsFwAA9HQWj0NRWiAzrDi6onoLSfDPzbLVzRC3X7iNtfyhhw9bmudEhxAAAPRopJ%2byniXdlTFWXLvyfEQElmbZGrLu0rspkuRXIe5Nbpu79WbJAACgJyPhsv0saapMteLOoOFuOxq1K42gX6zlCMuvGZpoaYaQhlBScAsAAD2aNd3Oseozg9QZdKLbcixZwxzFAy3VqBQpCQ9zG8xyAQBAT0ZS71%2byNJF5shVHV/7itoshD98oVDek1vB/Faz7K25HWVIfBgAA6JEoxbC82%2bmW36WS1a68EofrSkYtRaNQZEuaNx9afsHtPywV3FLgDAAAPRYdgur2UVHnxAKHRZEXRWAUiZmXZWsIEtvbxO1my5/XJKXhP7ttaQyWBACAHoqiKyu4nWwpejKzwGF5zVIUZlWj8LNRqGhZYw0eKFj78W6XuK3OugMAQE9Fmh5buf3B8lMS/47b/z1uexm1K41E85eOtFTIPCtn7VUErSnOCPQBAECPRToq37KkqzKrwGFRQag6iFRvQe1K41Cn1Vluoy1f4VZy/SjcAgBAj0X1ExpyeLmlwXp5zoo0We61lLrg0Gwsn4r1Lyq4/Zvb593mYrkAAKAnsojbIW6PWHHtyttu57qtZUxkbiRyQDSh%2bW5LhbV5hc7XuG1kRLYAAKAHouLN1cIRebfAWZHyqpRv9wkHBxqHaoH%2bx1LKJy8dN87tPEtt5wAAAD3ysNzd7S7Lb6eVaRjfb9025IbfcOSEnOE2qmD9X3c7zm1RlgsAAHoi6jiRANzIgtv9zLj9f9NtSZasoSi1tq7blZZfv6LP5XG3vY2ZTQAA0APp77aF23VWLBSng/R/3ba21P4MjUP1K1%2b0NPBwhuUXO99iCMYBAEAPRfNoDnZ7ouCwzNIRp1mS4YfGIv0V1a%2b8aMX1K78yJjS3EkW%2bBlkqMN/Ykkgi0S0AgA5AdShruP3Miqcyt21lRoa/8Szv9hO396xYWfgES8MRofmoTuizbse6XeX2pNurbg%2b6fSccGQAAaBFKRWxnaTbNlILDcoylgXwbGOmIZjiN61nSX5lk%2bfVDj1qqX0FZuLnIIV/b7XC3ay1FvSp9Lm%2b5fdVo7QcAaDq94rZ%2bjNtzVlxs%2b0Rs4AuzbA2nn9suliJYeforciZVP7QFDmPTnEal5ZT62d/tYrd/FjiQbYX8FJ2cjyUEAGjuJq2IidqUxxVsyh%2b53eg21Ci2bQYLuX3d7dkCp1Ht5BcaAw8bjZy/xSwpPB8Sjoo6sT6wYvHEOdOl6rCbm%2bUEAGgOKrb9iiUhuOkFG7JanU90W4Ylawqajv1Ty58flNWvHG/UrzSSrEZFs7Oud3vBUifcrBodlbZiihqXsAlLCgDQeHRLX9ntR25vWvFUZknFS1SO2onm3PB1u5fc/gTL1195zG0/o%2bC5EWgN17GU4tS6a9BntdRPnilVp0LcSyyl6/qxvAAAjUXaK9JTGW5pPk3ehqyulfONVESzUBphL0udJzMKDkUVRW/JgVjX866Iioqb1T7%2be0t1W2UdFb0zr8Xn8v1wVhgECgDQBJS3P8KScm1erl7/v%2boqjjLmBjWLpdy%2bbSntlnc4ftDGaYT2IQdPqsxbxTqr6%2bdpS6mfWmtU5ow4ylFRCum7luq6lsaRBABoDmrDXNOSCFlR3YRunzcZxbbNQkXPEoG7OJySvM/hFUvzgxZjyWom64DbMhyLm8MpnGzlIipyVJT6%2baOl0RRK4w0yWpoBAJqKlDq/5HaHFWuvaGrz2W6rsGRNQfUr27v9yfIHTioK8IDbl40ulFqdQLUnqwD2aLcb3F6u01GR3sqtNjv1swiOCgBAaxhsKTz%2bqhXrS0io7EAjN98s1KWlQtp/WnGU69q40TMdOx8JIKqLTRGVYxrgqOjvvRlOvcZR7GAptYQGDgBAi9DNcH1LRYcfWPV0kHL/5OebgyZkn27FXVqj3M60JN1P0fMn6R8OuCJVJ1kqglUKTdpB7W1Plkm471%2bWol4/cNvWUtv5XCw1AEBrUUvnHm73WfGgQ23aw2KzhsajaImG6V0dh2telEtF0YdZEpeD2SjSoRqVoZZSNbeG4zfVykVUpKWiWVq3W9IckqO%2bhBFRAQDoMNSVosFtr1qxFL/qJvYx0kHNQnVEu1kS7cuT49fhe5vbNkbRc1tHRTUqEnxT8auKYJX6mVLSUdHaq/Bcwm8aPrmTpa6f/iw1AEDH3uo1K%2bVSt/EFm/i4%2bDPrc8NsGur4UffKKwWfg%2bT4NXBSg/h6ejqofzjbn7M0sfqGOh0VOYNvh6OiWUAqaib1AwDQSVCXidJBIyw/dK6oi6bTqo12CZasqY6j2srHWHFa7vs9/HNQ/VTWnqzRBBoA%2bZLlp9GqmdJso%2bMdOMttV7dVjeGFAACdiiwd9IYVDzqU%2bu3W3DabhtZ1R7e7ChxHHaxSv923hx6mKg7XZHC1J6ujTcM369FRkSM%2bNtZUrfpq61%2beZxwAoHMeAJIlv8yKJzNLe%2bUct5VYsqahAloV0j5t%2bXVEOphvsaT70ZPSckp9qTB8XUvTk6%2bw1PZdVkJ/RjzvmsCs9NrelmZozcNjCADQOdEhoAGGIyx/MrOKbZ%2b0NGuFYtvmIWdQdRNFKsPvRSRgNesZ9StZREX1OgdYGiaoZ/FDK19MqzVUROUCt/3d1jAGeAIAdHqUDlINwMiCW702eXWlbGd0STQLrauiJupuKarD0GC%2bIy3Jv3d3R0VdP%2buHo3yZpWjIOCs360fPtvSFHnI7z1JEZS0ccACArnMorGPVZ9a87/ZrS3OGoDnMH7f9xwsOZMnB/9VSHVF3leNX1EhKv59yO9jtt25PuU0o6ajIFI1Rmk2pHykIKzpF6gcAoIvd6lXkKVGsImEtRV8UhVmSJWsay7mdaqkDqKid%2bfxu7DjqeVQLsTp0FAV5OH7nMsq0%2bjuq91Hn0HVuX7dU/0JEBQCgC6K0wqFWPLNGdS1Sv/0yt9KmoUjXJnGw5qWDFF143u1Y637pIEVV1KK9dThtd1qqM5lRwlHROk2MtdJ6fstto1gzZi4BAHRRVrSk4vmOFc8O0savIXuIxTUHOYJftaQinFf4rDoitTvv2I0cx6ygVqMIpO8jLRW11n9s5QcTvmBpKKTUbjezpNXCBGUAgC6MnA/JmN9gxUWeb7mdbCllAc1Bww5PserpINVzrNsNfl%2blfpRe3DIcCznEr1h5LRU5ea9b0gmS47NJOEI4KgAA3QAVNqoA8cGCW71C8o%2b5HWS0fTbTcVQnjHRFigqfX3P7nnVtdVulZJSa2dDtKEuREKknK4pXtk5FayYZfU231gTlpYxIIABAt2KwpchJ0a3%2bw7j9KmTfjyVrClKrVYvtPwocx%2bnx379iXVfdVmksFQsf6PY7S107H5Z0VLQeijg9YklLRWMlhhgt9wAA3Y5ecau/ylKBYt7B8E7cXFdgyZqGIgJKY4ws%2bBw0yO8P4Th2tTSHfl6lf77g9lNLdTpqky/Toqy/o4jKE5YE5BT5k6Dc/MYQSACAboluu5qZco/ld2LMiBvsAUZ3ULNQikQ1KZdZcTpIdURSt%2b1KYxGUllnUUuGrUll3WBrvMN3K1anIsZYei6IzEpL7tKW0Jo4KAEA3RjNrVEPwshUPO1TXxuZGqL2ZjuMucZgX6eA86/Y16xrtzHIgpHWiCN43LCn3qqC2bOePuqPUOaQI09GW6l9oUQYA6AHoQFnF0sya9woOilFuZxnpoGaiAtrj4kDP%2bxzkyGRTsgd0AQdMz9Y%2bbhdZqlP5yMoPJ9Tzebfb9y11FC1idP4AAPQY%2bsTtV8W0UwoOjJfjRrsQS9Y0x1Hy8xp58H4VxzGbkt1Z0x%2bKwKk1ewdLNU8jLA1wLFunMt7tUbdfun0xvjZRPgCAHsZclupX7rXi%2bhWp2ypdMTdL1rRoxG5xuE%2bz/HSI6jYO6qSOo%2bpUVFC7jaWOM805erPg96lmam/WcMfLLaXAVuf5AwDouai%2bQEPlJMef11KqyItqDzY1QvDNQumg71pKB82yYpXhzTvZ59BWT0VRuBvi9yib/pGDo/b6W2NNNLVaBbsU1AIA9GDURquw/dsFB4jC%2bWpBHcJyNQVp2khl%2bBorbitXtOJM61wqw/Na0lPRZOlLw/H9yMrpqcjGWNKY0fOm1udlDc0fAIAeT684bC60VCdQNJ1ZxaCLsWRNQe24mVhcUVpOdRz7xp/vaBThUVRoe7czLKnLvl%2bHoyLROBXl/srSHKU1jTZlAABoc7OXfPntlt9mOjMOUtVXUD/QHBS5%2bpEVR7mUDlIr75bW8ekgqeuu43akpfSP2ozL1qloXpDk%2bBVdkp7KWtZ11XsBAKBJqNDzQLfHLb%2bDI9Nf0QA5ZrI0x2mUYu3V4ZQUdQdpknZHtpXr81/G7cuWIiFSmB1f0lGZGb%2bTNGdOslSXsyiPAwAAVEKHz2mWFEeLagrOdVuR5WoKkpFXmuchy08H6XB/0u0Q65juIDlV6v7ZNp6XLP1Tpk05U6mVs3OepcgddSoAAJBLJgP/%2byq3ZHV7HG9JpAua4zRKCO11K54dJLG4z1nr9UdUR7KeJSXkmyylf8rK6c8M53h4fL11janfAABQBR18Eva6u%2bAAyuYHafot84Maj1IsSgdVGzophVeJxa1srStC1fOh9JMiIJqArIhI2TblTPxNUSR1/2xnqWCXFnkAAKiKChvVivqU5Yf2p8VtuDMUenZHVMS8lyVRvryi1VnhLCgd1Koaj/nDkVJnmMTf3rb8dFU1U3RIUbqr43dYwyjeBgCAdqDD7wRLAl15h81YS1Lxq7BcTUHdQadYcTpI7b43htPYzDoPpQglIqh2Yk3kvsySpspkKx9VkX6PFJSHuQ11W9BoUwYAgHaicL8GHo4pOHTeCKdmCZar4Sgd9BlLrcoTCj4DOZQ/dFu%2biYe9Ih6aTbS72y8spW7GWfmiWg1o1OypKy1F8VazNAICAACg3bfptd2usPxWWh1Wj8WBgy5GY5HjoSLmwy11/%2bQ5BqotkgaOhNTmbZLTJGdUk58V6bnLUlSkbPrn3%2bHo3G%2bpm2ioIakPAAB1Oiw6TG6N23Be/Yo0MjTIjsm4jV9/TWY%2bLxyEvMP/g3AqN7LGa%2bBkkvpfi%2b/xkpUvqpVJeFC1KoqqaDijBhVSqA0AAHWhFMCulkL/ebd71U6oe2X9OGChcaiodeeIaBQpxL7q9j23wQ12lvT1dnI721IER1GRspL6igKpVVndZpkA3CCeGQAAaJTDopv1PwsOIgmDqcZlBZar4SgNo9qgF614YrEE2vawxqSDlJZRUe2n3Y6xpF78muWPZKi1A%2bgFSwW6%2b1hqux7AxwsAAI1CdQXfcXur4DB63VJb68IsV0NRe/gGbpdYcbHthHAE1mtAtEIOjwpfVY/0W7fnrb70j6Ix6iDLOoC2sKTAS60KAAA0FEmh/9xSFCXvUJI%2bywHWnGLPnozqOr4Yh321dNB33Zau0zla3FJR7emWimHHWvn0TyYmqM6l6y0NK1zNqFUBAIAmoNu66lJUaJmnsTEtDlQpkjLjpbEsFY7IS1acDrrHUp1RWWdAf0%2bTjw91u85S%2bqfsROUsqiI1XnWOSa12h3CGqFUBAICmoFu3RMhus%2bIOoRss6YRwIDXeWVQ66AMrbg2%2bKP5se7uDlJZZKJzNM90eiK/37zpMhbVKH/7JZs8AIvIGAABNRQJeX7I0IygvNaAOocsMhdtGIz0bFdH%2brcBZ1GfyjNuR1r6Bk73i66td%2bghLgwrftPqiKjLVuig9qHlCuxgzgAAAoEXoZiydjGodQrqdL8dyNZTlLQmqjSxwFpWm%2b4vb9lb7zB05oStaGlR4YTgYk6y%2bWhXZ%2bHCuTnbbxFKXEQBAs%2bgT%2b5nOKck/qOljyTiLpO20Xphmkg2J/7ZQ7JVcpLohOnS%2bacUzhDJJ/oVYroahdt%2btLEnxf1iw9qPcfmJJKr%2bWl3sxS0W1wyzVvdRbVJupHCsF9EdLNTCrGO3KANB45GgsEQ7Ipm6ftyS5oYudorqqtVQq%2bk5LWk9/t1RHJ4XwRy3VWt7idrmlRhLVB%2b4fe6KEMdW0MNAaL7wJLUItzSe6vVNwYCklcQA36oaiAlWleZ6zfLG%2bbBzC4TU4i/PEC6kJyFKX1eyeejRV2tYvqSD4V5aKfpfi5gIADUBp635xriwXDorGjiiCq2numlovXac34%2bKVpbPbewFTJ%2bOEuHg/HBcviWR%2bw23HiNAsF2fh/HEZ6xNOTb%2bw/vHPvvHf%2brT5M3OHE6S/v2pEeaj1bBLyZn8UD0Tehy31010MSf5GoYdchaoXF6y7bGJEYDYpWPsB8bJJqfYctwctFfA2IqryQXz237c0DmAgHx0A1IEOcqV3JKWxsdvelhSxL4voiByUMXHZqncPq9blqOYBRbcVPX4qojbab9XgoKj2KfGz6Z/DIsozLPbD4y01HBwa/1TJxG8j%2bqN60DOMjERTWDYOuvGWP2lXM4a2MMJojUIH/15xgygqgn0jbhuV1IX7hbO5VbxUf40/P7UBL7NeZKUIb3Q70JJibb3OqvLQGgGg2ppFuIEA9LhL2sJxUdPep4nzwy3VTr4X%2b1bZafDNtJmxR0vFe3L8M/vfH0XkZlxcLme0OTOzMSpkJRqM6hF%2bZ/l1FPpgrnVbx1AubRTLhaf%2bphWnYpSjVeFs22LbPnHgK%2bpyrKXw5sh4iRrxgurzVppKxbqKqi3aAEdlpfg95Bj/OX6v31gauImuD0D3Ze64cKmGRErpqkFRmvt9q79jsTM6N6o5vC2iMEPDSePcbCAqbrrS8kXj5EFKJ2Q1lqphNw05G1dbsRT/uHAk12vzwA%2bIaIfCqApbPh2efaNeuMmxmfw4XrZBdToqcsw01PEstxGWhiJOm8MpU/RuTR4LgG5B73j3dala29JMMc2guzMuVroYNzPVk6V7Klkzv6eiKhLj/L3bnrH30ZjQhIdLYnA3W36Bpg5VKZkOZrkagkKE%2b1rKcxYV2ypUerjN1l7RPyXwd1JEKEZbY0Oo%2bpz/FjcDPRNlheD6xbOyraWcb/azTq/yvffn0QDosijyu6ClVmPpeg2zJDaqOWWqhZthja8/mRRfWxchNQaoU%2bght9st1aJcZalbSFEdqXsrBXWX2%2bPhPI2JS1o9zkw2nf6euJjtGOsATXJYPut2R8GBohCXCoqWYLkagmo4VOT8LyvWXhkeh77E34bEgX6p1T%2bosNLLPyYiHSoek3z/3CV%2br0xRV8W5apPPpj9Pr/HnUETpqzweAF3OUVEkdv2IppxrKZr6pjWmS7Ft88fE2FMeif1FaWXViUhHTPPYNouozmqxZ6qjcbG47Cm1re6dZWIPXi/2V%2b2ran3%2bpaV5aHJoFGVWl%2bXblpoiJoRNjAiRnKQ34s/dFn9XdTkrG4rfTaV/eIT/KLity3s8Bq%2bxISj6sHU4Ix8VRFf0UqpK/dOWimrlMGaDChsZVcmKwy6LF04aBWUKq/WSKrV4SHyt50o4VdNjXVbmMQHoEmeHpBnU6aP24N/FAV4tmtrePWFcOA93hmNwZDgaa8b3nyf2rHrqRHrH7zN/ODbLW1IIV5u1ui/3jr3t65YGvMox%2b0L8d/255eJiSa1KCw7Q3eJByzsI34gb8/wsV90sGlGMpyw/RKpbydPhsKhITaHN160x3T9zSuwrhHp2OEWD2vnC9QpHRbcZ5WxVUPuQlROqmxG3masiQkMHEUDno3cczCqi1WwyiYleG/vVOKs/7TMr9iXtBdJLucZSilqRV6XDV4mLc2co1O%2bFg9J65J3ubsWy/K%2bEd4nDUh8KnW5gqVd/XMELK4dlZERUMkn9RheITYyomgQDFcqdq50vqjatVSMq84twVN4vuWEp/SVhwl9byn2TegTofHvXAhHV%2bHJcplRG8K9wMOotaJ0WFx3td0rLKM3zxXBQFjDkNCBQrcLBlkL4eQ%2bTaib2aeehBp9kYDiH91nxoMMZ4aRMsOa0/U2In0HCRwpntqeSXWHTrPNHnUQq0n2vpKMyM5yc2%2bMWpc4phJYAOg/Z5UTp3q9YiqJK3O0ta0zEd2o4PX%2bLC8thsQ8saYiUQgX0MGpOw2uWH6p/LA5aHJb6XnwVep0eL3utLXmNdlZULKZc8FGxCdUaWtUNS/nioRGVkUidRjmUyVXPjAjTYxGdUVRleaMFEKCz0LtNREVR1HPDqRhl9denTIt9SBdhFc6eHNGU1ePCwtgPyEVpHhUSvVrwgCl1sL0h8FUP/eOw/6M1J8VTi40NR%2bPI2IgGtOMZ2SD%2bnnLKL1r5LiWJ26n9UHnvA%2bLnGGjkggE6A33DaVCnzX5u51tKTb9TZ0Qlq0153VIXznmWOnvUoapC/3mNujWo8TBSB1Ce4qq86RFx2OL5lkchThUuP9ugyEl7voZuNCqcllDd3hHNqOZ8Zh0A6lJS/ZJ0DFRnUlb0SVGV0bFZaS7Hlkb6B6AzRVQWDEdFjoREKR%2bOS870OvepCRFNkSaL2od3CCdlABcVaC8quj2iisPyF7fN8YBLo5dSYw0utOJBh2XUG2uJaKigWpOWVdW/SJVNQk6pOpmURz4qIirPxaZTtp16SmxYl0VURYV0pBcBOgdZp58uM78IR2V0nRcr/V0V9qt7SCrqR1vSSKE2BeqOsBxe4LAoDDg8PG%2b84XIo5aG2vL%2bXvK1kqo7T4p8za9xMJsXmoyFjG4dzWnTDUsRDqZ9DI6KiaFC9AnXKeaub4ITYsAbh%2bEI3v5z0Dutrnbu7RZcGaR5J1kLSBn8LR6We1mTtUWNi3/lNXFAUpV3Y6PSBBnnXirCMtHxNEOmArMtSlUKpFynH/txSNXwZdceP4rYyyWqfaKq/84ClgrYNqjgrc0XUQ07VBW6PWjktlTlvV8/E11Mb5ApEVaAbo/TGonGxk6CY6gKV%2blT77xmxx27QSaILfSPSoU4/NQFodMbbVl%2bNiv7uO%2bH0aK/bI6I2uqxRSgAN9bLV1vyG5WtkXGkMPmwv2pikJyJV2x9HtKK9G4JSKVIZft1S6/CkGm8/%2bswetKRloA107oKNa9nYYDWc7L4G3LD0M6uAW3M7Do/nZh4eB%2biG9A0nRene3eNyoOf%2bkXiPpkTEYUabi4fesR07INrQK97DFeL7K%2bqqerJ625MzR%2bWu2Od2tSSJz%2bUEmnYzkMbKiwUP5NU4LDWjULDCn23n6bzZTidgajgoT4bjoc9GbcC1pJO0ST7UJrIyd46Tqnka28XGdbc1pgtAURmlvTRGYBtLMzwAuqOjomd7qKXaDE3nfTjeoSlWWwH6FdY6gcQBcTGRozLMkqzB21afxpP2ovfDAftZOGzM0YGWPMxKBTxfcADKYVmVpap6g8lqQA6OTeyfEe1o7yagSaI3Wmr9lcMypgZnRQ6DtA3uiE109Qq3HEV9VJ2/bWxct8X3q1dXYWo4VdqEDwjnFk0V6G5OyvxtIhRK9/zZ0oybiVauIF0FqWs18WfuH46KLiaa8P4nS2npeh0V1aUp9aN0l9K9q%2bCoQCsjAjvHbT7vAb0qDkCoTFa81rYGZIy1rwZkks2uqFdo9byIfIyuYTPMpi1rQzowNqk%2bFW6EKnr9lttNlmqWGqFUOTE2r1MttSovahTVQvch65rb0FJ7v4bvKYr4brw/9UoUKFW8RpN%2bZr2Px8f7rvEq9RTQq5bxzdiTFEHdNfa8%2bY1mDGhxZGDjuMnPynFYbgovGj5561LEYqe4bUiy%2br0SEYvR4Wxo0OFe8c8/R/SjllSM/v7wiOwsNcdnqzZmtSgfa2lGxwvWGOE6RY4kAHeZJcnuIURVoJtd5LL2fhXMKnr4hNt4a%2by0dL2/N1tKI9e7j6tGRaneoeGo/CHe97LaSZmj8lY4KrpIqd5tsCEiCh2IPOU/5ryIetDviBsGJPqHY6CN4QeWZuHo9jGlxIYwKdZeh77a/1RPdEM4PrWq10on57CIrPSOG9ag%2bHr6/y%2bP6M34BtwIVYujkLCK7CQCpVodlGqhOzkqC8ZzfXibd%2beDEo5Kre%2baal/%2bx8p30/QLJ%2bJzluQDhsdlYlIdzlXb1M85sT8p1Tsfjwh0NCr%2busAq11vogZc08xYcSv9J/QwOR%2bV7cTMqO08ns2ci%2bqGJyWoFvC42ilr%2b7vsRmdEsqBXCkdJN7TOWZPSVylMdTT2ib3M6V/p5L4qfdbDRsgjdw0lRamNIHPrHxiXi%2bZLRCb1rE8PJmVLD39d7fEqJKEtWN6f3XQX%2bqnl70dpXN1fJUVHEVpIIvwhHZU0j9QOdCBVMfdvyVVjVprd9Dz6cdINZOtbge7GZvVTnxpBppdwaDsdh8XXfrnGDHBeRmH0tTU/O5n9IVvt3lsa0T7TGhK1nRsRHkSQNPvysIatf64GSRbz6hcM7T7xvc4eDOaCN6d/7GjVArd771FCg4lGlPBQ5fLNGRyMvVao0jAraR1gqcq1WKza6hMMyV/zcqpuTgvZj4SCVjaDqZ1Rdzj/CUdkv9pNBXEqgM94wdrH81mbpauxmPU%2bpUC%2bqUj/SUjkpIiqvNsBRyVIrKny92FJrcdaxU23DmR5RnesiyqHIyuqxcUl%2bXwW/jUj9tO0SU2Hgr%2bP7LW9Ia2fvTL9wQJQSU62QxLg0kVu6HJuEgyu580PjBqxwvYS6fh6HgkLtZ8c/f%2br2I0vFy6phUj3SrvF15JDOxw234Y7KirGvae3L1p9l7/KHEZFRVFOicUrxXGpJ36roa86Ky8/RNTosA%2bJ52Dmenftj3yirnTQ9fu/747ncPRyh%2bXBUoDOzktstVjl18H5EYObuIWsxIByVLSOionVRlf0ka9zgQkVX1JmllvF7Yo2rpW3Ujvi6pQJARVY2iwNRB97f46Y23RrjqEyLaI/qY9RZpLDzgj3w0Owdz4MOuMVjM98onJF94qCRk3FBRLzuiM1fn%2b3LcWCNittvplY8LefQ%2bzgcxEzZeGx8Bs/GM3hGXCyWJApT17utA/%2bLlrpd7rDyKq9618bEJUFRzQPCWV02HCEVzk%2bo4WvcF45CNTVqfd0d4jm4y%2bpTp50VFxtFZpTiPdBmp34AusSN4/tWuYNEm6jabLuzEFiveFlXisNoWBzW71lj2n/nTLHoAHs6NoxaalY%2bjoiM0kZKyxzbJqLSCC2VtgdnJgCnEPm28bl35%2bhanzgslOZSl4W0MTa11BFxcEQ8fhqO4i3hkGgg5Js2u05hmjW2e6TIkfwgDqyDjNRcLfSL6MU64WQqkjDCyoun6e9k6ZMLwlFZK56h3vG/dYl4rYYLztiIxKyf8461FXk8JSKx79X5vn8UTvAVEQlaLy4jOMHQpRhqqaiy0gGrw3uNbvp7K3KUDQE7Kw6D10s4KlPjZjy5yuGVhZDfqzGyMjU2V/1cl4X9w%2bqb/JznFCkqcFVsZKtb92lVbltHMl8cYGrV1xRy1S%2bohkjpGqXo1GWhui2lSN8KJ/5jq32OUytNz5Ba6pdm%2b/oEmXT%2bRvH5XtrGwS/rqCgdK6XYcyPKuXYc9hlLxve6z6p3DepZUlG8oteDKzyvi8bzqRZlKWa/WuflaXJcehQJPMaSnMWiRuoHuigLxYZdKR/6Qtw4u1NKIBv69yVL8tIjYkNq72Y2I25c0rK514or9WfZf4f/q%2bWedZNSge0rsdkqIvMva3zUR6FttTCe5raVpZqMrnrj6hNOySLhiOrAklbOgZZSfD%2bL26XSAQ/Fs62Df0ILIyWNNjlVSksMYRv7z%2bevz15pzG/Y7MnjZVK6M%2bNdVmrv9ohyfN5S7di8c7wj%2bnd1GV0Z71O1r61Ly00RxezfJtKrfViSBGqrvjqieWW1k7L088sRnf1WG0eF6cnQ5dnWKk9u1guj%2bTRdPcc5V9xGN4sowvkRrXi3hBOQTSVWR47ywEfHLf0RK1aVzJyWmTVsllPjIB0TjksjCn7nvDW%2bFhvjwRFV6Qq1Sr1iw1UYfoE4oFaLA0OtmCpyPTsOq7viwHrD/nvMwSxrrVMxM773tHifxsZtf1Q4oW%2bEwzw2PvMP4zmaEs/BjBp%2bZn3dU61nDpzsE8/CZ2y2/pDezTJF6DPj7z0fB/0JEYEebJUH%2b/WO5%2b/kcDBqKYJ9ORyg5W22JIFGe3wtLo6Px7NQ1oHO1GlVS3NS/PyLG6kf6EbIIfl5zgunFtyVuuDv1Dtu3EPipq1N4pZwzD4qeXDpQHkyNsUj40akXPCP4%2bBpVHFudshNb/ABm80tGhGb7BadPKqidM6CcWCs1cYx0Y3xHJtdvPxUfK5j4rNt9LoVfVbTwqH8IJyQN%2bLwejSiV%2boy%2b42lFI4OkKPc9nfb01JaSjf3reOzUJRrx/hvB8WflUihUhHXhpNdNBfmiTj8uju9wsFeNp4J1RtdEw7qxJKOyth4t6%2bIdd8s3o2i1Mmg%2bAxvC0ezlv1DGkpKQy8T%2b8fX7b9FHqdbfaJv98V%2btHN8D9RpoVuyfkQJKukFHNiFPPR%2bNjuHvW8cFLfHQfJxyY1gXGwol0REYr24Gckh0oTiG62%2bmR1llDLba9pQ2wrAdRZZ/V42uwBWzslC4SAr6ndA3HJV5KgaE6XfXomNebK1JkKSRcamxmcsx%2bTVeFfuCkdC7crDLKUido9brd6nVeMmvVQcbvPFTb2vFadZK2m5DIybsm70X4oDekLOoXiodd/Ornni2d05okp/iWfiQyunSpt1zSi6cUjsG4tb9dSJPpt146L3Wo37iNLGSk3uFRGVi8JJGldnBE%2b/w0PhGMsZXjueF4BufWs5JB7%2bSlGW5Tvxzz0gDjvVpqiyXp1P14eTUcvU4yJRJak/KoW0n82eUJodBiq2U/HcS9b6VEN7HK634zPUz7qhdeyU1T6xmeoQXzMOd7VpHxubuRyAe8O5ej0281rqfhpVgDwhHKIXwinRgXhZRHROCCdK7bFbxsGwQjjIc4dz0cpixsFx6M2o8HucaZXTGF2VuWIP%2bnz8bnfG%2bznNyl9CFAWT1tBX47NcoB0Xs0HxLNxr1dPKWRo5i85earML6MumfqbGc/pg7E8HtLlIUVALPYJ%2bsRnMqHA7Vxi%2bM4mH9Y2DT06EwujHx2YgB0Nh87IzNabF39ftWW3daon8lH2yjqdXhHRV9Pi%2bdU5nZUqbqMqecbi2KkScaZkMjINA4elNwznRs3RuRKa0cSuv/16LoiZZtGRCHBhvxcGlnL86pdQx9s34OYeGU5WpCvePw6B3J4tgHFAhwqff8ZfW9evP%2bodjJi2Sk8PxfsPKFaC3VXY9PyKwa7bTUcmc7g1if6hFpXpmfD5vRXTu3ZLR3rYSBIqoXBgXqTXjPcNRgR7HfHGjrFQstmUH/2y94%2bDInJRjIwx6X52bQNb%2b94rNLlZT3cuQOSIqbdFN5qBwkKZZ53JUZsXtS7l1DSvcODblZt%2bAFw2naKOIQqgIUoq%2bv3X7azgGL4WDN7kFUZNZ4WyPju%2brz2p4HFY6/FSArS441SuoRmbZ%2bFznic2/q6RV5BieWOEQ1/twdgdH1Mq%2b59qH1O0l0bwzItJVNq07JZyFERHF2yP2kLKF5tqDlHq5vx2O08zYJ%2bqprxofURqlr5SaXseY9wPwn037fyu8MHpZ1u2AqI/SPavHLevIcFK0%2bYy0ckV2baMpOjyVOlIB53Fxq17aisPpvSPq8otwlDpLOig7oBVV%2bVVEVYZY41IDveLGO29slEqJKQytMP2B4QRcHo7SM3FITGjB%2bkyPQ2l8OGovhxN7Q3xGx8dteqt4jpbuhjdSRYFurrA2qrk52rpGO2uvcKzlPCpNo/qQeyPiOaXkc/FuREvl9Kj2Z1Wrr75D7760qX5qjSu0ryVVKYf72tj/Noo9ms4fgDZOy00VXp5REVloRnqoX2wmg8Mh2C4OQm02f4wbulr26hmhnk1VfTlu/frae8X3G2S1pUy0Nnt3sujKR202tcPCsRxY5%2b0r%2bzyWiENkmzhITogohT4TdcI8G4fKeCs/QK49Tpk%2b/zHxGf49fg6lP74Xz8u28fsr2rN43Nb7Wve/iapj5Z0Ka6bI4ec6uaMyMJ4xpWBVV/JwPE9lonCZo6JLjSQHdm6g494/nq9bSjpR7XnO9fVfi8ujLlObGqJvALnMHwdTpU3jiXBclmjn7a2XzdbTmDtuVLodbhARFLUUnhsvqar3X7fZAkr1HITT4pDT17wqNoBt4nu3x/nKbljn5hwOrbYZ4UTqFnlaHEyLtfPz6BefxXzxeer32zqcMhXqKld/fTgHysGPtvrSb%2b0JoeuzHxcO0aM2u01Yqa4D4jNcPaI9A3v4rVOpikuscpG5ol7LdEJHZd543vaOiEo2H6tMx08m9qaCXNXi7RqOSiP1afrEO/Z3a57Y4OR4z%2bQUfcdSKn5xYwApQE0HtG6teZLw42ODUIuhUhBbxO12zbgxrR3OyKZxM/liHDQKUw%2bL29SNceA%2bFQfTh9aY%2boYZbaIpf4nvt3v8fGVVH%2beL30Ffb6p1rLOSCdip%2bE76JJpEW61VOYua6IBXeFz1LQqVq9BULeCXWWoDV/pPKbf3I3rT7HoTHbJKH70dv5Nux1IP1TTjIyN68FlLtQeDw9Htb%2bTv53QAdrLKIpC6rZ9onaOVXe%2bdNE5UtH5wPL8PxoWivc9ZlgZ9JZzZk%2bPis0wTD3i9O1c04Z34KD67W%2bKz2pqICkA5dFDcWsOho5y50jbPRjRDoV21h6pO5MV4Id%2bKPzfV6i9Eq/QzjI/vdXtEB5Qi2TwOunoVXRWROSl%2bj46Sc58RB7s2tkx2e8EKjuaAONgVNVktbmr7RHRJ6/IHS4WDz8dnMrEFP3um5JtNJtZBozoFpbJ%2bGhE2OScbhgO2mHWf2UatYJGIQFVKVWqGzSYd%2bLPJgVgqLjXHhkP6pJWXHpgc7/kNbSKmKpxuRTu31vGFBr0T2ZR0iSCqSH3H%2bD0QfQOoMxy6czgjnakrJiuefT6cFKVrvhY38kXiwGtEqqBfOD7Xtuhwr9SWqXC56kYU8t4uDoB5w2FZOqJaW0XERcPOpHp5eUTBlMZrZZdOdqiMCydW3191QxfHxqzPSFOy1e0wJJyTublR1o3e0UpiZkrjSU%2bm1a3O2fThbSJyMDx%2bvsklLyqTwlG5Pp7xTa39qelGoEjrKKuvmLZtCmuPuFjMwyMM0NgNaP84gFpx6FW6pX8cUZpnItJwdvxMm8bhV2/BaSUWjkP20Rb%2b3rPaRK6eDWfp%2bLiFbRqH06ER9flNrMVDNlsRdkoLP5OpcQiNjYianMcrwjk5NH5WKcAuHw4Wg9iag9b2kpxnVE790Bb8DJl8/pBwSk8KR%2bXVks/kjDbvwHXhqKgdvaNrO7YLp6M9v8f4iM4ohTUsHJ%2bsewlnHaCJjss2cSi9bs0pxJwVXzdLHyjFpIJcFQMrfbBtRBWWtnzNlEZtwPo%2bSqW8Z61N/%2bhGqZSNUmuaRaKi4T/Hv7dN50y11qSpZrZxTLLPRD%2bXBOo0s%2bngcE4%2bHc7JwnF40YbZGvSs7pATZdEzotRbM3V5dPCqhm3viOjcZeU1VKbF%2b/ZIROb%2bJ56rQZ3I4V059qRpVSKNek8fjPdEYxw2jggp7wZAizdIvXgSecoq/bXJfBQvcTaleJb9dwg4G/Q3w2ZPtJ0ch68coMdjs5NDdEZsVqrQV1fBkvbJUe/NRMW2Kk6901o7xyaLsMhpmRC3zFa2UmcD/vRZjm4TOfld3A4Vcdo6Dqhl57glUhDbsVGWC3KiLKpl2aLB309RjsXCmfhaRHgU6Ssr6KifW6lLqdL%2bMqKn64aj0hmfK6WLVfB8b7ynU%2bKdfSecresjyqTBh5mEAk4KQCeJvChnPdRS6/PJselcGs6H0ho3xa1Egm3qElDdiTpC1K6qItk94u9rkxoSt/T%2bHfSS94qfQamNkdaxwnDN7tT5KA6KV%2bPAGR43W3WBHRjOSaZxslAHfiZQHTklz%2bXc9n9i9Q/I6x2OkZzVXeNAvsFmT0SfWfIZl2P8QFx%2bVIu1elwYuoIDrPdBNVnqhDwq9j%2blb9cOh47WZIBOTu9wYhSGXiRe3MUjSjI4/rf%2b2wCbPaulTyc6COeJTedm65hi22Z36%2biAUahaXWCqgzkxbrRyTtaK6Nl8bT4f6BoMCEezUoTjaStfy9IvIgQbxoEsNWEpC79l5dPCUyIacX98vb3DUemq0vOZKrQ%2bg54gWggAnWTjGRIbfy1j5DvjtGbddsfGz682UqW1rrE0V0Vt0Wp13ipuysuE89iPTbZbsHo4E5Wei/Psk%2b3wee/AgLhoKFKgtIZqlZTmeCqerTJtyZmGigpQb4l3LFOlnZfnDwCg/bfUrWNznmTFIm4jS27cjUgVKeef1QCpzuXViJoopaO5QgrXqwZIXQ0KWSuls3CbGyCRk%2b6L0qujKzw3el63z3FQshle0sLZqI2TIpFH6SuNsvJtyZmj8ly8V%2bp62zycZTR3AABKou6jb8ctcFbBBiwHQfU3e8eG3qx6k2zIn4qaX4zvdVdETFQHpHSOunRUU7BpRE2yYX86hKg36XnIIdX8p0rKzCqgXjeeEXW7qCB0qNt%2b8TwrRXhnPGsTrb6Cb70T0uRROkqicUdYEmArqzoNAABtNnq1Hv4%2bohZFgm6a1SI9BdW7zBsb/r2xQU%2bt4uxknVIfx80zmzr8uqW2YW3wd1gqaPytpeJfydV/NaI/a9snVWGzmU0AFs/FaTkOh5xfqayqhmmEpe68lyIqM8nq0xzKZvyovkX1KYr2qYvoM/G84qgAADQAbaiHRhSjKNWj%2bUfStpD4U9vUigqNs44BhdM1N%2bnaOBjujNutQuzqnFIb6C/jUDk6oiRZp9T6ESnJpg8rVJ8pwuKUQK3oeTkqnOJWqTI/Hs93Jp0vx3oBIwUJANBQ5CRcYMXy2x/HrXR3qy7G1cdmT6iWM6Sc/fKWOqUUFh8U/21eNnRoIlKIfd6aU0ulAm8VdytNqRTlgZaGny7CsgMANIeB4YTcY8Wtmgp1S81TaRnqQ6CroHZhdeWMs/qVmJXyUZRR2imKFErFVdEU1cTMx3sBANA8lGZRekdCdm9Yfv2Jwt7Ky6teZUGWDbogivJJRbqWDresG01RFEUd1dKsYZYSftT05Z3ivZGgILUpAAAtQCmZL8Rm/FHBBv5%2b3CjXNmpJoGszMBwODRFVbZUKvV%2b2VHyrDiHJ%2bY%2bwVIOlVI9qUlRjlc31Ub0WaUwAgBaSCcUNs2KhOHX2aFK0CmSXYtmgG6E6K82FUouz2o4l8S%2bdFHX2rGap8FsppX4sFQBAx27WEtOSDP%2bUAodFnRZqM/4cGzcAAAC0GuX0Fe5WGLxoeNvrlooW1aZJOggAAABahoaVbel2naUR8UWtzNJS2cVSFwQAAABAy1Bu/nC3J6xY3fNdS8WJmmRMyyYAAAC0DHU4aMjbpZa6f/KcFXUNSaW2FqE4AAAAgIYi7YiDLIlfTbV8HQrpsii6srLRxgkAAAAtRIPhNrSkqTLaqkdXvmxJtwIAAACgZSxsaYLsw1Z5mm1bGX5FV9ZkyQAAAKCVqDNItSuSFx9jxdNn/%2bG2v1G7AgAAAC1GsuKqXXnIimepjHW7yFLqiDkpAAAA0DJUNKvWZE1bHmXFE2k16O1It8VYNgAAAGglGnKoAtq73CYXOCzj3a5228rSkDcAAACAlrGS22lWPORQrcwvWJLrZ8ghAAAAtBRFV3ZwG%2b42scBhmRR/Rn8WGX4AAABoKcu6nez2sqUoSl7tyrNu3zKiKwAAANBiVIeynduNVjzkUP/tBretLYnLAQAAALQEDStc1e0Ut1esenTleEvRGAAAAICWodqVndxutiS1nxddUV1LFl2hMwgAAABahqIr6gxSdOXVAmdlpqXOoO%2b6Lc%2byAQAAQCtRHcqObv9rqfsnz2GRJsvw%2bLPzsGwAAADQSpZz%2b7al6Mm/C0y6LD%2b0FI3pxbIBAABAq1AdyhZu17p9UOCsTHH7q9uXjCGHAAAA0GIWt6Sn8oylGpU8VduRlqIrKxvRFQAAAGgh/d2Gul1uaepyXnRFXUO3WYquzM%2byAQAAQKtQlGSI2wluz1vSV8nrDHrJ7fuWdFeIrgAAAEDLUJePVG1rnRkkjRZ0VwAAAKBl9LGkanu6FU9kznRXpM%2byAssGAAAArUTTlXezVJfysdU2kXlelg0AAABahWpQFF05zYqjKzLVtvzAUq0LAAAAQMsYaKnbR5oqRaq2493%2b4La9pYgMAAAAQEvIois/seLoyjS3J92OdhvMsgEAAEArUWeQalduteKJzO%2b7XeK2qdEZBAAAAC2kr9un3H7q9qYl9dq8AYf3uR3othDLBgAAAK1kkNu%2bbn%2bzNBcoL7rylts5bmsaInEAAADQQvq5beB2odsoKx5weJfb3m4LsmwAAADQSpZyO8LtIcuX4Je9bqkgdy1L4nIAAAAALUGFtlu7XWvFbcwqwlUx7i5GGzMAAAC0GLUlf8ftn1Y9unKG22puvVk2AAAAaBWS05es/vWWhODynJUP3G5w29GIrgAAAEALUYfP6m4/dHvJ0iDDPJG4xyzVuCgaQ3QFAAAAWsYiltqY77akrVLJWZEWi9qYz3f7tKVuIgAAAICWIMdjY7eL3d6xYpG42932tKTTAgAAANASlNJZwe04t6ctv9BW//9Tbt9zW5llAwAAgFaymCXht9useF7QaLffu23uNoBlAwAAgFYxvyXNlSssDTAsUrTVvKCDwsEBAAAAaAlSpl3D7XS35y2/K0im4Ydnua1rFNoCAABAC1Gk5BC3eyy/K0g21u0at89bisgAAAAAtIS53LZ0u8TScMO8rqAP3f5qqd15cUNzBQAAAFpEX0upoFPdnrMkBJdXt/KA21FuS7JsAAAA0CqkZruM22GWimjzuoJUzyK1W9WtrGlMYgYAAIAWOiuKlOzlNtxtguXXrShNdKXbNpbmCwEAAAC0hIXddrLUwvxugbOiqMsISwW5g1k2AAAAaBWS0d/e7SK31yy/hXmq25NuJ7utZaSCAAAAoEUs4Lat26/cXrT8IltJ77/idq7bZkYqCAAAAFrorEjJ9tduL7tNz3FWpoWzIqdmm/h7AAAAAE1FeilLuX0hnJWXLD%2byMjWcmfMtpY1U69KLJQQAAIBmIUdjQbdPuR3qdovb25Y/gVlaK89aal/ewlCyBQAAgCai4lilcaSZosnLSu08ZsWty5Piz5zp9lm3eVhGAAAAaIaTorTP5m67u33T7VK3hyzN/ykaZjjakuT%2bt9w2sCTVDwAAANAUVrAUTVGNisTeJlp%2b%2bierV3nd7TpL84FWdBvAMgIAAECzUYTl%2bQInRZGWj8JRudXt%2b5Y6gZYwhhkCAABAC1naUpePnJIPLNWujHMb6Xa/21Vux1nSY9Esof4sGQAAAHQE6hBaPJyS/dwOdPuKJR2Wld0GGsq1AAAA0Mmclz44KAAAANDZ%2bD83gd5U3adBpwAAAABJRU5ErkJggg==' id='b' width='557' height='272' data-name='dummy-signature.png'/%3e%3c/defs%3e%3c/svg%3e" /> </div>
+                              <span style="font-family: 'Alegreya SC'; font-size:12px; font-weight: 500;">Digitally signed by</span> </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="toolbar no-print">
+                    <button class="btn btn-info" onclick="window.print()"> Print Certificate </button>
+                    <button class="btn btn-info" id="downloadPDF">Download PDF</button>
+                  </div>
+                </div>
+                
+            </div>
+          </div>
+        </div>
+      <!-- End certificate clam tab block -->
+
+        <!--Parts  Start-->
+          {% for chapter in course.chapters.all %}
+            {% for part in chapter.parts.all %}
+            {% if part.id == show_part_id and show_quiz_id == -1 %}
+            
+            <div id="content-{{ part.id }}" class="content " style="display: block;">
+              <div class="bg-[#FBFBFB] p-3 rounded">
+
+       
+
+
+                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center hidden" id="myTab" data-tabs-toggle="#myTabContentpart-{{ part.id }}" role="tablist">
+                  <li class="mr-2" role="presentation">
+                      <button class="inline-block p-4 rounded-t-lg border-b-2" id="p-{{ part.id }}video-tab hi" data-tabs-target="#p-{{ part.id }}video" type="button" role="tab" aria-controls="p-{{ part.id }}video" aria-selected="false">Content</button>
+                  </li>
+                </ul>
+
+                <div id="myTabContenpart-{{ part.id }}" class="coursecontent">
+                  <div class="hidden  bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
+                    <div id="tab1" class="tab-content active">
+                      <h5 class="mt-3">
+                        {{ chapter.title }}
+                        </h5>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.jpeg" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.png" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.jpg" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+                          
+                        <p>{{part_content_testing.description | safe}}</p>
+
+                      <div class="notes-section mb-5 hidden">
+                        <h5 class="flex align-items-center"><svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(148, 148, 148, 1);transform: ;msFilter:;"><path d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zM5 20V7h14V6l.002 14H5z"></path><path d="M7 9h10v2H7zm0 4h5v2H7z"></path></svg> Notes:</h5>
+
+                        <div class="note-text flex">
+                          <input class="formkit-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full me-3  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="text" id="note-input-video-{{ part.id }}" placeholder="Type your notes here" />
+                          <button class=" w-[150px] px-5 py-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg cursor-pointer hover:bg-Indigo-800 focus:ring-4 focus:ring-Indigo-300 dark:bg-Indigo-600 dark:hover:bg-Indigo-700 dark:focus:ring-Indigo-800 ml-3" onclick="addNote({{ part.id }})">Add Note</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="nav-buttons hidden">
+                      <button type="button" class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="prev-tab-{{ part.id }}" data-tabs-target="#video-{{ part.id }}" role="tab" aria-controls="video-{{ part.id }}" aria-selected="false">Previous</button>
+                      <button type="button" class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="next-tab-{{ part.id }}" data-tabs-target="#video-{{ part.id }}" role="tab" aria-controls="video-{{ part.id }}" aria-selected="false">Next</button>
+                    </div>
+                  </div>
+                  <div class="hidden p-4 bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}pdf" role="tabpanel" aria-labelledby="p-{{ part.id }}pdf-tab">
+                    <div class="pdf-viewer">
+                      <iframe id="inlineFrameExample" title="Inline Frame Example" width="100%" height="450"
+                        src="{{ part.pdf_url }}"> </iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 10px; gap: 10px;">
+                {% if part.id in complete_status %}
+                  {% if next_part %}
+                  <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                     class="btn btn-primary px-md-6 fw-600" style="
+                       background-color: #4CC9F0; 
+                       color: white; 
+                       border: none; 
+                       padding: 12px 20px; 
+                       font-size: 16px; 
+                       border-radius: 8px; 
+                       cursor: pointer; 
+                       transition: 0.3s;
+                       text-decoration: none;
+                       display: inline-block;">
+                      <i class="fa-solid fa-arrow-right me-2"></i> Next
+                  </a>
+                  {% endif %}
+                {% else %}
+                <button type="button" onclick="updatePartStatus({{part.id}})" style="
+                    background-color: #4CAF50; 
+                    color: white; 
+                    border: none; 
+                    padding: 12px 20px; 
+                    font-size: 16px; 
+                    border-radius: 8px; 
+                    cursor: pointer; 
+                    transition: 0.3s;">
+                    Mark and continue
+                </button>
+                {% endif %}
+            </div>
+            </div>
+            {% else %}
+              {% if part.id == show_part_id %}
+              <div id="content-{{ part.id }}" class="content " style="display: none;">
+                <div class="bg-[#FBFBFB] p-3 rounded">
+  
+                  <!-- Share Course Modal button -->
+                  <div class="flex justify-between mb-3 md:flex-row flex-col">
+                    <div class="mb-[16px] lg:px-0 px-2 mt-[12px] lg:mt-0"></div>
+                    <div class="l-p-sm">
+                      <div class="flex flex-row justify-between">
+                        <button type="button" data-modal-target="share-course-modal" data-modal-toggle="share-course-modal"
+                          class="hidden ms-1 text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                          <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              d="M17.5 3A3.5 3.5 0 0 0 14 7L8.1 9.8A3.5 3.5 0 0 0 2 12a3.5 3.5 0 0 0 6.1 2.3l6 2.7-.1.5a3.5 3.5 0 1 0 1-2.3l-6-2.7a3.5 3.5 0 0 0 0-1L15 9a3.5 3.5 0 0 0 6-2.4c0-2-1.6-3.5-3.5-3.5Z" />
+                          </svg>
+                          Share course </button>
+  
+                      </div>
+  
+                      <!-- Course mobile button -->
+                      <div class="lg:hidden sm:block flex justify-center mt-3 sticky top-[20px] ">
+                        <button
+                          class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  bg-purple"
+                          type="button" data-modal-toggle="course-track-modal"> <i class="fa-solid fa-bars me-2"></i> Course
+                          Content </button>
+                      </div>
+                      
+                    </div>
+                  </div> 
+                  <!-- Share Course Modal button -->
+  
+  
+                  <ul class="flex flex-wrap -mb-px text-sm font-medium text-center hidden" id="myTab" data-tabs-toggle="#myTabContentpart-{{ part.id }}" role="tablist">
+                    <li class="mr-2" role="presentation">
+                        <button class="inline-block p-4 rounded-t-lg border-b-2" id="p-{{ part.id }}video-tab hi" data-tabs-target="#p-{{ part.id }}video" type="button" role="tab" aria-controls="p-{{ part.id }}video" aria-selected="false">Content</button>
+                    </li>
+                  </ul>
+  
+                  <div id="myTabContenpart-{{ part.id }}">
+                    <div class="hidden  bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
+                      <div id="tab1" class="tab-content active">
+                        <h5 class="mt-3">
+                          {{ chapter.title }}
+                          </h5>
+                          <p>{{part_content_testing.description | safe}}</p>
+  
+                        <div class="notes-section mb-5 hidden">
+                          <h5 class="flex align-items-center"><svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(148, 148, 148, 1);transform: ;msFilter:;"><path d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zM5 20V7h14V6l.002 14H5z"></path><path d="M7 9h10v2H7zm0 4h5v2H7z"></path></svg> Notes:</h5>
+  
+                          <div class="note-text flex">
+                            <input class="formkit-input bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full me-3  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" type="text" id="note-input-video-{{ part.id }}" placeholder="Type your notes here" />
+                            <button class=" w-[150px] px-5 py-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg cursor-pointer hover:bg-Indigo-800 focus:ring-4 focus:ring-Indigo-300 dark:bg-Indigo-600 dark:hover:bg-Indigo-700 dark:focus:ring-Indigo-800 ml-3" onclick="addNote({{ part.id }})">Add Note</button>
+                          </div>
+                        </div>
+                      </div>
+  
+                      <div class="nav-buttons hidden">
+                        <button type="button" class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="prev-tab-{{ part.id }}" data-tabs-target="#video-{{ part.id }}" role="tab" aria-controls="video-{{ part.id }}" aria-selected="false">Previous</button>
+                        <button type="button" class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300" id="next-tab-{{ part.id }}" data-tabs-target="#video-{{ part.id }}" role="tab" aria-controls="video-{{ part.id }}" aria-selected="false">Next</button>
+                      </div>
+                    </div>
+                    <div class="hidden p-4 bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}pdf" role="tabpanel" aria-labelledby="p-{{ part.id }}pdf-tab">
+                      <div class="pdf-viewer">
+                        <iframe id="inlineFrameExample" title="Inline Frame Example" width="100%" height="450"
+                          src="{{ part.pdf_url }}"> </iframe>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 10px; gap: 10px;">
+                  {% if part.id in complete_status %}
+                    {% if next_part %}
+                    <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                       class="btn btn-primary px-md-6 fw-600" style="
+                         background-color: #4CC9F0; 
+                         color: white; 
+                         border: none; 
+                         padding: 12px 20px; 
+                         font-size: 16px; 
+                         border-radius: 8px; 
+                         cursor: pointer; 
+                         transition: 0.3s;
+                         text-decoration: none;
+                         display: inline-block;">
+                        <i class="fa-solid fa-arrow-right me-2"></i> Next
+                    </a>
+                    {% endif %}
+                  {% else %}
+                  <button type="button" onclick="updatePartStatus({{part.id}})" style="
+                      background-color: #4CAF50; 
+                      color: white; 
+                      border: none; 
+                      padding: 12px 20px; 
+                      font-size: 16px; 
+                      border-radius: 8px; 
+                      cursor: pointer; 
+                      transition: 0.3s;">
+                      Mark and continue
+                  </button>
+                  {% endif %}
+              </div>
+              </div>
+              {% endif %}
+            {% endif %}
+            {%endfor%}
+          {%endfor%}
+
+        <!--Parts End-->
+
+        <!--Quiz  Start-->
+        {% for chapter in course.chapters.all %}
+        {% for part in chapter.parts.all %}
+        <input type="hidden" name="allparts" value="{{ chapter.parts.all.count }}">
+
+        {% if show_quiz_id == part.id %}
+        <div id="contentquiz-{{ part.id }}" class="content" style="display: block;">
+          <div class="bg-[#FBFBFB] p-3 rounded">
+
+                <!-- Share Course Modal button -->
+        <div class="flex justify-between mb-3 md:flex-row flex-col">
+          <div class="mb-[16px] lg:px-0 px-2 mt-[12px] lg:mt-0">
+            
+          </div>
+          <div class="l-p-sm">
+            <div class="flex flex-row justify-between">
+              <button type="button" data-modal-target="share-course-modal" data-modal-toggle="share-course-modal"
+                class="hidden ms-1 text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    d="M17.5 3A3.5 3.5 0 0 0 14 7L8.1 9.8A3.5 3.5 0 0 0 2 12a3.5 3.5 0 0 0 6.1 2.3l6 2.7-.1.5a3.5 3.5 0 1 0 1-2.3l-6-2.7a3.5 3.5 0 0 0 0-1L15 9a3.5 3.5 0 0 0 6-2.4c0-2-1.6-3.5-3.5-3.5Z" />
+                </svg>
+                Share course </button>
+
+            </div>
+
+            <!-- Course mobile button -->
+            <div class="lg:hidden sm:block flex justify-center mt-3 sticky top-[20px] ">
+              <button
+                class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  bg-purple"
+                type="button" data-modal-toggle="course-track-modal"> <i class="fa-solid fa-bars me-2"></i> Course
+                Content </button>
+            </div>
+            
+          </div>
+        </div> 
+        <!-- Share Course Modal button -->
+
+            <div class="mt-3 quiz-title">Quiz</div>
+            {% if quiz_content_testing and quiz_content_testing.quizzes.exists %}
+            {% for quiz in quiz_content_testing.quizzes.all %}
+
+            {% if found.part.id %}
+                <div class="qt-dts flex mb-3 w-full">
+                </div>             
+            {% else %}
+              <div class="qt-dts flex mb-3 w-full">
+                <p class="me-3"><i class="fa-solid fa-list me-1"></i> Total Questions: <span id="questionProgress">{{ quiz.questions.all.count }}</span></p>
+              </div>
+            {%endif%}
+          
+
+            <div id="startScreen-{{ part.id }}" class="screen text-center">
+
+              {% if found|get:part.id %}
+                    <div id="resultTestScreen-{{ part.id }}" class="screen" style="display: block;">
+                      <div class="text-center">
+                        <div class="rs-i d-flex justify-content-center">
+                          <img style="width:150px;" src="{% static 'topteenfrontend/assets/images/quiz-result-icon.webp' %}" alt="icon">
+                        </div>
+                        <h2>Your Results</h2>
+                        <p>Thank you for completing the quiz!</p>
+                        <div class="rs-ans d-flex justify-content-center my-2">
+                          <div class="correct-ans me-3">
+                            <i class="fa-solid fa-check" style="color: #7dc227;"></i>
+                            <span class="correct-count">{{ answers_data|get:part.id|get:"correct" }}</span>  Correct
+                          </div>
+                          <div class="incorrect-ans">
+                            <i class="fa-solid fa-xmark" style="color:#f04e49;"></i>
+                            <span class="incorrect-count">{{ answers_data|get:part.id|get:"incorrect" }}</span> Incorrect
+                          </div>
+                        </div>
+                        <div id="accordion-arrow-icon hidden" data-accordion="open ">
+                          <p id="accordion-arrow-icon-heading-{{ part.id }}" class="my-3 d-flex justify-content-center text-blue-600">
+                            <button type="button" class="hidden" data-accordion-target="#accordion-arrow-icon-body-{{ part.id }}"
+                              aria-expanded="false" aria-controls="accordion-arrow-icon-body-{{ part.id }}">
+                              <span>Show Answer</span>
+                              <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  clip-rule="evenodd"></path>
+                              </svg>
+                            </button>
+                          </p>
+                        </div>
+                      </div>
+
+                      {# NEW: Use show_reattempt_button and show_next_button from view logic #}
+                      {% if show_quiz_id == part.id %}
+                        {# Check if this is the current quiz being displayed #}
+                        {# Check if user has passed this quiz (attempt track deleted = passed) #}
+                        {% if has_passed_quiz_status|get:part.id == True %}
+                          {# Case 2 & 3: Passed quiz (first attempt or later) → only "Next" button #}
+                          {% if next_part_for_quiz %}
+                          <div class="mt-3">
+                            <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part_for_quiz.id part_or_quiz=1 %}" 
+                               class="btn btn-primary px-md-6 fw-600">
+                              <i class="fa-solid fa-arrow-right me-2"></i> Next
+                            </a>
+                          </div>
+                          {% elif next_part %}
+                          <div class="mt-3">
+                            <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                               class="btn btn-primary px-md-6 fw-600">
+                              <i class="fa-solid fa-arrow-right me-2"></i> Next
+                            </a>
+                          </div>
+                          {% endif %}
+                        {% else %}
+                          {# Case 1: Failed quiz → only "Re-attempt" button #}
+                          <div class="alert-info">
+                            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+                            <div> You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz.</div>            
+                          </div>
+                          <div> <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
+                        {% endif %}
+                      {% else %}
+                        {# Not the current quiz, use old logic #}
+                      {% if no_of_attempt == 1 %}
+                          <div class="alert-info">
+                            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+                            <div> You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz.</div>            
+                            </div>
+                            <div> <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
+                        {% else %}
+                          {% if next_part_for_quiz %}
+                          <div class="mt-3">
+                            <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part_for_quiz.id part_or_quiz=1 %}" 
+                               class="btn btn-primary px-md-6 fw-600">
+                              <i class="fa-solid fa-arrow-right me-2"></i> Next
+                            </a>
+                          </div>
+                          {% elif next_part %}
+                          <div class="mt-3">
+                            <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                               class="btn btn-primary px-md-6 fw-600">
+                              <i class="fa-solid fa-arrow-right me-2"></i> Next
+                            </a>
+                          </div>
+                          {% endif %}
+                        {% endif %}
+                          {% endif %}
+
+                      {% if no_of_attempt == 2 %}
+                     
+                          <div class="block-test">
+                            <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
+                            <li>You can review the chapter content and prepare for the third attempt.</li>
+                            <li>After 24 hours, a <strong>third and final attempt</strong> becomes available automatically</li>
+                          </div>
+                     
+                     
+                      <div>
+                          <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600 mt-3 {% if time_difference and time_difference.total_seconds < 86400 %}disabled{% endif %}" 
+                          {% if time_difference and time_difference.total_seconds < 86400 %}disabled="disabled"{% endif %}
+                          data-window-closed-time="{{ window_closed_time|date:'c' }}" 
+                          data-part-id="{{ part.id }}">
+                              {% if time_difference and time_difference.total_seconds < 300 %}
+                                  Retry available in <span id="countdown-{{ part.id }}"></span>
+                              {% else %}
+                                  Last attempt
+                              {% endif %}
+                          </button>
+                            
+                          
+                      </div>
+                    {% endif %}
+
+                    {% if no_of_attempt == 3 %}
+
+                      <div class="final-note">
+                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                      <p> This part will not be considered in evaluation </p>
+                      </div>
+                        
+                    {% endif %}
+
+                    </div>
+              {% else %}
+                <div class="img-quiz d-flex justify-center">
+                  <img src="{% static 'topteenfrontend/assets/images/quiz-start.svg' %}" alt="Quiz" />
+                </div>
+                <h4 class="mt-3">Let's check your knowledge about this section.</h4>
+                <p class="my-3"><span>Quiz 1</span> | <span>{{ quiz.questions.all.count }} Questions</span></p>
+                <p>Let's check your knowledge about this section.</p>
+                <div class="d-flex gap-2 mt-3 justify-content-center">
+                  <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600">Start Test</button>
+                  {% if autocomplete_enabled %}
+                  <button type="button" id="autocompleteButton-{{ part.id }}" class="btn btn-warning px-md-6 fw-600" style="display: none;" data-part-id="{{ part.id }}">
+                    <i class="fa-solid fa-magic me-2"></i> Autocomplete
+                  </button>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>          
+              <!-- Quiz Form Section -->
+              <form class="white-form" id="multiStepForm-{{ part.id }}" method="POST" action="" novalidate="novalidate" style="display: none;" data-action-url="{% url 'counselor:counselor_enrolled_course' %}">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input type="hidden" name="part_id" value="{{ part.id }}">
+                <input type="hidden" name="course_name" value="{{course.title}}">          
+                <input type="hidden" name="show_part_id" value="{{show_part_id}}">          
+                <input type="hidden" name="found" value="{{found}}">          
+                <input type="hidden" name="introduction_id" value="{{introduction_id}}">          
+                {% for question in quiz.questions.all %}
+                <div class="question {% if forloop.first %} active {% endif %}" id="question{{ forloop.counter }}-{{ part.id }}"
+                  data-quiz-id="{{ quiz.id }}" data-correct-answer="{% for answer in question.answers.all %}{% if answer.is_correct %}{{ answer.id }}{% endif %}{% endfor %}">
+                  <div class="question-box" data-question-id="{{ question.id }}">
+                    <div class="question-label">Q{{ forloop.counter }}: {{ question.question_text }}</div>
+                    <div class="radio-buttons">
+                      {% for answer in question.answers.all %}
+                      <label class="custom-radio" for="answer_{{ answer.id }}">
+                        <input type="radio" name="question_{{ question.id }}" id="answer_{{ answer.id }}" value="{{ answer.id }}">
+                        <span class="radio-btn"><i class="las la-check"></i> {{ answer.answer_text }}</span>
+                      </label>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  
+                  <div class="assestment-button d-flex justify-content-center my-5">
+                    {% if autocomplete_enabled %}
+                    <button type="button" class="btn btn-warning autocomplete-quiz-btn px-md-6 fw-600 me-2" data-part-id="{{ part.id }}">
+                      <i class="fa-solid fa-magic me-2"></i> Autocomplete
+                    </button>
+                    {% endif %}
+                    <button type="button" class="btn blue-button ms-3 prev-button px-md-6 fw-600 me-1">Back</button>
+                    <button type="button" class="btn purple-button next-button px-md-6 fw-600 ms-1">Continue</button>
+                    <button type="submit" class="btn btn-success submit-button btn-sumb px-md-6 fw-600"
+                      style="display: none;">Submit</button>
+                  </div>
+                </div>
+                {% endfor %}
+              </form>
+
+              
+          
+              <!-- Results Screen -->
+              <!-- Result Screen (hidden initially) -->
+              
+              <div id="resultScreen-{{ part.id }}" class="screen" style="display: none;">
+                
+                <div class="text-center">
+                  <div class="rs-i d-flex justify-content-center">
+                    <img style="width:150px;" src="{% static 'topteenfrontend/assets/images/quiz-result-icon.webp' %}" alt="icon">
+                  </div>
+                  <h2>Your Results</h2>
+                  <p>Thank you for completing the quiz!</p>
+                  <div class="rs-ans d-flex justify-content-center my-2">
+                  
+                    <div class="correct-ans me-3">
+                      <i class="fa-solid fa-check" style="color: #7dc227;"></i> <span class="correct-count"></span> Correct
+                  </div>
+                  <div class="incorrect-ans">
+                      <i class="fa-solid fa-xmark" style="color:#f04e49;"></i> <span class="incorrect-count"></span> Incorrect
+                  </div>
+                      
+                  </div>
+                  <div id="accordion-arrow-icon hidden" data-accordion="open">
+                    <p id="accordion-arrow-icon-heading-{{ part.id }}" class="my-3 d-flex justify-content-center text-blue-600">
+                      <button type="button" class="hidden" data-accordion-target="#accordion-arrow-icon-body-{{ part.id }}"
+                        aria-expanded="false" aria-controls="accordion-arrow-icon-body-{{ part.id }}">
+                        <span></span>
+                        <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd"></path>
+                        </svg>
+                      </button>
+                    </p>
+                  </div>
+
+              </div>
+
+                <div class="retry-button-container w-100 d-flex justify-content-center">
+                  <!-- The retry button will be dynamically inserted here -->
+                </div>
+              </div>
+        
+            {%endfor%}
+            {% else %}
+            <div class="alert alert-info mt-3 p-3">
+              <p class="mb-0"><i class="fa-solid fa-info-circle me-2"></i>No quiz available for this part yet.</p>
+            </div>
+            {% endif %}
+        
+          </div>
+          
+        </div>
+
+        {% else %}
+          {% if show_quiz_id == -1 and show_part_id == part.id %}
+          <div id="contentquiz-{{ part.id }}" class="content" style="display: none;">
+            <div class="bg-[#FBFBFB] p-3 rounded">
+  
+                  <!-- Share Course Modal button -->
+          <div class="flex justify-between mb-3 md:flex-row flex-col">
+            <div class="mb-[16px] lg:px-0 px-2 mt-[12px] lg:mt-0">
+              
+            </div>
+            <div class="l-p-sm">
+              <div class="flex flex-row justify-between">
+                <button type="button" data-modal-target="share-course-modal" data-modal-toggle="share-course-modal"
+                  class="hidden ms-1 text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
+                  <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      d="M17.5 3A3.5 3.5 0 0 0 14 7L8.1 9.8A3.5 3.5 0 0 0 2 12a3.5 3.5 0 0 0 6.1 2.3l6 2.7-.1.5a3.5 3.5 0 1 0 1-2.3l-6-2.7a3.5 3.5 0 0 0 0-1L15 9a3.5 3.5 0 0 0 6-2.4c0-2-1.6-3.5-3.5-3.5Z" />
+                  </svg>
+                  Share course </button>
+  
+              </div>
+  
+              <!-- Course mobile button -->
+              <div class="lg:hidden sm:block flex justify-center mt-3 sticky top-[20px] ">
+                <button
+                  class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center  bg-purple"
+                  type="button" data-modal-toggle="course-track-modal"> <i class="fa-solid fa-bars me-2"></i> Course
+                  Content </button>
+              </div>
+              
+            </div>
+          </div> 
+          <!-- Share Course Modal button -->
+  
+              <div class="mt-3 quiz-title">Quiz</div>
+              {% if quiz_content_testing and quiz_content_testing.quizzes.exists %}
+              {% for quiz in quiz_content_testing.quizzes.all %}
+  
+              {% if found.part.id %}
+                  <div class="qt-dts flex mb-3 w-full">
+                  </div>             
+              {% else %}
+                <div class="qt-dts flex mb-3 w-full">
+                  <p class="me-3"><i class="fa-solid fa-list me-1"></i> Total Questions: <span id="questionProgress">{{ quiz.questions.all.count }}</span></p>
+                </div>
+              {%endif%}
+            
+  
+              <div id="startScreen-{{ part.id }}" class="screen text-center">
+  
+                {% if found|get:part.id %}
+                      <div id="resultTestScreen-{{ part.id }}" class="screen" style="display: block;">
+                        <div class="text-center">
+                          <div class="rs-i d-flex justify-content-center">
+                            <img style="width:150px;" src="{% static 'topteenfrontend/assets/images/quiz-result-icon.webp' %}" alt="icon">
+                          </div>
+                          <h2>Your Results</h2>
+                          <p>Thank you for completing the quiz!</p>
+                          <div class="rs-ans d-flex justify-content-center my-2">
+                            <div class="correct-ans me-3">
+                              <i class="fa-solid fa-check" style="color: #7dc227;"></i>
+                              <span class="correct-count">{{ answers_data|get:part.id|get:"correct" }}</span>  Correct
+                            </div>
+                            <div class="incorrect-ans">
+                              <i class="fa-solid fa-xmark" style="color:#f04e49;"></i>
+                              <span class="incorrect-count">{{ answers_data|get:part.id|get:"incorrect" }}</span> Incorrect
+                            </div>
+                          </div>
+                          <div id="accordion-arrow-icon hidden" data-accordion="open ">
+                            <p id="accordion-arrow-icon-heading-{{ part.id }}" class="my-3 d-flex justify-content-center text-blue-600">
+                              <button type="button" class="hidden" data-accordion-target="#accordion-arrow-icon-body-{{ part.id }}"
+                                aria-expanded="false" aria-controls="accordion-arrow-icon-body-{{ part.id }}">
+                                <span>Show Answer</span>
+                                <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                                </svg>
+                              </button>
+                            </p>
+                          </div>
+                          
+                          {% if no_of_attempt == 2 %}
+                           
+                          
+                                <div class="block-test">
+                                  <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
+                                  <li>You can review the chapter content and prepare for the third attempt.</li>
+                                  <li>After 24 hours, a <strong>third and final attempt</strong> becomes available automatically</li>
+                                </div>
+                          
+                          <div>
+                                <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600 mt-3 {% if time_difference and time_difference.total_seconds < 86400 %}disabled{% endif %}" 
+                                {% if time_difference and time_difference.total_seconds < 86400 %}disabled="disabled"{% endif %}
+                                data-window-closed-time="{{ window_closed_time|date:'c' }}" 
+                                data-part-id="{{ part.id }}">
+                                    {% if time_difference and time_difference.total_seconds < 300 %}
+                                        Retry available in <span id="countdown-{{ part.id }}"></span>
+                                    {% else %}
+                                        Last attempt
+                                    {% endif %}
+                                </button>
+
+                            </div>
+                          {% endif %}
+
+                          {% if no_of_attempt == 3 %}
+
+                          <div class="final-note">
+
+                         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+
+                            <p> This part will not be considered in evaluation </p>
+                          </div>
+                            
+                          {% endif %}
+
+                        </div>
+                      </div> 
+                      
+
+                {% else %}
+                  <div class="img-quiz d-flex justify-center">
+                    <img src="{% static 'topteenfrontend/assets/images/quiz-start.svg' %}" alt="Quiz" />
+                  </div>
+                  <h4 class="mt-3">Let's check your knowledge about this section.</h4>
+                  <p class="my-3"><span>Quiz 1</span> | <span>{{ quiz.questions.all.count }} Questions</span></p>
+                  <p>Let's check your knowledge about this section.</p>
+                  <div class="d-flex gap-2 mt-3 justify-content-center">
+                    <button type="button" id="startTestButton-{{ part.id }}" class="btn purple-button px-md-6 fw-600">Start Test</button>
+                    {% if autocomplete_enabled %}
+                    <button type="button" id="autocompleteButton-{{ part.id }}" class="btn btn-warning px-md-6 fw-600" style="display: none;" data-part-id="{{ part.id }}">
+                      <i class="fa-solid fa-magic me-2"></i> Autocomplete
+                    </button>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>          
+                <!-- Quiz Form Section -->
+                <form class="white-form" id="multiStepForm-{{ part.id }}" method="POST" action="" novalidate="novalidate" style="display: none;" data-action-url="{% url 'counselor:counselor_enrolled_course' %}">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                  <input type="hidden" name="part_id" value="{{ part.id }}">
+                  <input type="hidden" name="course_name" value="{{course.title}}">  
+                  <input type="hidden" name="show_part_id" value="{{show_part_id}}">          
+                  <input type="hidden" name="found" value="{{found}}">          
+                  <input type="hidden" name="introduction_id" value="{{introduction_id}}">           
+                  {% for question in quiz.questions.all %}
+                  <div class="question {% if forloop.first %} active {% endif %}" id="question{{ forloop.counter }}-{{ part.id }}"
+                    data-quiz-id="{{ quiz.id }}" data-correct-answer="{% for answer in question.answers.all %}{% if answer.is_correct %}{{ answer.id }}{% endif %}{% endfor %}">
+                    <div class="question-box" data-question-id="{{ question.id }}">
+                      <div class="question-label">Q{{ forloop.counter }}: {{ question.question_text }}</div>
+                      <div class="radio-buttons">
+                        {% for answer in question.answers.all %}
+                        <label class="custom-radio" for="answer_{{ answer.id }}">
+                          <input type="radio" name="question_{{ question.id }}" id="answer_{{ answer.id }}" value="{{ answer.id }}">
+                          <span class="radio-btn"><i class="las la-check"></i> {{ answer.answer_text }}</span>
+                        </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+  
+                    
+                    <div class="assestment-button d-flex justify-content-center my-5">
+                      {% if autocomplete_enabled %}
+                      <button type="button" class="btn btn-warning autocomplete-quiz-btn px-md-6 fw-600 me-2" data-part-id="{{ part.id }}">
+                        <i class="fa-solid fa-magic me-2"></i> Autocomplete
+                      </button>
+                      {% endif %}
+                      <button type="button" class="btn blue-button ms-3 prev-button px-md-6 fw-600 me-1">Back</button>
+                      <button type="button" class="btn purple-button next-button px-md-6 fw-600 ms-1">Continue</button>
+                      <button type="submit" class="btn btn-success submit-button btn-sumb px-md-6 fw-600"
+                        style="display: none;">Submit</button>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </form>
+  
+                
+            
+                <!-- Results Screen -->
+                <!-- Result Screen (hidden initially) -->
+                
+                <div id="resultScreen-{{ part.id }}" class="screen" style="display: none;">
+                  
+                  <div class="text-center">
+                    <div class="rs-i d-flex justify-content-center">
+                      <img style="width:150px;" src="{% static 'topteenfrontend/assets/images/quiz-result-icon.webp' %}" alt="icon">
+                    </div>
+                    <h2>Your Results</h2>
+                    <p>Thank you for completing the quiz!</p>
+                    <div class="rs-ans d-flex justify-content-center my-2">
+                    
+                      <div class="correct-ans me-3">
+                        <i class="fa-solid fa-check" style="color: #7dc227;"></i> <span class="correct-count"></span> Correcting
+                    </div>
+                    <div class="incorrect-ans">
+                        <i class="fa-solid fa-xmark" style="color:#f04e49;"></i> <span class="incorrect-count"></span> Incorrect
+                    </div>
+                        
+                    </div>
+                    <div id="accordion-arrow-icon hidden" data-accordion="open">
+                      <p id="accordion-arrow-icon-heading-{{ part.id }}" class="my-3 d-flex justify-content-center text-blue-600">
+                        <button type="button" class="hidden" data-accordion-target="#accordion-arrow-icon-body-{{ part.id }}"
+                          aria-expanded="false" aria-controls="accordion-arrow-icon-body-{{ part.id }}">
+                          <span></span>
+                          <svg class="w-6 h-6 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clip-rule="evenodd"></path>
+                          </svg>
+                        </button>
+                      </p>
+                    </div>
+                    
+                  </div>
+                  
+                  <div class="move-to-resume-part w-100 d-flex justify-content-center">
+                    {% if next_part %}
+                    <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                       class="btn btn-primary px-md-6 fw-600 mt-3">
+                      <i class="fa-solid fa-arrow-right me-2"></i> Next
+                    </a>
+                    {% endif %}
+                  </div>
+
+                  <div class="retry-button-container w-100 d-flex justify-content-center flex-column align-items-center">
+                    <!-- The retry button will be dynamically inserted here -->
+                  </div>
+                </div>
+          
+              {%endfor%}
+            {% else %}
+            <div class="alert alert-info mt-3 p-3">
+              <p class="mb-0"><i class="fa-solid fa-info-circle me-2"></i>No quiz available for this part yet.</p>
+            </div>
+            {% endif %}
+          
+            </div>
+            
+          </div>
+          {% endif %}
+        {% endif %}
+        {%endfor%}
+        {%endfor%}
+        </div>
+        
+        <!--quiz End-->
+
+      </div>
+    </div>
+    <!-- End of Right Part -->
+    </div>
+  </main>
+
+</body>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://kit.fontawesome.com/df31b3ad5b.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script type="text/javascript" src="https://www.topteen.in//static/topteenfrontend/assets/js/slick.min.js"></script>
+<script src="https://unpkg.com/flowbite@1.5.3/dist/flowbite.js"></script>
+<script src="https://www.topteen.in/static/topteenfrontend/assets/js/userDashboard.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/homePage.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/common.js"></script>
+<script src="https://www.topteen.in/static/topteenfrontend/assets/js/common.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/search.js">    </script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/resumeBuilder.js"></script>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
+
+<!--new js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+  integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="{ static ('topteenfrontend/assets/js/bootstrap.min.js')}"></script>
+<!--new js -->
+
+<!-- Chart js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.3/apexcharts.min.js"
+  integrity="sha512-yhdujT21BI/kqk9gcupTh4jMwqLhb+gc6Ytgs4cL0BJjXW+Jo9QyllqLbuluI0cBHqV4XsR7US3lemEGjogQ0w=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Chart js -->
+
+<!-- Unlock Timer JS -->
+<script src="{% static 'topteenfrontend/assets/js/unlock_timer.js' %}"></script>
+<!-- Unlock Timer JS -->
+
+<!-- To fetch clicked part -->
+ <script src="{% static 'topteenfrontend/assets/js/fetch_clicked_part.js' %}"></script>
+ <!-- To fetch clicked part -->
+
+<!-- To update part status -->
+<script>
+  // Define the update_part_status URL pattern for use in JavaScript
+  // Generate URL with placeholder and extract base path
+  const UPDATE_PART_STATUS_URL_TEMPLATE = "{% url 'counselor:update_part_status' 999 %}";
+  const UPDATE_PART_STATUS_URL = UPDATE_PART_STATUS_URL_TEMPLATE.replace('999/', '');
+</script>
+ <script src="{% static 'topteenfrontend/assets/js/updatePartStatus.js' %}"></script>
+ <!-- To update part status -->
+
+
+<script>
+  /*** Chapter onclick Script **/ 
+  document.addEventListener("DOMContentLoaded", function() {
+    const buttons = document.querySelectorAll('.content-btn');
+    const quizButtons = document.querySelectorAll('.quiz-button'); // Select only enabled quiz buttons
+    const contents = document.querySelectorAll('.content');
+
+    // Show the content for Button 1 by default
+
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        const targetContent = this.getAttribute('data-target');
+
+        // Hide all content divs
+        contents.forEach(content => {
+          content.style.display = 'none';
+        });
+
+        // Show the target content div
+        document.getElementById(targetContent).style.display = 'block';
+      });
+    });
+
+    quizButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        if (this.classList.contains('enabled')) { // Check if the button is enabled
+          const targetContent = this.getAttribute('data-target');
+
+          // Hide all content divs
+          contents.forEach(content => {
+            content.style.display = 'none';
+          });
+
+          // Show the target content div
+          document.getElementById(targetContent).style.display = 'block';
+        }
+      });
+    });
+  });
+  /*** Chapter onclick Script **/   
+</script>
+
+<script>
+
+$(document).ready(function () {
+    $('.content').each(function () {
+        const partId = this.id.split('-')[1];
+        const startScreen = $(`#startScreen-${partId}`);
+        const multiStepForm = $(`#multiStepForm-${partId}`);
+        const resultScreen = $(`#resultScreen-${partId}`);
+        const questions = multiStepForm.find('.question');
+        const totalQuestions = questions.length;
+        let currentQuestion = 1;
+      
+        // Get the form action URL from the data attribute
+        const formActionUrl = multiStepForm.data('action-url');
+      
+        // Function to show a specific question
+        function showQuestion(number) {
+            questions.hide();
+            $(`#question${number}-${partId}`).show();
+
+            // Toggle navigation buttons
+            multiStepForm.find('.next-button').toggle(number < totalQuestions);
+            multiStepForm.find('.prev-button').toggle(number > 1);
+            multiStepForm.find('.submit-button').toggle(number === totalQuestions);
+        }
+
+        // Attach start button event handler using direct binding instead of delegation
+        $(`#startTestButton-${partId}`).on('click', function() {
+            startScreen.hide();
+            resultScreen.hide();
+            
+            // Reset all radio buttons
+            multiStepForm.find('input[type="radio"]').prop('checked', false);
+            
+            // Reset any validation styling
+            multiStepForm.find('.question-box').removeClass('error');
+            
+            multiStepForm.show();
+            currentQuestion = 1; // Reset question tracker
+            showQuestion(currentQuestion);
+            
+            // Show autocomplete button if enabled
+            {% if autocomplete_enabled %}
+            $(`#autocompleteButton-${partId}`).show();
+            {% endif %}
+        });
+        
+        // Handle dynamically created retry buttons
+        $(document).on('click', `#startTestButton-${partId}`, function() {
+            if (!$(this).hasClass('disabled')) {
+                startScreen.hide();
+                resultScreen.hide();
+                
+                // Reset all radio buttons
+                multiStepForm.find('input[type="radio"]').prop('checked', false);
+                
+                // Reset any validation styling
+                multiStepForm.find('.question-box').removeClass('error');
+                
+                multiStepForm.show();
+                currentQuestion = 1; // Reset question tracker
+                showQuestion(currentQuestion);
+                
+                // Show autocomplete button if enabled
+                {% if autocomplete_enabled %}
+                $(`#autocompleteButton-${partId}`).show();
+                {% endif %}
+            }
+        });
+        
+        // Autocomplete functionality
+        {% if autocomplete_enabled %}
+        // Autocomplete button in start screen
+        $(`#autocompleteButton-${partId}`).on('click', function() {
+            autocompleteQuiz(partId);
+        });
+        
+        // Autocomplete button in quiz form
+        multiStepForm.find('.autocomplete-quiz-btn').on('click', function() {
+            autocompleteQuiz(partId);
+        });
+        
+        function autocompleteQuiz(partId) {
+            const form = $(`#multiStepForm-${partId}`);
+            const questions = form.find('.question');
+            
+            questions.each(function() {
+                const correctAnswerId = $(this).data('correct-answer');
+                if (correctAnswerId) {
+                    // Find and check the correct answer radio button
+                    const correctRadio = form.find(`input[type="radio"][value="${correctAnswerId}"]`);
+                    if (correctRadio.length > 0) {
+                        correctRadio.prop('checked', true);
+                        // Trigger change event to update UI if needed
+                        correctRadio.trigger('change');
+                    }
+                }
+            });
+            
+            // Navigate to last question to show submit button
+            currentQuestion = totalQuestions;
+            showQuestion(currentQuestion);
+        }
+        {% endif %}
+
+        // Navigation button handlers
+        multiStepForm.find('.next-button').on('click', function () {
+            // Check if current question has been answered
+            const currentQuestionElement = $(`#question${currentQuestion}-${partId}`);
+            const isAnswered = currentQuestionElement.find('input[type="radio"]:checked').length > 0;
+            
+            if (!isAnswered) {
+                // Add visual feedback
+                currentQuestionElement.find('.question-box').addClass('error');
+                alert('Please select an answer before continuing.');
+                return;
+            }
+            
+            currentQuestionElement.find('.question-box').removeClass('error');
+            
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        });
+
+        multiStepForm.find('.prev-button').on('click', function () {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        });
+
+        // Form submission handler
+        multiStepForm.off('submit').on('submit', function (e) {
+            e.preventDefault();
+            let $form = $(this);
+            
+            if ($form.data('submitted')) {
+                return; // Prevent duplicate submissions
+            }
+            
+            // Check if all questions have been answered
+            let allAnswered = true;
+            let unansweredQuestion = 0;
+            
+            questions.each(function(index) {
+                const questionNum = index + 1;
+                const isAnswered = $(this).find('input[type="radio"]:checked').length > 0;
+                
+                if (!isAnswered) {
+                    allAnswered = false;
+                    if (unansweredQuestion === 0) {
+                        unansweredQuestion = questionNum;
+                    }
+                    $(this).find('.question-box').addClass('error');
+                }
+            });
+            
+            if (!allAnswered) {
+                alert('Please answer all questions before submitting.');
+                currentQuestion = unansweredQuestion;
+                showQuestion(currentQuestion);
+                return;
+            }
+            
+            $form.data('submitted', true);
+            $form.find('button[type="submit"]').prop('disabled', true);
+
+            // Initialize counters
+            let correctAnswers = 0;
+            let incorrectAnswers = 0;
+
+            // Calculate the answers
+            questions.each(function () {
+                const selectedAnswer = $(this).find('input[type="radio"]:checked').val();
+                const correctAnswer = $(this).data('correct-answer');
+
+                if (selectedAnswer !== undefined) {
+                    if (selectedAnswer == correctAnswer) {
+                        correctAnswers++;                            
+                    } else {
+                        incorrectAnswers++;                            
+                    }
+                } else {                        
+                    incorrectAnswers++; // Consider unanswered questions as incorrect
+                }
+            });
+
+            // Update the result screen with the counts
+            resultScreen.find('.correct-ans').html(`<i class="fa-solid fa-check" style="color: #7dc227;"></i> <span class="correct-count">${correctAnswers}</span> Correct`);
+            resultScreen.find('.incorrect-ans').html(`<i class="fa-solid fa-xmark" style="color:#f04e49;"></i> <span class="incorrect-count">${incorrectAnswers}</span> Incorrect`);
+
+            // Serialize the form data
+            const formData = $form.serialize();
+            
+            console.log("Submitting form to:", formActionUrl);
+            console.log("Form data:", formData);
+
+            // AJAX submission code
+            $.ajax({
+                type: "POST",
+                url: formActionUrl,
+                data: formData,
+                success: function (response) {
+                    try {
+                        console.log("Response received:", response);
+                        // Try to parse the response as JSON if it's not already an object
+                        const data = typeof response === 'string' ? JSON.parse(response) : response;
+                        
+                        // Update scores from response
+                        if (data.scores && data.scores.length > 0) {
+                            resultScreen.find('.correct-count').text(data.scores[0].quiz_result.correct_answers);
+                            resultScreen.find('.incorrect-count').text(data.scores[0].quiz_result.incorrect_answers);
+                        }
+                        
+                        // Update retry button based on server response
+                        const retryButtonContainer = resultScreen.find('.retry-button-container');
+                        const movetoresumepartbutton = resultScreen.find('.move-to-resume-part');
+                        // Clear previous retry button content
+                        retryButtonContainer.empty();
+                        
+                        // Update with new retry button based on server response
+                        if (data.no_of_attempt === 1) {
+                            retryButtonContainer.html(`<div class="alert-info">
+                              <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                              </svg> 
+
+                              <div>
+                              You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz. </div>
+                              </div>
+
+                              <div><button type="button" id="startTestButton-${partId}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
+                              `);
+                        }
+                        else if(data.no_of_attempt === 0){
+                            {% if next_part %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
+                            {% else %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
+                            {% endif %}
+                        }else if(data.no_of_attempt === 3){
+                            {% if next_part %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
+                            {% else %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
+                            {% endif %}
+                        }else if (data.no_of_attempt === 2) {
+                            // Check if time restriction applies
+                            if (data.time_difference && data.time_difference < 86400) {
+                                // Time restriction applies
+                                if (data.time_difference < 300) {
+                                    // Show countdown timer
+                                    retryButtonContainer.html(`
+                                       
+                                      <div class="block-test">
+                                     <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
+                                     <li>You can review the chapter content and prepare for the third attempt.</li>
+                                     <li>After 24 hours, a <strong>third and final attempt</strong> becomes available automatically</li>
+                                     </div>
+                                    
+                                    <div>
+                                            <button type="button" id="startTestButton-${partId}" 
+                                                class="btn purple-button px-md-6 fw-600 mt-3 disabled" 
+                                                disabled="disabled"
+                                                data-window-closed-time="${data.window_closed_time}" 
+                                                data-part-id="${partId}">
+                                                Retry available in <span id="countdown-${partId}"></span>
+                                            </button>
+                                        </div>
+                                      
+                                    `);
+                                    
+                                    // Initialize countdown timer
+                                    initializeCountdown(partId, data.window_closed_time);
+                                } else {
+                                    // Just disabled button
+                                    retryButtonContainer.html(`
+                                        <div>
+                                            <button type="button" id="startTestButton-${partId}" 
+                                                class="btn purple-button px-md-6 fw-600 mt-3 disabled" 
+                                                disabled="disabled">
+                                                Last attempt
+                                            </button>
+                                        </div>
+                                    `);
+                                }
+                            } else {
+                                // No time restriction
+                                retryButtonContainer.html(`
+                                    <div>
+                                        <button type="button" id="startTestButton-${partId}" 
+                                            class="btn purple-button px-md-6 fw-600 mt-3">
+                                            Last attempt
+                                        </button>
+                                    </div>
+                                `);
+                            }
+                        }
+                        
+                        resultScreen.show(); // Show the results
+                        multiStepForm.hide(); // Hide the quiz form
+                    } catch (e) {
+                        console.error("Error parsing response:", e);
+                        // If we can't parse the response, just reload the page
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Submission error:", error);
+                    console.error("Status:", status);
+                    console.error("Response:", xhr.responseText);
+                    
+                    // If the server redirects instead of returning JSON, handle it
+                    if (xhr.status === 302) {
+                        window.location.reload(); // Reload the page to get the updated state
+                    } else {
+                        resultScreen.show(); // Still show results with client-side calculations
+                        multiStepForm.hide();
+                    }
+                },
+                complete: function() {
+                    // Re-enable the submit button after the request completes
+                    $form.find('button[type="submit"]').prop('disabled', false);
+                    $form.data('submitted', false); // Allow resubmission after request completes
+                }
+            });
+        });
+    });
+});
+
+  function initializeCountdown(partId, windowClosedTime) {
+  const countdownElement = document.getElementById(`countdown-${partId}`);
+  if (!countdownElement) return;
+  
+  const closedTime = new Date(windowClosedTime).getTime();
+  const unlockTime = new Date(closedTime.getTime() + (5*60 * 1000));
+  
+  // Update countdown every second
+  const countdownInterval = setInterval(function() {
+    const now = new Date().getTime();
+    const timeLeft = unlockTime - now;
+    
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      location.reload(); // Refresh page when time is up
+      return;
+    }
+    
+    // Calculate time components
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+    
+    // Display the countdown
+    countdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+  }, 1000);
+}
+  </script>
+
+
+
+
+<script>
+  function toggleAccordion(button, partId) {
+    // Remove active class from all buttons
+    const buttons = document.querySelectorAll('.t-button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    // Add active class to the clicked button
+    button.classList.add('active');
+  }
+  </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    let partId = "{{ show_part_id }}";  // Get partId from Django context
+    let quizId = "{{ show_quiz_id }}";
+
+    if (quizId != -1) {
+        let button = document.querySelector(`[data-target="contentquiz-${partId}"]`);
+        if (button) {
+            toggleAccordion(button, partId);
+        }
+    } else {
+        let button = document.querySelector(`[data-target="content-${partId}"]`);
+        if (button) {
+            toggleAccordion(button, partId);
+        }
+    }
+});
+</script>
+
+
+<script>
+
+  // Mobile sidebar functionality
+  document.addEventListener('DOMContentLoaded', function() {
+      // Create sidebar toggle button
+      const toggleButton = document.createElement('button');
+      toggleButton.className = 'sidebar-toggle-btn';
+      toggleButton.id = 'sidebar-toggle-btn';
+      toggleButton.innerHTML = '<i class="fas fa-book"></i> Course Chapters';
+      document.body.appendChild(toggleButton);
+      
+      // Create overlay div
+      const overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      document.body.appendChild(overlay);
+      
+      // Get the sidebar element
+      const sidebar = document.querySelector('.course-sidebar');
+      
+      // Add close button to sidebar
+      const closeButton = document.createElement('button');
+      closeButton.className = 'sidebar-close d-md-none d-block';
+      closeButton.innerHTML = '<i class="fas fa-times"></i>';
+      if (sidebar) {
+          sidebar.appendChild(closeButton);
+      }
+      
+      // Function to toggle sidebar
+      function toggleSidebar() {
+          if (sidebar) {
+              sidebar.classList.toggle('sidebar-visible');
+              overlay.classList.toggle('active');
+              document.body.classList.toggle('sidebar-open');
+          }
+      }
+      
+      // Add click event to toggle button
+      toggleButton.addEventListener('click', toggleSidebar);
+      
+      // Add click event to close button
+      closeButton.addEventListener('click', toggleSidebar);
+      
+      // Close sidebar when clicking on overlay
+      overlay.addEventListener('click', toggleSidebar);
+      
+      // Handle window resize
+      window.addEventListener('resize', function() {
+          if (window.innerWidth >= 992) { // lg breakpoint
+              // Reset sidebar state on desktop
+              if (sidebar) {
+                  sidebar.classList.remove('sidebar-visible');
+                  overlay.classList.remove('active');
+                  document.body.classList.remove('sidebar-open');
+              }
+          }
+      });
+      
+      // Initialize sidebar state based on screen size
+      if (window.innerWidth < 992 && sidebar) {
+          sidebar.classList.add('course-sidebar-mobile');
+      }
+  });
+  
+  
+  
+  </script>
+
+  <!-- DEBUG: Quiz Pass/Fail Status Logging (only when DEBUG is True) -->
+  {% if debug %}
+  <script>
+  (function() {
+      const DEBUG = true;
+      const debugLog = (message, data = null) => {
+          if (DEBUG) {
+              console.log(`[QUIZ DEBUG] ${message}`, data || '');
+          }
+      };
+      
+      // Quiz status data from Django context
+      const quizData = {
+          show_part_id: {{ show_part_id|default:"null" }},
+          show_quiz_id: {{ show_quiz_id|default:"-1" }},
+          quiz_completed: {% if quiz_completed %}true{% else %}false{% endif %},
+          show_next_button: {% if show_next_button %}true{% else %}false{% endif %},
+          show_reattempt_button: {% if show_reattempt_button %}true{% else %}false{% endif %},
+          no_of_attempt: {{ no_of_attempt|default:"0" }},
+          quiz_pass_status: {{ quiz_pass_status|safe }},
+          has_passed_quiz_status: {{ has_passed_quiz_status|safe }},
+          answers_data: {{ answers_data|safe }},
+          next_part: {% if next_part %}{{ next_part.id }}{% else %}null{% endif %},
+          next_part_for_quiz: {% if next_part_for_quiz %}{{ next_part_for_quiz.id }}{% else %}null{% endif %}
+      };
+      
+      debugLog('=== QUIZ DEBUG INFORMATION ===');
+      debugLog('Current Part ID:', quizData.show_part_id);
+      debugLog('Current Quiz ID:', quizData.show_quiz_id);
+      debugLog('Quiz Completed:', quizData.quiz_completed);
+      debugLog('Show Next Button:', quizData.show_next_button);
+      debugLog('Show Re-attempt Button:', quizData.show_reattempt_button);
+      debugLog('Number of Attempts:', quizData.no_of_attempt);
+      debugLog('Next Part:', quizData.next_part);
+      debugLog('Next Part for Quiz:', quizData.next_part_for_quiz);
+      
+      debugLog('\n--- Quiz Pass Status (Score >= 60%) ---');
+      Object.keys(quizData.quiz_pass_status).forEach(partId => {
+          const passed = quizData.quiz_pass_status[partId];
+          debugLog(`Part ${partId}: ${passed ? 'PASSED' : 'FAILED'}`, passed);
+      });
+      
+      debugLog('\n--- User Pass Status (Attempt Track Deleted = Passed) ---');
+      Object.keys(quizData.has_passed_quiz_status).forEach(partId => {
+          const hasPassed = quizData.has_passed_quiz_status[partId];
+          debugLog(`Part ${partId}: ${hasPassed ? 'USER PASSED' : 'USER NOT PASSED'}`, hasPassed);
+      });
+      
+      debugLog('\n--- Quiz Results (Correct/Incorrect) ---');
+      Object.keys(quizData.answers_data).forEach(partId => {
+          const data = quizData.answers_data[partId];
+          const correct = data.correct || 0;
+          const incorrect = data.incorrect || 0;
+          const total = correct + incorrect;
+          const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+          debugLog(`Part ${partId}: ${correct} correct, ${incorrect} incorrect (${percent}%)`, data);
+      });
+      
+      // Check current quiz status
+      if (quizData.show_quiz_id && quizData.show_quiz_id !== -1) {
+          const currentPartId = quizData.show_quiz_id;
+          debugLog(`\n--- Current Quiz (Part ${currentPartId}) Status ---`);
+          
+          const quizPassed = quizData.quiz_pass_status[currentPartId] || false;
+          const userPassed = quizData.has_passed_quiz_status[currentPartId] || false;
+          const answers = quizData.answers_data[currentPartId] || {};
+          const correct = answers.correct || 0;
+          const incorrect = answers.incorrect || 0;
+          const total = correct + incorrect;
+          const percent = total > 0 ? Math.round((correct / total) * 100) : 0;
+          
+          debugLog(`Quiz Score: ${correct}/${total} (${percent}%)`);
+          debugLog(`Quiz Passed (>=60%): ${quizPassed ? 'YES' : 'NO'}`);
+          debugLog(`User Passed (Attempt Track Deleted): ${userPassed ? 'YES' : 'NO'}`);
+          debugLog(`Attempt Number: ${quizData.no_of_attempt}`);
+          debugLog(`Button Logic:`);
+          debugLog(`  - Show Next Button: ${quizData.show_next_button}`);
+          debugLog(`  - Show Re-attempt Button: ${quizData.show_reattempt_button}`);
+          
+          // Determine which case applies
+          if (userPassed && quizData.no_of_attempt === 1) {
+              debugLog(`  → Case 3: Passed on first attempt → Only "Next" button shown`);
+          } else if (userPassed && quizData.no_of_attempt > 1) {
+              debugLog(`  → Case 2: Failed first, passed later → Only "Next" button shown`);
+          } else if (!userPassed) {
+              debugLog(`  → Case 1: Failed quiz → Only "Re-attempt" button shown`);
+          }
+      }
+      
+      debugLog('=== END QUIZ DEBUG ===\n');
+  })();
+  </script>
+  {% endif %}
+
+</html>

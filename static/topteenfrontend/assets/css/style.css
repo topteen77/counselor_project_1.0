@@ -1,0 +1,42 @@
+/* static/css/style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    padding: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #333;
+}
+
+p {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #333;
+}
+
+a {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+a:hover {
+    background-color: #45a049;
+}
+
+.student-info {
+    margin-bottom: 20px;
+}
+
+.student-info p {
+    margin: 0;
+}

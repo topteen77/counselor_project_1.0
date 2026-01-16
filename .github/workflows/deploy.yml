@@ -1,0 +1,39 @@
+name: Deploy to AWS
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_ed25519_github_devtopteen
+          chmod 600 ~/.ssh/id_ed25519_github_devtopteen
+          ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+      - name: Validate SSH Key
+        run: |
+          if [ ! -s ~/.ssh/id_ed25519_github_devtopteen ]; then
+            echo "SSH key is missing or empty!"
+            exit 1
+          fi
+      - name: Debug SSH
+        run: |
+          ssh -i ~/.ssh/id_ed25519_github_devtopteen -v ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} true
+      - name: Deploy to AWS
+        run: |
+          ssh -i ~/.ssh/id_ed25519_github_devtopteen ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} << 'EOF'
+            cd /home/ubuntu/Ankit/
+            source counselor_env/bin/activate
+            cd /home/ubuntu/Ankit/counselor_project
+            git pull origin main
+            pip install -r requirement.txt
+            python3 manage.py makemigrations
+            python3 manage.py migrate
+            python3 manage.py collectstatic --noinput
+            sudo systemctl restart counselor_project
+          EOF

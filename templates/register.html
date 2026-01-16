@@ -1,0 +1,239 @@
+{% load static %}
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="googlebot" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+    <link rel="mask-icon" href="{% static 'images/favicon/safari-pinned-tab.svg ' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <title>Every Student, Career Ready | Top Teen</title>
+
+  <!-- Bootstrap CSS -->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  
+  <!-- Preloading stylesheets -->
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min_test.css' %}">
+
+    <link rel="stylesheet" href="{% static 'css/custom-min.css' %}" type="text/css" media="all" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+    <!-- custom- js -->
+
+    <style>
+        p {
+            margin-bottom: 0px;
+        }
+        body {
+            font-family: 'Galano Grotesque' !important;
+            /*  height: 200vh;*/
+            position: relative;
+        }
+        p, semibold,a {
+            font-family: 'Galano Grotesque' !important;
+        }
+        h1, h2, h3, h4, h5, h6, button {
+            font-family: 'Galano Grotesque' !important;
+            ;
+        }
+        .boldFont {
+            font-weight: 700;
+        }
+        /* Style for required fields */
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+    </style>
+
+</head>
+
+<body>
+    <section class="login-home mt-md-10">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mx-auto ">
+               
+                    <form method="post" action="{% url 'counselor:user_signup' %}" id="signupForm">
+                        {% csrf_token %}
+                        <div class="login-screen text-center p-5">
+                            <div class="sample-img mb-4">
+                                <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
+                                    alt="TopTeen Logo">
+                            </div>
+                            <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">SIGN UP</h1>
+                            {% if messages %}
+                            <div class="django-messages">
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div id="formErrorMessage" class="alert alert-danger" style="display: none;">
+                                Please fill in all required fields.
+                            </div>
+                            <div class="form-row">
+                                <!-- Username -->
+                                <div class="col mb-4">
+                                    <label for="username" class="form-label text-start d-block required-field">Username</label>
+                                    <input type="text" id="username" name="username" class="form-control custom-input"
+                                        placeholder="Username" autocomplete="off" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">Please enter your
+                                        username.</div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col mb-4">
+                                    <label for="email" class="form-label text-start d-block required-field">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control custom-input"
+                                        placeholder="Enter your email" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">Please enter a valid email
+                                        address.</div>
+                                </div>
+
+                                <!-- Password -->
+                                <div class="col mb-4">
+                                    <label for="password" class="form-label text-start d-block required-field">Password</label>
+                                    <input type="password" id="password" name="password"
+                                        class="form-control custom-input" placeholder="Password" required minlength="6">
+                                    <div class="invalid-feedback float-start text-start mt-0">Please enter a password
+                                        (min. 6 characters).</div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="col mb-4">
+                                    <label for="confirm_password" class="form-label text-start d-block required-field">Confirm
+                                        Password</label>
+                                    <input type="password" id="confirm_password" name="confirm_password"
+                                        class="form-control custom-input" placeholder="Confirm Password" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">Re enter password</div>
+                                </div>
+
+                                <!-- Register Button -->
+                                <div class="setting-button">
+                                    <button type="submit" class="purple-button button w-100 py-2">REGISTER NOW</button>
+                                </div>
+
+                                <!-- Redirect to Login -->
+                                <p class="mt-4">
+                                    Already a member?
+                                    <a class="text-blue" href="{% url 'counselor:login_view' %}">SIGN IN</a>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+        integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'icef-courses/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'icef-courses/js/main.js' %}"></script>
+    <script src="{% static 'icef-courses/js/jquery.sticky.js' %}"></script>
+    
+    <!-- Form validation script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('signupForm');
+            
+            form.addEventListener('submit', function(event) {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+                const errorMessage = document.getElementById('formErrorMessage');
+                
+                // Reset validation state
+                errorMessage.style.display = 'none';
+                requiredFields.forEach(field => {
+                    field.classList.remove('is-invalid');
+                });
+                
+                // Check each required field
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                    }
+                });
+                
+                // Check if passwords match
+                const password = document.getElementById('password');
+                const confirmPassword = document.getElementById('confirm_password');
+                
+                if (password.value !== confirmPassword.value) {
+                    isValid = false;
+                    confirmPassword.classList.add('is-invalid');
+                    confirmPassword.nextElementSibling.textContent = 'Passwords do not match';
+                }
+                
+                // Prevent form submission if validation fails
+                if (!isValid) {
+                    event.preventDefault();
+                    errorMessage.style.display = 'block';
+                    window.scrollTo(0, 0);
+                }
+            });
+            
+            // Real-time validation
+            const inputs = form.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid') && this.value.trim()) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+            
+            // Password match validation
+            const confirmPassword = document.getElementById('confirm_password');
+            confirmPassword.addEventListener('input', function() {
+                const password = document.getElementById('password');
+                if (this.value !== password.value) {
+                    this.classList.add('is-invalid');
+                    this.nextElementSibling.textContent = 'Passwords do not match';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

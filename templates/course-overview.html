@@ -1,0 +1,616 @@
+{% load static %}
+
+<head>
+  <meta charset="utf-8">
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <meta name="googlebot" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="apple-touch-icon" sizes="180x180"
+    href="{% static 'topteenfrontend/assets/images/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="{% static 'topteenfrontend/assets/images/favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="{% static 'topteenfrontend/assets/images/favicon/favicon-16x16.png' %}">
+  <link rel="mask-icon" href="{% static 'topteenfrontend/assets/images/favicon/safari-pinned-tab.svg' %}"
+    color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <title>Counsellor Course</title>
+
+  <!-- Bootstrap CSS -->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+  <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css">
+  <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css">
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}" />
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}" />
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" />
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min.css' %}" type="text/css" media="all" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+
+  <!-- custom- js -->
+
+  <style>
+    p {
+      margin-bottom: 0px;
+    }
+
+    body {
+      font-family: 'Galano Grotesque' !important;
+      /*  height: 200vh;*/
+      position: relative;
+    }
+
+    p,
+    semibold,
+    a {
+      font-family: 'Galano Grotesque' !important;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    button {
+      font-family: 'Galano Grotesque' !important;
+      ;
+    }
+
+    .boldFont {
+      font-weight: 700;
+    }
+
+    /* Custom styles for the backdrop */
+    .backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 30;
+      /* Below the drawer */
+      display: none;
+      /* Hidden by default */
+    }
+
+
+    .accordion-button::after {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-plus' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3C/svg%3E");
+      transition: all 0.5s;
+    }
+
+    .accordion-button:not(.collapsed)::after {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-dash' viewBox='0 0 16 16'%3E%3Cpath d='M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z'/%3E%3C/svg%3E");
+    }
+
+    .accordion-button::after {
+      transition: all 0.5s;
+    }
+
+
+
+    .custom-faq .nav-link {
+      border: 1px solid rgba(63, 55, 201, 1);
+      color: rgba(63, 55, 201, 1);
+      transition: all 0.5s;
+    }
+
+    .custom-faq .nav-link.active,
+    .custom-faq .nav-link:hover {
+      border: 1px solid rgba(63, 55, 201, 1);
+      background: rgba(63, 55, 201, 1);
+      color: #fff;
+    }
+
+
+    .custom-faq .accordion-item {
+      margin-bottom: 13px;
+      border: 1px solid #C4C4C4 !important;
+      border-radius: 10px !important;
+      overflow: hidden;
+      background: none;
+    }
+
+    .custom-faq .accordion-item .accordion-header button {
+      background: no-repeat;
+    }
+
+    .custom-faq .accordion-item .accordion-header .accordion-button {
+      font-size: 20px;
+      font-weight: 600;
+      background-color: #F9F9F9;
+      ;
+
+    }
+
+
+    .custom-faq .accordion-button:not(.collapsed) {
+      color: #3F37C9;
+      font-weight: 600;
+      background: none !important;
+      box-shadow: none;
+    }
+
+    .custom-faq .accordion-collapse.collapse.show {
+      border: 0px !important;
+      background: #fff;
+      font-weight: 400;
+    }
+
+    .custom-faq ul {
+      list-style: disc;
+    }
+  </style>
+
+  <style>
+    .ld-focus-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background-color: #f9f9f9;
+      border-bottom: 1px solid #ddd;
+      font-family: Arial, sans-serif;
+    }
+
+    .ld-brand-logo img {
+      height: 50px;
+    }
+
+    .ld-progress-wrap {
+      width: 300px;
+    }
+
+    .ld-progress-heading {
+      margin-bottom: 5px;
+    }
+
+    .ld-progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .ld-progress-percentage {
+      font-weight: bold;
+      color: #0073e6;
+      /* Secondary color */
+    }
+
+    .ld-progress-steps {
+      color: #666;
+    }
+
+    .ld-progress-bar {
+      height: 10px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .ld-progress-bar-percentage {
+      height: 100%;
+      background-color: #0073e6;
+
+      /* Secondary background */
+      width: {
+          {
+          completed_percent_value
+        }
+      }
+
+      %;
+      /* transition: width 0.5s ease; */
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="mx-auto hidden lg:flex justify-between py-[16px] border-b-[2px] border-[#EBEBEE]">
+    <div class="hidden lg:flex justify-between lg:container mx-auto">
+      <ul class="flex gap-[24px] mb-0">
+        <li class="flex"> <a href="/"> <img src="https://www.topteen.in/static/topteenfrontend/assets/images/logo.svg"
+              class="w-[38.5px] h-[38.5px]" alt=""> </a> <a href="/">
+            <p class="text-[13.8px] leading-[18px] mt-[14px] ml-[8px] font-bold text-[#494949] tracking-[0.01em]">
+              TOPTEEN </p>
+          </a> </li>
+        <li class="flex"> <i class="fa fa-search mt-[15px] -mr-[32px] text-[#bdbdbd] z-[20]" aria-hidden="true"></i>
+          <form action="/searchand-explore-result" method="get" autocomplete="off" class="mb-0">
+            <div class="relative">
+              <input name="search" type="text" placeholder=" Careers, colleges, courses..."
+                class="searchBox searchinput h-[48px] w-[300px] rounded-[10px] pl-[36px] bg-[#f7f7fa] border-[1.5px] border-solid border-[#dcdcdc] placeholder-[#bdbdbd] z-[10]"
+                id="collegesearch" onfocus="focusFunc()" required="" oninput="inputFunc()" value="">
+              <div id="searchresults"> </div>
+              <!-- Before Typing -->
+
+            </div>
+          </form>
+        </li>
+      </ul>
+      <ul class="flex gap-[12px] mb-0">
+        <a href="/user/user-feeds">
+          <li class="flex"> <img src="https://www.topteen.in/static/topteenfrontend/assets/images/discover.svg"
+              class="w-[22px] h-[22px] mt-[10px]" alt="">
+            <p class="text-[14px] leading-[19px] font-semibold mt-[12px] ml-[4px]"> Discover </p>
+          </li>
+        </a> <a href="/testprep/">
+          <li class="flex"> <img src="https://www.topteen.in/static/topteenfrontend/assets/images/myPlans.svg"
+              class="w-[22px] h-[22px] mt-[10px]" alt="">
+            <p class="text-[14px] leading-[19px] font-semibold mt-[12px] ml-[8px] text-[#828282]"> Test prep </p>
+          </li>
+        </a> <a id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification"
+          class="mt-3 relative inline-flex items-center text-sm font-medium text-center text-gray-500 hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400 w-[14px] h-[14px]"
+          type="button">
+          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+            viewBox="0 0 14 20">
+            <path
+              d="M12.133 10.632v-1.8A5.406 5.406 0 0 0 7.979 3.57.946.946 0 0 0 8 3.464V1.1a1 1 0 0 0-2 0v2.364a.946.946 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C1.867 13.018 0 13.614 0 14.807 0 15.4 0 16 .538 16h12.924C14 16 14 15.4 14 14.807c0-1.193-1.867-1.789-1.867-4.175ZM3.823 17a3.453 3.453 0 0 0 6.354 0H3.823Z" />
+          </svg>
+          <div class="ping"></div>
+        </a>
+
+        <!-- Dropdown menu -->
+        <div id="dropdownNotification"
+          class="custom-notification z-50 hidden w-[339px] bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
+          aria-labelledby="dropdownNotificationButton">
+          <div
+            class="block px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+            Notifications </div>
+          <div class="divide-y divide-gray-100 dark:divide-gray-700  overflow-y-auto h-[250px]"> <a href="#"
+              class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div class="w-full ps-3">
+                <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400">New message from <span
+                    class="font-semibold text-gray-900 dark:text-white">Jese Leos</span>: "Hey, what's up? All set for
+                  the presentation?"</div>
+                <div class="text-xs text-blue-600 dark:text-blue-500">a few moments ago</div>
+              </div>
+            </a> <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div class="w-full ps-3">
+                <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
+                    class="font-semibold text-gray-900 dark:text-white">Joseph Mcfall</span> and <span
+                    class="font-medium text-gray-900 dark:text-white">5 others</span> started following you.</div>
+                <div class="text-xs text-blue-600 dark:text-blue-500">10 minutes ago</div>
+              </div>
+            </a> <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div class="w-full ps-3">
+                <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
+                    class="font-semibold text-gray-900 dark:text-white">Bonnie Green</span> and <span
+                    class="font-medium text-gray-900 dark:text-white">141 others</span> love your story. See it and view
+                  more stories.</div>
+                <div class="text-xs text-blue-600 dark:text-blue-500">44 minutes ago</div>
+              </div>
+            </a> <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div class="w-full ps-3">
+                <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
+                    class="font-semibold text-gray-900 dark:text-white">Leslie Livingston</span> mentioned you in a
+                  comment: <span class="font-medium text-blue-500" href="#">@bonnie.green</span> what do you say?</div>
+                <div class="text-xs text-blue-600 dark:text-blue-500">1 hour ago</div>
+              </div>
+            </a> <a href="#" class="flex px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div class="w-full ps-3">
+                <div class="text-gray-500 text-sm mb-1.5 dark:text-gray-400"><span
+                    class="font-semibold text-gray-900 dark:text-white">Robert Brown</span> posted a new video:
+                  Glassmorphism - learn how to implement the new design trend.</div>
+                <div class="text-xs text-blue-600 dark:text-blue-500">3 hours ago</div>
+              </div>
+            </a> </div>
+          <a href="#"
+            class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white">
+            <div class="inline-flex items-center ">
+              <svg class="w-4 h-4 me-2 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 14">
+                <path
+                  d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
+              </svg>
+              View all
+            </div>
+          </a>
+        </div>
+        <li class="flex relative">
+          <div>
+            <button class="popTrigr h-[42px] w-[42px] rounded-full -mr-[16px]"> <img
+                src="https://www.topteen.in/media/upload/users/1/marketer-creates-workflow-automation_1_ORL7EfU.jpg"
+                alt="" class="h-full w-full rounded-full object-cover"> </button>
+          </div>
+          <div class="absolute z-80 popDiv w-[144px] inline-block">
+            <div id="smallPop"
+              class="hidden px-[10px] py-[10px] bg-[#FFFFFF] shadow-lg rounded-[8px] relative flex flex-col gap-[6px]">
+              <button onclick="window.location='/user/logout'" value="3"
+                class="text-black hover:bg-slate-200 text-[16px] font-bold py-1  h-full transition-all duration-[600ms] ease-in-out w-full">
+                Logout </button>
+              <div class="trianglePop absolute left-[50%] -translate-x-[50%]"> </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <section
+    class="mx-auto relative z-10 icef-hero-section py-md-8 lg:landingPageDesktopGradient landingPageMobileGradient">
+    <div
+      class="max-w-[1082px] mx-auto  flex lg:flex-row lg:justify-between lg:items-center flex-col-reverse hero-slider">
+      <div class="grid lg:grid-cols-2 gap-4 mb-4 item-center  px-5 px-md-0">
+        <div class="left-panel order-md-1 order-2 flex items-center">
+          <div>
+            <h1
+              class="boldFont lg:leading-[1.35em] lg:text-[30px] text-[#333333] mb-[9px] boldFont  lg:text-left text-[24px] leading-[32px] mt-md-5 mt-0"
+              style="line-height: 35px;">
+              Welcome to
+              the Study Abroad Counsellor Training Course for the {{ course.title }}</h1>
+            <p class="font-normal text-[16px] leading-[1.68em] text-[#0F0F0F] text-opacity-70 mb-[34px] ">{{ intro }}
+            </p>
+            <div class="flex lg:flex-row lg:justify-start lg:gap-x-[29px] flex-col gap-y-[25px] mx-auto">
+              {% if resume == 0 %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}"
+                class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                <span class="text-[18px]">Start Course</span>
+              </a>
+              {% else %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title  %}"
+                class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                <span class="text-[18px]">Resume Course</span></a>
+              <div class="ld-progress">
+                <div class="ld-progress-wrap">
+                  <div class="ld-progress-heading">
+                    <div class="ld-progress-stats">
+                      <div class="ld-progress-percentage">
+                        {{completed_percent_value}}% Complete
+                      </div>
+                      <div class="ld-progress-steps">
+                        {{number_of_completed_parts}}/{{total_parts}} Steps
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ld-progress-bar">
+                    <div class="ld-progress-bar-percentage" style="width: {{completed_percent_value}}%;"></div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+        </div>
+        <div class="right-panel flex justify-center order-md-2 order-1"> <img
+            src="{% static 'topteenfrontend/assets/images/course_overview/' %}{{ course.title }}.png" /> </div>
+      </div>
+    </div>
+  </section>
+  <section class="mx-auto relative z-10  py-md-11 py-5 px-md-0 px-4">
+    <div class="lg:flex flex-col justify-start items-center max-w-[1082px]  mx-auto">
+
+      <h3
+        class="w-[617px] text-center text-[30px] leading-[45px] tracking-[0.035em] text-[#333333] semibold mb-[58px] boldFont heading-width">
+        Course Overview</h3>
+      <div class="w-full custom-faq">
+        <div class="accordion" id="accordionExample">
+          {% for chapter in course.chapters.all %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading{{ chapter.id }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ chapter.id }}" aria-expanded="false"
+                aria-controls="collapse{{ chapter.id }}">
+                {{ chapter.title }}
+              </button>
+            </h2>
+            <div id="collapse{{ chapter.id }}" class="accordion-collapse collapse"
+              aria-labelledby="heading{{ chapter.id }}" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                {% for part in chapter.parts.all %}
+                <ul>
+                  <li>{{ part.title }}</li>
+                </ul>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <p class="mt-5">{{ conclusion }}</p>
+
+    </div>
+  </section>
+
+  <div class="secondBlogDetailBlueBanner w-full lg:h-[115px] ">
+    <div class="lg:flex lg:container lg:justify-between py-[24px] lg:pt-[34px] my-auto  mx-auto">
+      <p class="text-[28px] leading-[37.8px] text-[#ffffff] semibold tracking-[0.035em] text-center pt-[5px]">Interested
+        in getting latest updates?</p>
+      <div class="bg-[#eaeaea] rounded-[10px] w-[239px] h-[53px] mx-auto my-[6px] lg:my-auto ">
+        <button class="bg-[#ffffff] rounded-[10px] flex content-center justify-center gap-[3px] h-[48px] w-[239px]">
+          <img src="../assets/images/bookmark.png" class="max-w-[28px] max-h-[28px] my-auto" alt="">
+          <p class="text-[14px] leading-[18.9px] boldFont text-[#4f4f4f] my-auto">SUBSCRIBE NOW</p>
+        </button>
+      </div>
+    </div>
+  </div>
+  <section class="footer-nav d-lg-none d-block">
+    <div class="nav-footer">
+      <ul>
+        <li> <a href="#" class="ft-dis-icon"> <span></span>
+            <p>Discover</p>
+          </a> </li>
+        <li> <a href="#" class="ft-search-icon"> <span></span>
+            <p>Search</p>
+          </a> </li>
+        <li> <a href="#" class="ft-dash-icon"> <span></span>
+            <p>My Dashboard</p>
+          </a> </li>
+        <li> <a href="#" class="ft-learn-icon"> <span></span>
+            <p>Learn</p>
+          </a> </li>
+        <li> <a href="#" class="ft-profile-icon"> <span></span>
+            <p>Profile</p>
+          </a> </li>
+      </ul>
+    </div>
+  </section>
+  <footer class="hidden lg:block bg-[#fdfcff]  mx-auto py-[60px]">
+    <div class="lg:container mx-auto">
+      <div class="flex justify-between">
+        <div class="w-[246px]">
+          <div class="flex gap-[8.2px]"> <img src="/static/topteenfrontend/assets/images/logo.svg"
+              class="w-[38.58px] h-[38.58px]" alt="">
+            <p class="text-[13.13px] leading-[17.73px] text-[#494949] mt-[12px] font-bold"> TOPTEEN </p>
+          </div>
+          <div>
+            <p class="text-[16px] leading-[21.6px] tracking-[0.01em] text-[#828282] mt-[18px]"> Every Student, Career
+              Ready! </p>
+          </div>
+        </div>
+        <div class="flex gap-[109px]">
+          <div> <a href="/about-us">
+              <p class="text-[16px] leading-[21.6px] text-[#333333] tracking-[0.01em] font-bold"> About the company </p>
+            </a> <a href="/">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[22px]"> TopTeen </p>
+            </a> <a href="/about-us">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> About Us </p>
+            </a> <a href="/contact-us">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> Contact Us </p>
+            </a> </div>
+          <div> <a href="#">
+              <p class="text-[16px] leading-[21.6px] text-[#333333] tracking-[0.01em] font-bold"> Product </p>
+            </a> <a href="/psychometrictest/">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[22px]"> Career Assesment Test </p>
+            </a> <a href="/blogs/category/blogs">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> Blogs For Students </p>
+            </a> <a href="/blogs/category/parenting-blogs">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> Blogs For Parents </p>
+            </a> <a href="/all-faq">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> FAQs </p>
+            </a> </div>
+          <div> <a href="#">
+              <p class="text-[16px] leading-[21.6px] text-[#333333] tracking-[0.01em] font-bold"> Socials </p>
+            </a> <a href="https://www.instagram.com/topteen.careers/" target="_blank">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[22px]"> Instagram </p>
+            </a> <a href="https://twitter.com/topteencareers" target="_blank">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> Twitter </p>
+            </a> <a href="https://www.facebook.com/topteen.in" target="_blank">
+              <p class="text-[16px] leading-[21.6px] text-[#828282] mt-[16px]"> Facebook </p>
+            </a> </div>
+        </div>
+      </div>
+      <hr class="text-[#000000] opacity-[0.8] font-bold mt-[42px]">
+      <div class="flex justify-between mt-[12px]">
+        <p class="text-[12px] leading-[16.2px] text-[#828282]"> © 2023 TopTeen. All rights reserved. </p>
+        <div class="text-[12px] leading-[16px] text-[#828282] flex"> <a href="/terms-and-condition"
+            class="underline-offset-[2px]">Terms and Conditions</a>
+          <p>&nbsp;.</p>
+          <a href="/privacy-policy" class="underline-offset-[2px]">&nbsp;Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Drawer for Counsellor Book Course -->
+
+  <div id="backdrop" class="backdrop"></div>
+  <div id="bottomDrawer"
+    class="z-80 fixed inset-x-0 bottom-0 bg-white shadow-lg transform translate-y-full transition-transform duration-300"
+    aria-hidden="true">
+    <div class="p-4">
+      <button id="closeButton" type="button"
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute right-[20px]  top-[20px] end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white">
+        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+        </svg>
+        <span class="sr-only">Close menu</span> </button>
+      <div class="td-is flex flex-col p-3 ">
+        <div class="lim-list flex items-center mb-2 fs-14"> <img class="me-3" style="width: 16px; height: 14px;"
+            src="images/am-icon.png" alt="icon" /> <span> Total Assessments - <b>10</b> </span> </div>
+        <div class="lim-list flex  items-center mb-2 fs-14"> <img class="me-3" style="width: 16px; height: 14px;"
+            src="images/stack-icon.png" alt="icon" /> <span> Number of Chapters - <b>15</b> </span> </div>
+        <div class="lim-list flex  items-center mb-2 fs-14"> <img class="me-3" style="width: 16px; height: 14px;"
+            src="images/question-icons.png" alt="icon" /> <span> Number of Questions - <b>180</b> </span> </div>
+        <div class="lim-list flex  items-center mb-2 fs-14"> <img class="me-3" style="width: 16px; height: 14px;"
+            src="images/audit-report-survey-icon.png" alt="icon" /> <span>Course Test</span> </div>
+        <div class="lim-list flex  items-center mb-2 fs-14"> <img class="me-3" style="width: 10px; height:16px;"
+            src="images/cell-phone-icon.png" alt="icon" /> <span class="ms-2">Access on Mobile</span> </div>
+      </div>
+      <div class="flex justify-center mt-2 mb-3">
+        <button onclick="location.replace('counselor-course-information.html')"
+          class="uppercase px-6 py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center ">
+          <span class="text-[14px]">Start Now</span> </button>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://kit.fontawesome.com/df31b3ad5b.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script type="text/javascript" src="https://www.topteen.in//static/topteenfrontend/assets/js/slick.min.js"></script>
+<script src="https://unpkg.com/flowbite@1.5.3/dist/flowbite.js"></script>
+<script src="https://www.topteen.in/static/topteenfrontend/assets/js/userDashboard.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/homePage.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/common.js"></script>
+<script src="https://www.topteen.in/static/topteenfrontend/assets/js/common.js"></script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/search.js">    </script>
+<script type="text/javascript" src="https://www.topteen.in/static/topteenfrontend/assets/js/resumeBuilder.js"></script>
+
+<!--new js -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+  integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'topteenfrontend/assets/js/bootstrap.min.js'%}"></script>
+<!--new js -->
+
+<!-- Chart js -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.3/apexcharts.min.js"
+  integrity="sha512-yhdujT21BI/kqk9gcupTh4jMwqLhb+gc6Ytgs4cL0BJjXW+Jo9QyllqLbuluI0cBHqV4XsR7US3lemEGjogQ0w=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Chart js -->
+
+<script>
+
+
+
+
+
+
+  /** mobile drawer js **/
+
+
+
+  const drawerButton = document.getElementById('drawerButton');
+  const bottomDrawer = document.getElementById('bottomDrawer');
+  const closeButton = document.getElementById('closeButton');
+  const backdrop = document.getElementById('backdrop');
+
+  drawerButton.addEventListener('click', () => {
+    bottomDrawer.classList.remove('translate-y-full');
+    bottomDrawer.classList.add('translate-y-0');
+    bottomDrawer.setAttribute('aria-hidden', 'false');
+    backdrop.style.display = 'block'; // Show backdrop
+  });
+
+  closeButton.addEventListener('click', () => {
+    bottomDrawer.classList.add('translate-y-full');
+    bottomDrawer.classList.remove('translate-y-0');
+    bottomDrawer.setAttribute('aria-hidden', 'true');
+    backdrop.style.display = 'none'; // Hide backdrop
+  });
+
+  // Optional: Hide drawer when clicking on the backdrop
+  backdrop.addEventListener('click', () => {
+    bottomDrawer.classList.add('translate-y-full');
+    bottomDrawer.classList.remove('translate-y-0');
+    bottomDrawer.setAttribute('aria-hidden', 'true');
+    backdrop.style.display = 'none'; // Hide backdrop
+  });
+
+  /** mobile drawer js **/
+
+</script>

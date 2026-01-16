@@ -1,0 +1,141 @@
+{% load static %}
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex" />
+  <meta name="googlebot" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'topteenfrontend/assets/images/favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'topteenfrontend/assets/images/favicon/favicon-16x16.png' %}">
+  <link rel="mask-icon" href="{% static 'topteenfrontend/assets/images/favicon/safari-pinned-tab.svg ' %}" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <title>Every Student, Career Ready | Top Teen</title>
+
+  <!-- Bootstrap CSS -->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  
+  <!-- Preloading stylesheets -->
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min_test.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+  <!-- custom- js -->
+
+  <style>
+    p {
+        margin-bottom: 0px;
+    }
+    body {
+        font-family: 'Galano Grotesque' !important;
+        /*  height: 200vh;*/
+        position: relative;
+    }
+    p, semibold,a {
+        font-family: 'Galano Grotesque' !important;
+    }
+    h1, h2, h3, h4, h5, h6, button {
+        font-family: 'Galano Grotesque' !important;
+        ;
+    }
+    .boldFont {
+        font-weight: 700;
+    }
+    /* Custom styles for the backdrop */
+    .backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 30;
+        /* Below the drawer */
+        display: none;/* Hidden by default */
+    }
+
+    .alert-error{
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+
+    }
+    </style>
+
+
+</head>
+
+<body>
+  <section class="login-home mt-md-10">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-5 mx-auto ">
+          <form method="post" action="{% url 'counselor:user_login' %}">
+            {% csrf_token %}
+            <div class="login-screen  text-center p-5">
+              <div class="sample-img"> <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
+                  alt="topteen" /> </div>
+              <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">LOGIN</h1>
+              {% if messages %}
+              <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                  {{ message }}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="form-row">
+                <div class="col mb-4">
+                  <input type="text" id="Username" name="Username" class="form-control custom-input" placeholder="Enter Email ID">
+                  <div class="invalid-feedback float-start text-start mt-0"> Please Enter Correct username. </div>
+                </div>
+                <div class="col mb-4">
+                  <input type="password" id="password" name="password" class="form-control custom-input" placeholder="Enter Password">
+
+                  <div class="invalid-feedback float-start text-start mt-0"> Please Enter Correct Password. </div>
+                </div>
+                
+                 <div class="d-flex flex-col justify-content-center align-items-center mt-4">
+                  <div class="w-full mb-3">
+                      <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
+                  </div>
+                  <div class="w-full">
+                      <a href="{% url 'counselor:signup_view' %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                          SIGN UP
+                      </a>
+                  </div>
+              </div>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+    integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="{% static 'topteenfrontend/assets/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'topteenfrontend/assets/js/main.js' %}"></script>
+  <script src="{% static 'topteenfrontend/assets/js/jquery.sticky.js' %}"></script>
+</body>
+
+</html>

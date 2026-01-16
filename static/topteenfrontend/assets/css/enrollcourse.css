@@ -1,0 +1,570 @@
+
+
+p {
+      margin-bottom: 0px;
+    }
+
+    body {
+      font-family: 'Galano Grotesque' !important;
+      /*  height: 200vh;*/
+      position: relative;
+    }
+
+    p,
+    semibold,
+    a {
+      font-family: 'Galano Grotesque' !important;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    button {
+      font-family: 'Galano Grotesque' !important;
+      ;
+    }
+
+    .boldFont {
+      font-weight: 700;
+    }
+
+    .tab-content p {
+    color: #676565;
+    margin-bottom: 14px;
+}
+
+.chapter-detail {
+    text-align: left;
+    line-height: 17px;
+    font-size: 14px !important;
+}
+
+.tab-content ul {
+    list-style: inherit;
+}
+
+.list-data.active .chapter-detail {
+  color: #3F37C9 !important;
+  font-size: 18px !important;
+  font-weight: 600;
+}
+.top-right-flex .purple-button {
+  padding: 7px 0px;
+}
+  .tab-content {
+    display: none;
+  }
+
+  .radial-section, .video-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .progress-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .progress-container  svg {
+      transform: rotate(-90deg);
+      width: 25px;
+      height: 25px;
+    }
+    .progress-container  circle {
+      fill: none;
+      stroke-width: 2;
+    }
+    .progress-container  .bg-circle {
+      stroke: #ddd;
+    }
+    .progress-container  .progress-circle {
+      stroke: #4caf50;
+      stroke-dasharray: 65.97;
+      stroke-dashoffset: 65.97;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+    .progress-container  .tick {
+      display: none;
+      font-size: 20px;
+      color: green;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .progress-container  .tooltip {
+      display: none;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .progress-container:hover .tooltip {
+      display: block;
+    }
+    .quiz-button .tick i {
+      font-size: 24px;
+    }
+    .progress-container i.fa-solid.fa-circle-check.text-success {
+    position: absolute;
+    font-size: 24px;
+    right:0px;  
+}
+  .quiz-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      cursor: not-allowed !important;
+      color: #666;
+    }
+
+    .quiz-button .fa-lock {
+    display: block;
+}
+
+    .quiz-button .fa-unlock {
+    display: none;
+}
+
+.quiz-button.enabled .fa-unlock {
+    display: block;
+}
+
+.quiz-button.enabled .fa-lock {
+    display:none;
+}
+
+.quiz-button.enabled {
+    cursor: pointer !important;
+    background-color: #fff !important;
+    color: #828282 !important;
+}
+
+.my-corse-head {
+	background: rgb(63, 55, 201);
+	color: #fff;
+	border-radius: 15px 15px 0 0;
+}  .my-corse-head p {
+  color: #ffff;
+} 
+.content h5 {
+	font-size: 30px;
+	font-weight: 700;
+	color: rgb(63, 55, 201);
+	margin-bottom: 22px;
+}
+
+/** add note css **/
+	  
+.notes-section {
+    background: #ffff;
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px dashed #9d9d9d;
+	width:100%;
+	float:left;
+}
+.notes-section h5 {
+    font-size: 16px;
+}
+	
+	.note-info {
+	padding-left: 0px;
+	width: 100%;
+}
+	
+.note-info li {
+  width: 100%;
+  float: left;
+}
+	 .note-info li .addnote {
+width: 100%;
+  padding: 9px 10px;
+  font-size: 14px;
+  float: left;
+  background:#fbfbfb;
+  margin: 14px 0 0 0;
+  border-radius: 10px;
+  border: 1px solid #dbdbdb;
+	
+} 
+
+.coursecontent h3 {
+    font-size: 24px;
+}
+
+.coursecontent h4 {
+    font-size: 20px;
+}
+
+
+.tab-content h3 {
+  margin-top: 45px;
+}
+	
+/*
+	.note-info li:first-child .addnote{border-top:0px;}
+	
+*/
+	
+	
+	.time-data {
+  float: left;
+}
+	
+	.d-btn {
+	float: right;
+  display: flex;
+}
+
+span.content-data {
+    clear: both;
+    display: flex
+;
+}
+	
+	
+	.note-text {
+clear: both;
+  width: 100%;
+  float: left;
+  display: flex;
+  margin-top: 8px;
+}
+	
+	.time-data b {
+	display: flex;
+	background: #fff;
+	padding: 4px 4px;
+	border-radius: 5px;
+	color: #666161;
+	font-weight: normal;
+}
+	
+	.not-t {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+}
+	
+	.note-text .save-btn {
+	width: 63px;
+	/* height: 35px; */
+}
+	  
+/** add note css **/
+.chapter-title span {
+    text-align: left;
+}
+
+.content p {
+  color: #282828;
+  font-weight: 400;
+} 
+
+.content h5 {
+	font-size: 27px;
+	font-weight: 600;
+}.content p {
+  color: #282828;
+  font-weight: 400;
+} 
+
+.content ol {
+    list-style: numeric;
+}
+
+.disabled-button {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+
+    .code-certificate {
+    position: relative;
+    z-index: 99;
+  }
+  
+  @media print {
+  .no-print, .no-print * {
+      display: none !important;
+  }
+  .print-m-0 {
+      margin: 0 !important;
+  }
+  }
+  .top-content {
+    display: flex;
+        justify-content: space-between;
+        margin-top: -29px;
+        width: 61%;
+}
+
+  .toolbar {
+    background: #333;
+    width: 100%;
+    position: sticky;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    z-index: 11;
+}
+  .cert-container {
+      margin: 65px 0 10px 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+  }
+  .cert {
+      width: 800px;
+      height: 600px;
+      padding: 15px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 11;
+  }
+  .cert-bg {
+      position: absolute;
+      left: 0px;
+      top: 0;
+      z-index: -1;
+      width: 100%;
+  }
+  .cert-content {
+      width: 750px;
+      height: 470px;
+      padding: 70px 60px 0px 60px;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+  }
+ 
+  .bottom-txt {
+      padding: 12px 5px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+  }
+  .bottom-txt * {
+      white-space: nowrap !important;
+  }
+  .other-font {
+      font-family: Cambria, Georgia, serif;
+      font-style: italic;
+  }
+  .ml-215 {
+      margin-left: 215px;
+  }
+
+  .ld-focus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 30px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    font-family: Arial, sans-serif;
+    position: sticky;
+    top:0px;
+    z-index: 22;
+  }
+
+  .top-\[87px\] {
+    top: 87px;
+}
+  
+  .ld-brand-logo img {
+    height: 50px;
+  }
+  
+  .ld-progress-wrap {
+    width: 300px;
+  }
+  
+  .ld-progress-heading {
+    margin-bottom: 5px;
+  }
+  
+  .ld-progress-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .ld-progress-percentage {
+    font-weight: bold;
+    color: #0073e6; /* Secondary color */
+  }
+  
+  .ld-progress-steps {
+    color: #666;
+  }
+  
+  .ld-progress-bar {
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .ld-progress-bar-percentage {
+    height: 100%;
+    background-color: #0073e6; /* Secondary background */
+    width: {{completed_percent_value}}%;
+    /* transition: width 0.5s ease; */
+  }
+
+  .tab-content ol li ul {
+    list-style: disc;
+}
+
+a.btn.btn-primary.w-\[149px\] {
+    width: 149px;
+}
+
+.tab-content figure {
+	width: 650px;
+}
+
+.tab-content figure img {
+	width: 100%;
+}
+
+/* Mobile Sidebar Styles */
+
+/* Base sidebar styles */
+.course-sidebar {
+  transition: all 0.3s ease;
+  background-color: #FBFBFB;
+  border-radius: 10px;
+}
+
+/* Mobile sidebar toggle button */
+.sidebar-toggle-btn {
+  display: none;
+  position: fixed;
+  bottom: 80px; /* Position above footer nav */
+  right: 20px;
+  z-index: 1050;
+  background-color: #7e22ce; /* Purple color */
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sidebar-toggle-btn i {
+  margin-right: 5px;
+}
+
+/* Mobile styles */
+@media (max-width: 991px) {
+  .course-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85%;
+    max-width: 320px;
+    height: 100%;
+    background-color: #FBFBFB;
+    z-index: 1060;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transform: translateX(-100%); /* Hidden by default */
+  }
+  
+  .sidebar-toggle-btn {
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar-visible {
+    transform: translateX(0);
+  }
+  
+  /* Overlay when sidebar is visible */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1055;
+    display: none;
+  }
+  
+  .sidebar-overlay.active {
+    display: block;
+  }
+  
+  /* Close button inside sidebar */
+  .sidebar-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 1061;
+  }
+  
+  /* Add padding to top of sidebar content to make room for close button */
+  .sidebar-content {
+    padding-top: 20px;
+  }
+  
+  /* Prevent body scrolling when sidebar is open */
+  body.sidebar-open {
+    overflow: hidden;
+  }
+}
+
+/* Fix for iOS devices */
+@supports (-webkit-overflow-scrolling: touch) {
+  .course-sidebar {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+	
+
+@media (max-width:576px) {
+
+  .ld-focus-header {
+        flex-direction: column;
+    position: sticky;
+    top: 0px;
+    z-index: 22;
+}
+.ld-progress {
+  margin-bottom: 15px;
+}
+
+.tab-content figure {
+  width: 100%;
+}
+
+}

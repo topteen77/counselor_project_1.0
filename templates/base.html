@@ -1,0 +1,271 @@
+{% load static %}
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="googlebot" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+    <link rel="mask-icon" href="{% static 'images/favicon/safari-pinned-tab.svg ' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <title>Every Student, Career Ready | Top Teen</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="preload stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="preload stylesheet" href="{% static 'font/font-style.css' %}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css">
+    <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css">
+    <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}">
+    <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' % }">
+    <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/font/font-style.css' % }">
+
+    <link rel="stylesheet" href="{% static 'css/custom-min.css' %}" type="text/css" media="all" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+    <!-- custom- js -->
+
+</head>
+
+<body>
+    <header class="dashboard-header d-lg-block d-none">
+        <div class="container">
+            <nav class="header-nav">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="hd-left">
+                            <div class="logo"> <a href="{% url 'app:dashboard' %}"><img src="{% static 'images/logo.svg' %}" alt="Logo" /> </a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="nav-info">
+                            <ul class="nav-items-menu">
+                                <li> <a href="{% url 'app:dashboard' %}" class="dashboard"> My Dashboard </a> </li>
+                                <li> <a href="{% url 'app:app_submit' %}" class="dashboard"> My Assessments </a> </li>
+                                <li class="nav-item dropend">
+
+                                    <a class="nav-link dropdown-toggle user-icon" href="#"
+                                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span>
+                                            {% if user_profile %}
+                                                {% if user_profile.gender == 'M' %}
+                                                    <img src="{% static 'images/1_male.png' %}" />
+                                                {% elif user_profile.gender == 'F' %}
+                                                    <img src="{% static 'images/female.png' %}" />
+                                                {% else %}
+                                                    <img src="{% static 'images/default-user-image.png' %}" />
+                                                {% endif %}
+                                            {% else %}
+                                                <img src="{% static 'images/default-user-image.png' %}" />
+                                            {% endif %}
+                                        </span>
+                                        </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{% url 'app:logout' %}">Logout</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+    {% block main %} {% endblock %}
+
+
+    <footer class="footer-section white-footer pt-10">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="footer-logo">
+                        <div class="ft-logo-img"> <img src="{% static 'images/logo.svg' %}" alt="ft-logo"> </div>
+                        <p>Every Student, Career Ready! </p>
+                    </div>
+                </div>
+                <div class="col-8 offset-md-2 col-lg-2 col-md-2 col-sm-8">
+                    <div class="ft-list">
+                        <p class="ft-title">
+                            About Us
+                        </p>
+                        <ul>
+                            <li><a href="#">
+                                    TopTeen
+                                </a></li>
+                            <li><a href="https://www.topteen.in/about-us">
+                                    About Us
+                                </a></li>
+                            <li><a href="https://www.topteen.in/contact-us">
+                                    Contact Us
+                                </a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-4 col-lg-2 col-md-6 col-sm-4">
+                    <div class="ft-list">
+                        <p class="ft-title">
+                            Product
+                        </p>
+                        <ul>
+                            <li><a href="#">
+                                    Career Assesment Test
+                                </a></li>
+                            <li><a href="https://www.topteen.in/blogs/category/blogs">
+                                    Blogs For Students
+                                </a></li>
+                            <li><a href="https://www.topteen.in/blogs/category/parenting-blogs">
+                                    Blogs For Parents
+                                </a></li>
+                            <li><a href="https://www.topteen.in/all-faq">
+                                    FAQs
+                                </a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="ft-list">
+                        <p class="ft-title">Socials </p>
+                        <ul>
+                            <li><a href="https://www.instagram.com/topteen.careers/">
+                                    Instagram
+                                </a></li>
+                            <li><a href="https://twitter.com/topteencareers">
+                                    Twitter
+                                </a></li>
+                            <li><a href="https://www.facebook.com/topteen.in">
+                                    Facebook
+                                </a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="social-icon col-md-12">
+                    <ul>
+                        <li><a href="https://www.instagram.com/topteen.careers/"><i class="bi bi-instagram"></i></a> </li>
+                        <li><a href="https://www.facebook.com/topteen.in"><i class="bi bi-facebook"></i></a> </li>
+                        <li> <a href="#"><i class="bi bi-linkedin"></i></a> </li>
+                        <li> <a href="#"><i class="bi bi-youtube"></i></a> </li>
+                        <li><a href="https://twitter.com/topteencareers"><i class="bi bi-twitter"></i></a> </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class=" col-md-12">
+                    <div class="cp-footer">
+                        <div class="cp-text">
+                            <p>© 2024 TopTeen. All rights reserved.</p>
+                        </div>
+                        <div class="tt-ft-text">
+                            <ul>
+                                <li><a href="#">• Terms &amp; Conditions</a></li>
+                                <li><a href="#">• Privacy Policy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <section class="footer-nav d-lg-none d-block">
+        <div class="nav-footer">
+            <ul>
+                <li> <a href="#" class="ft-dis-icon"> <span></span>
+                        <p>Discover</p>
+                    </a> </li>
+                <li> <a href="#" class="ft-search-icon"> <span></span>
+                        <p>Search</p>
+                    </a> </li>
+                <li> <a href="#" class="ft-dash-icon"> <span></span>
+                        <p>My Dashboard</p>
+                    </a> </li>
+                <li> <a href="#" class="ft-learn-icon"> <span></span>
+                        <p>Learn</p>
+                    </a> </li>
+                <li> <a href="#" class="ft-profile-icon"> <span></span>
+                        <p>Profile</p>
+                    </a> </li>
+            </ul>
+        </div>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"
+        integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/jquery.sticky.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all alert messages
+            var alerts = document.querySelectorAll('.alert');
+            
+            alerts.forEach(function(alert) {
+                // Set a timeout to hide the alert after 3 seconds
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    // Optionally, remove the alert from the DOM after fading out
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 600); // Match this duration to the fade-out transition duration
+                }, 6000); // 3000 milliseconds = 3 seconds
+            });
+        });
+    </script>
+    
+    <style>       
+    
+        .alert {
+            margin-bottom: 10px; /* Space between messages */
+            padding: 15px; /* Padding inside alert */
+            border-radius: 5px; /* Rounded corners */
+            color: #17a2b8; /* Text color */
+            font-size: 16px; /* Font size */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+            opacity: 1; /* Initially fully visible */
+            transition: opacity 0.6s ease-out; /* Smooth fade-out effect */
+            display: flex; /* Flexbox for alignment */
+            align-items: center; /* Center content vertically */
+        }
+    
+        .alert-info {
+            background-color: #17a2b8; /* Info color */
+        }
+    
+        .alert-success {
+            background-color: #28a745; /* Success color */
+        }
+    
+        .alert-warning {
+            background-color: #ffc107; /* Warning color */
+            color: #212529; /* Dark text for contrast */
+        }
+    
+        .alert-danger {
+            background-color: #dc3545; /* Danger color */
+        }
+    
+    </style>
+
+</body>
+
+</html>
