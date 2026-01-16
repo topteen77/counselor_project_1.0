@@ -1,3 +1,4 @@
+
 # Counselor Project
 
 A Django-based e-learning platform for counselor training courses across multiple countries. The system provides structured courses with chapters, parts, and quizzes, with comprehensive progress tracking and certification features.
