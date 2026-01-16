@@ -35,5 +35,16 @@ jobs:
             python3 manage.py makemigrations
             python3 manage.py migrate
             python3 manage.py collectstatic --noinput
-            sudo systemctl restart counselor_project
+            deactivate
+            sudo systemctl stop counselor_project.socket
+            sudo systemctl disable counselor_project.socket
+            sudo systemctl stop counselor_project.service
+            sudo systemctl disable counselor_project.service
+
+            sudo systemctl enable counselor_project.socket
+            sudo systemctl start counselor_project.socket
+            sudo systemctl enable counselor_project.service
+            sudo systemctl start counselor_project.service
+
+            #sudo systemctl restart counselor_project
           EOF
