@@ -313,3 +313,4 @@ MASTER_PASSWORD = 'your_master_password_here'
 
 A link to the full course autocomplete feature is available in the course header for easy access during development and testing.# counselor_project_1.0
 
+*******************************************
