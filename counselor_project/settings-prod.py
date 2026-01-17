@@ -10,11 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Base URL Configuration
+# For local development: BASE_URL=http://127.0.0.1:8000, FORCE_SCRIPT_NAME=
+# For production server: BASE_URL=https://test.topteen.in/counselor_project, FORCE_SCRIPT_NAME=/counselor_project
+BASE_URL = config('BASE_URL', default='')
+FORCE_SCRIPT_NAME = config('FORCE_SCRIPT_NAME', default='')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -25,13 +33,19 @@ CKEDITOR_UPLOAD_PATH = 'uploads/'
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k4%g(nw_a8%sgui+^t6vkiwi&m=dig)^+=2#h3_p#=c%076j1l'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-k4%g(nw_a8%sgui+^t6vkiwi&m=dig)^+=2#h3_p#=c%076j1l')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False # Set to False in production
+# Local: DEBUG=True
+# Production: DEBUG=False
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+# Local: ALLOWED_HOSTS=*
+# Production: ALLOWED_HOSTS=test.topteen.in
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
+# Master Password for Quiz Autocomplete
+MASTER_PASSWORD = config('MASTER_PASSWORD', default='admin123')
 
 # Hello! This is a comment to explain the settings below.
 # Application definition
@@ -91,16 +105,29 @@ WSGI_APPLICATION = 'counselor_project.wsgi.application'
 #     }
 # }
 
+# production database settings
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',  # Use the MySQL backend
+#         'NAME': 'counselor_course',        # Replace with your MySQL database name
+#         'USER': 'counselor121',                  # Your MySQL username
+#         'PASSWORD': '%=6-jRi;m@{C',          # Your MySQL password
+#         'HOST': 'localhost',                  # MySQL is hosted locally
+#         'PORT': '3306',                       # Default MySQL port
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Use the MySQL backend
-        'NAME': 'counselor_course',        # Replace with your MySQL database name
-        'USER': 'counselor121',                  # Your MySQL username
-        'PASSWORD': '%=6-jRi;m@{C',          # Your MySQL password
-        'HOST': 'localhost',                  # MySQL is hosted locally
-        'PORT': '3306',                       # Default MySQL port
+        'NAME': config('DB_NAME', default='counselor_course'),
+        'USER': config('DB_USER', default='counselor121'),
+        'PASSWORD': config('DB_PASSWORD', default='%=6-jRi;m@{C'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
+
 
 
 # Password validation
@@ -136,7 +163,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = '/counselor_project/static/'
+#STATIC_URL = '/counselor_project/static/'
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+import os
+
+# Static and Media URL Configuration
+# Local: STATIC_URL=/static/, MEDIA_URL=/media/
+# Production: STATIC_URL=/counselor_project/static/, MEDIA_URL=/counselor_project/media/
+STATIC_URL = f'{FORCE_SCRIPT_NAME}/static/' if FORCE_SCRIPT_NAME else '/counselor_project/static/'
+MEDIA_URL = f'{FORCE_SCRIPT_NAME}/media/' if FORCE_SCRIPT_NAME else '/counselor_project/media/'
+
+
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
