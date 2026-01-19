@@ -5,6 +5,7 @@ db.sqlite3
 *.log
 .env
 */settings.py
+*/urls.py
 counselor_project/urls.py
 staticfiles/
 
@@ -19,3 +20,8 @@ env/
 *.swp
 
 md-files/
+start_db.sh
+start_project.sh
+start_project_simple.sh
+md-docs/
+.cursor/

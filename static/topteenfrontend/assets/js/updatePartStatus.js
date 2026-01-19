@@ -43,9 +43,9 @@ function updatePartStatus(partId) {
               let progressCircle = progressContainer.querySelector('.progress-circle');
               let tickIcon = progressContainer.querySelector('.tick');
               let tooltip = progressContainer.querySelector('.tooltip');
-              let quizButton = document.getElementById(`quiz-${partId}`); // Get the quiz button
+              let quizButton = document.getElementById(`quiz-${partId}`); // Get the quiz button (may not exist for Introduction)
               
-              if (progressCircle && tickIcon && tooltip && quizButton) {
+              if (progressCircle && tickIcon && tooltip) {
                   // Animate the progress circle
                   progressCircle.style.strokeDasharray = '66'; // Adjust the value as needed
                   progressCircle.style.transition = 'stroke-dasharray 0.5s ease-in-out';
@@ -55,32 +55,84 @@ function updatePartStatus(partId) {
 
                   // Update tooltip text
                   tooltip.textContent = 'Progress: 100%';
-                  quizButton.classList.add('enabled');
+                  
+                  // Enable quiz button if it exists (not for Introduction parts)
+                  if (quizButton) {
+                      quizButton.classList.add('enabled');
+                  }
               }
           }
 
-          // Hide the current content
-          let contentElement = document.getElementById(`content-${partId}`);
-          if (contentElement) {
-              contentElement.style.display = 'none';
-          }
+          // Check if this is an Introduction part (no quiz button means it's likely Introduction)
+          let quizButton = document.getElementById(`quiz-${partId}`);
+          let isIntroduction = !quizButton;
           
-          // Show the quiz content
-          let quizContent = document.getElementById(`contentquiz-${partId}`);
-          if (quizContent) {
-              quizContent.style.display = 'block';
-              
-              // Scroll to the quiz content
-              quizContent.scrollIntoView({ behavior: 'smooth' });
-              
-              // Update active button in the sidebar if applicable
-              let quizButton = document.querySelector(`[data-target="contentquiz-${partId}"]`);
-              if (quizButton) {
-                  const buttons = document.querySelectorAll('.t-button');
-                  buttons.forEach(btn => btn.classList.remove('active'));
-                  quizButton.classList.add('active');
+          if (!isIntroduction) {
+              // For non-Introduction parts: Hide content and show quiz
+              let contentElement = document.getElementById(`content-${partId}`);
+              if (contentElement) {
+                  contentElement.style.display = 'none';
               }
-            }
+              
+              // Show the quiz content
+              let quizContent = document.getElementById(`contentquiz-${partId}`);
+              if (quizContent) {
+                  quizContent.style.display = 'block';
+                  
+                  // Scroll to the quiz content
+                  quizContent.scrollIntoView({ behavior: 'smooth' });
+                  
+                  // Update active button in the sidebar if applicable
+                  let quizButtonElement = document.querySelector(`[data-target="contentquiz-${partId}"]`);
+                  if (quizButtonElement) {
+                      const buttons = document.querySelectorAll('.t-button');
+                      buttons.forEach(btn => btn.classList.remove('active'));
+                      quizButtonElement.classList.add('active');
+                  }
+              }
+          } else {
+              // For Introduction parts: Reload page to show updated completion status and Next button
+              // Get course name from global variable or current URL
+              const currentPath = window.location.pathname;
+              let courseName = '';
+              
+              // Try to get course name from global variable first
+              if (typeof CURRENT_COURSE_NAME !== 'undefined' && CURRENT_COURSE_NAME) {
+                  courseName = CURRENT_COURSE_NAME;
+              } else {
+                  // Extract course name from URL patterns
+                  const courseMatch = currentPath.match(/counselor_enrolled_course\/([^\/]+)/) || 
+                                     currentPath.match(/fetch_current_part\/([^\/]+)/);
+                  if (courseMatch) {
+                      courseName = courseMatch[1];
+                  }
+              }
+              
+              // Check if we're on a specific part URL or use the partId parameter
+              const partMatch = currentPath.match(/fetch_current_part\/[^\/]+\/(\d+)\//);
+              let reloadPartId = partId; // Use the partId parameter passed to the function
+              
+              if (partMatch) {
+                  reloadPartId = partMatch[1];
+              }
+              
+              // Reload to the same part URL to preserve context and show Next button
+              if (courseName && reloadPartId) {
+                  // Detect base path for production subdirectory
+                  let basePath = '';
+                  if (currentPath.includes('/counselor_project/')) {
+                      basePath = '/counselor_project';
+                  }
+                  
+                  const reloadUrl = `${basePath}/fetch_current_part/${courseName}/${reloadPartId}/1/`;
+                  console.log('Introduction part marked as complete, reloading to:', reloadUrl);
+                  window.location.href = reloadUrl;
+              } else {
+                  // Fallback to simple reload
+                  console.log('Introduction part marked as complete, reloading page (fallback)');
+                  window.location.reload();
+              }
+          }
 
             // alert("Marked as complete!");
         } else {

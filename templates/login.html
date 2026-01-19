@@ -74,6 +74,71 @@
         margin-bottom: 10px;
 
     }
+    
+    /* Demo credentials styles */
+    .demo-credentials {
+        background-color: #f8f9fa;
+        border: 2px dashed #4CC9F0;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .demo-credentials h6 {
+        color: #333333;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .demo-user-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .demo-user-card:hover {
+        background-color: #e3f2fd;
+        border-color: #4CC9F0;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(76, 201, 240, 0.2);
+    }
+    
+    .demo-user-card:last-child {
+        margin-bottom: 0;
+    }
+    
+    .demo-user-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .demo-user-label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .demo-user-value {
+        font-size: 12px;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .demo-click-hint {
+        font-size: 11px;
+        color: #4CC9F0;
+        text-align: center;
+        margin-top: 8px;
+        font-style: italic;
+    }
     </style>
 
 
@@ -110,6 +175,48 @@
                   <div class="invalid-feedback float-start text-start mt-0"> Please Enter Correct Password. </div>
                 </div>
                 
+                <!-- Demo Credentials Section -->
+                <div class="demo-credentials">
+                  <h6><i class="fas fa-user-circle"></i> Demo Credentials (Click to Auto-Fill)</h6>
+                  <div class="demo-user-card" onclick="fillCredentials('demo1@test.com', 'demo123')">
+                    <div class="demo-user-info">
+                      <div>
+                        <div class="demo-user-label">Email:</div>
+                        <div class="demo-user-value">demo1@test.com</div>
+                      </div>
+                      <div>
+                        <div class="demo-user-label">Password:</div>
+                        <div class="demo-user-value">demo123</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="demo-user-card" onclick="fillCredentials('demo2@test.com', 'demo123')">
+                    <div class="demo-user-info">
+                      <div>
+                        <div class="demo-user-label">Email:</div>
+                        <div class="demo-user-value">demo2@test.com</div>
+                      </div>
+                      <div>
+                        <div class="demo-user-label">Password:</div>
+                        <div class="demo-user-value">demo123</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="demo-user-card" onclick="fillCredentials('test@test.com', 'test123')">
+                    <div class="demo-user-info">
+                      <div>
+                        <div class="demo-user-label">Email:</div>
+                        <div class="demo-user-value">test@test.com</div>
+                      </div>
+                      <div>
+                        <div class="demo-user-label">Password:</div>
+                        <div class="demo-user-value">test123</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="demo-click-hint">💡 Click any card above to auto-fill credentials</div>
+                </div>
+                
                  <div class="d-flex flex-col justify-content-center align-items-center mt-4">
                   <div class="w-full mb-3">
                       <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
@@ -136,6 +243,30 @@
   <script src="{% static 'topteenfrontend/assets/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'topteenfrontend/assets/js/main.js' %}"></script>
   <script src="{% static 'topteenfrontend/assets/js/jquery.sticky.js' %}"></script>
+  
+  <script>
+    // Auto-fill credentials function
+    function fillCredentials(email, password) {
+      document.getElementById('Username').value = email;
+      document.getElementById('password').value = password;
+      
+      // Add visual feedback
+      const usernameField = document.getElementById('Username');
+      const passwordField = document.getElementById('password');
+      
+      // Highlight fields briefly
+      usernameField.style.backgroundColor = '#e3f2fd';
+      passwordField.style.backgroundColor = '#e3f2fd';
+      
+      setTimeout(function() {
+        usernameField.style.backgroundColor = '';
+        passwordField.style.backgroundColor = '';
+      }, 1000);
+      
+      // Optional: Focus on password field
+      passwordField.focus();
+    }
+  </script>
 </body>
 
 </html>

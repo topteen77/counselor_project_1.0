@@ -136,7 +136,7 @@
                           <circle class="bg-circle" cx="12.5" cy="12.5" r="10.5"></circle>
                           <circle class="progress-circle" cx="12.5" cy="12.5" r="10.5"></circle>
                         </svg>
-                        {% if part.id in complete_status or part.title == "Introduction" %}
+                        {% if part.id in complete_status %}
                           <div class="tick" style="display: block;">
                             <i class="fa-solid fa-circle-check text-success"></i>
                           </div>
@@ -347,7 +347,7 @@
                 </ul>
 
                 <div id="myTabContenpart-{{ part.id }}" class="coursecontent">
-                  <div class="hidden  bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
+                  <div class="bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
                     <div id="tab1" class="tab-content active">
                       <h5 class="mt-3">
                         {{ chapter.title }}
@@ -464,11 +464,24 @@
                   </ul>
   
                   <div id="myTabContenpart-{{ part.id }}">
-                    <div class="hidden  bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
+                    <div class="bg-gray-50 rounded-lg dark:bg-gray-800" id="p-{{ part.id }}video" role="tabpanel" aria-labelledby="p-{{ part.id }}video-tab">              
                       <div id="tab1" class="tab-content active">
                         <h5 class="mt-3">
                           {{ chapter.title }}
                           </h5>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.jpeg" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.png" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+
+                        <figure>
+                          <img class="course-img"  <img src="/static/topteenfrontend/assets/images/{{ course }}/{{ part_content_testing.index }}.jpg" alt="topteen" onerror="this.style.display='none';">
+                          </figure>
+                          
                           <p>{{part_content_testing.description | safe}}</p>
   
                         <div class="notes-section mb-5 hidden">
@@ -539,7 +552,7 @@
         {% for part in chapter.parts.all %}
         <input type="hidden" name="allparts" value="{{ chapter.parts.all.count }}">
 
-        {% if show_quiz_id == part.id %}
+        {% if show_quiz_id == part.id and quiz_content_testing and quiz_content_testing.id == part.id and quiz_content_testing.quizzes.exists %}
         <div id="contentquiz-{{ part.id }}" class="content" style="display: block;">
           <div class="bg-[#FBFBFB] p-3 rounded">
 
@@ -574,7 +587,7 @@
         <!-- Share Course Modal button -->
 
             <div class="mt-3 quiz-title">Quiz</div>
-            {% if quiz_content_testing and quiz_content_testing.quizzes.exists %}
+            {% if quiz_content_testing.quizzes.exists %}
             {% for quiz in quiz_content_testing.quizzes.all %}
 
             {% if found.part.id %}
@@ -597,6 +610,10 @@
                         </div>
                         <h2>Your Results</h2>
                         <p>Thank you for completing the quiz!</p>
+                        <p class="attempt-number-text" style="font-weight: 600; color: #6c757d; margin-bottom: 1rem;">
+                          <span class="attempt-label">Attempt: </span>
+                          <span class="attempt-count">{% if no_of_attempt == 0 %}1{% else %}{{ no_of_attempt }}{% endif %}</span>
+                        </p>
                         <div class="rs-ans d-flex justify-content-center my-2">
                           <div class="correct-ans me-3">
                             <i class="fa-solid fa-check" style="color: #7dc227;"></i>
@@ -784,6 +801,9 @@
                   </div>
                   <h2>Your Results</h2>
                   <p>Thank you for completing the quiz!</p>
+                  <p class="attempt-number-text" style="font-weight: 600; color: #6c757d; margin-bottom: 1rem;">
+                    <span class="attempt-label">Attempt: </span><span class="attempt-count"></span>
+                  </p>
                   <div class="rs-ans d-flex justify-content-center my-2">
                   
                     <div class="correct-ans me-3">
@@ -808,18 +828,18 @@
                     </p>
                   </div>
 
-              </div>
-
+                </div>
+                
+                <div class="move-to-resume-part w-100 d-flex justify-content-center">
+                  <!-- The Next button will be dynamically inserted here -->
+                </div>
+                
                 <div class="retry-button-container w-100 d-flex justify-content-center">
                   <!-- The retry button will be dynamically inserted here -->
                 </div>
               </div>
         
             {%endfor%}
-            {% else %}
-            <div class="alert alert-info mt-3 p-3">
-              <p class="mb-0"><i class="fa-solid fa-info-circle me-2"></i>No quiz available for this part yet.</p>
-            </div>
             {% endif %}
         
           </div>
@@ -861,8 +881,9 @@
           </div> 
           <!-- Share Course Modal button -->
   
+              {# Only show quiz section if part actually has quizzes #}
+              {% if quiz_content_testing and quiz_content_testing.id == part.id and quiz_content_testing.quizzes.exists %}
               <div class="mt-3 quiz-title">Quiz</div>
-              {% if quiz_content_testing and quiz_content_testing.quizzes.exists %}
               {% for quiz in quiz_content_testing.quizzes.all %}
   
               {% if found.part.id %}
@@ -1017,10 +1038,13 @@
                     </div>
                     <h2>Your Results</h2>
                     <p>Thank you for completing the quiz!</p>
+                    <p class="attempt-number-text" style="font-weight: 600; color: #6c757d; margin-bottom: 1rem;">
+                      <span class="attempt-label">Attempt: </span><span class="attempt-count"></span>
+                    </p>
                     <div class="rs-ans d-flex justify-content-center my-2">
                     
                       <div class="correct-ans me-3">
-                        <i class="fa-solid fa-check" style="color: #7dc227;"></i> <span class="correct-count"></span> Correcting
+                        <i class="fa-solid fa-check" style="color: #7dc227;"></i> <span class="correct-count"></span> Correct
                     </div>
                     <div class="incorrect-ans">
                         <i class="fa-solid fa-xmark" style="color:#f04e49;"></i> <span class="incorrect-count"></span> Incorrect
@@ -1044,11 +1068,14 @@
                   </div>
                   
                   <div class="move-to-resume-part w-100 d-flex justify-content-center">
-                    {% if next_part %}
-                    <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
-                       class="btn btn-primary px-md-6 fw-600 mt-3">
-                      <i class="fa-solid fa-arrow-right me-2"></i> Next
-                    </a>
+                    {# Only show Next button if quiz is passed (has_passed_quiz_status) #}
+                    {% if has_passed_quiz_status|get:part.id == True %}
+                      {% if next_part %}
+                      <a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" 
+                         class="btn btn-primary px-md-6 fw-600 mt-3">
+                        <i class="fa-solid fa-arrow-right me-2"></i> Next
+                      </a>
+                      {% endif %}
                     {% endif %}
                   </div>
 
@@ -1058,11 +1085,8 @@
                 </div>
           
               {%endfor%}
-            {% else %}
-            <div class="alert alert-info mt-3 p-3">
-              <p class="mb-0"><i class="fa-solid fa-info-circle me-2"></i>No quiz available for this part yet.</p>
-            </div>
             {% endif %}
+            {# Note: Removed "No quiz available" message - if no quiz, just don't show quiz section #}
           
             </div>
             
@@ -1129,6 +1153,9 @@
   // Generate URL with placeholder and extract base path
   const UPDATE_PART_STATUS_URL_TEMPLATE = "{% url 'counselor:update_part_status' 999 %}";
   const UPDATE_PART_STATUS_URL = UPDATE_PART_STATUS_URL_TEMPLATE.replace('999/', '');
+  
+  // Store course name for use in updatePartStatus function
+  const CURRENT_COURSE_NAME = "{{ course.title|escapejs }}";
 </script>
  <script src="{% static 'topteenfrontend/assets/js/updatePartStatus.js' %}"></script>
  <!-- To update part status -->
@@ -1141,7 +1168,49 @@
     const quizButtons = document.querySelectorAll('.quiz-button'); // Select only enabled quiz buttons
     const contents = document.querySelectorAll('.content');
 
-    // Show the content for Button 1 by default
+    // Get the initial part ID from Django context
+    const initialPartId = "{{ show_part_id }}";
+    const initialQuizId = "{{ show_quiz_id }}";
+    
+    // Show the initial content based on show_part_id and show_quiz_id
+    // This must run FIRST before any other content manipulation
+    if (initialPartId && initialPartId !== '' && initialPartId !== 'None' && initialPartId !== 'null') {
+      // Hide all content divs first
+      contents.forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      if (initialQuizId != -1 && initialQuizId != '' && initialQuizId != 'None' && initialQuizId != 'null') {
+        // Show quiz content
+        const quizContent = document.getElementById(`contentquiz-${initialPartId}`);
+        if (quizContent) {
+          quizContent.style.display = 'block';
+          console.log('Showing quiz content for part:', initialPartId);
+        } else {
+          console.warn('Quiz content not found for part:', initialPartId);
+        }
+      } else {
+        // Show part content (Introduction for fresh users or when navigating)
+        const partContent = document.getElementById(`content-${initialPartId}`);
+        if (partContent) {
+          partContent.style.display = 'block';
+          console.log('Showing part content for part:', initialPartId);
+          
+          // Also ensure the inner content div is visible (for Introduction parts)
+          const innerContent = document.getElementById(`p-${initialPartId}video`);
+          if (innerContent) {
+            innerContent.style.display = 'block';
+          }
+        } else {
+          console.warn('Part content not found for part:', initialPartId);
+          // Try to find any content div with this ID
+          const anyContent = document.querySelector(`[id*="${initialPartId}"]`);
+          console.log('Found elements with part ID:', anyContent);
+        }
+      }
+    } else {
+      console.warn('No initial part ID provided:', initialPartId);
+    }
 
     buttons.forEach(button => {
       button.addEventListener('click', function() {
@@ -1213,6 +1282,10 @@ $(document).ready(function () {
             // Reset any validation styling
             multiStepForm.find('.question-box').removeClass('error');
             
+            // Reset form submission flag for autocomplete to work on re-attempt
+            multiStepForm.data('submitted', false);
+            multiStepForm.find('button[type="submit"]').prop('disabled', false);
+            
             multiStepForm.show();
             currentQuestion = 1; // Reset question tracker
             showQuestion(currentQuestion);
@@ -1235,6 +1308,10 @@ $(document).ready(function () {
                 // Reset any validation styling
                 multiStepForm.find('.question-box').removeClass('error');
                 
+                // Reset form submission flag for autocomplete to work on re-attempt
+                multiStepForm.data('submitted', false);
+                multiStepForm.find('button[type="submit"]').prop('disabled', false);
+                
                 multiStepForm.show();
                 currentQuestion = 1; // Reset question tracker
                 showQuestion(currentQuestion);
@@ -1253,14 +1330,22 @@ $(document).ready(function () {
             autocompleteQuiz(partId);
         });
         
-        // Autocomplete button in quiz form
-        multiStepForm.find('.autocomplete-quiz-btn').on('click', function() {
+        // Autocomplete button in quiz form - use event delegation to handle dynamically shown forms
+        $(document).on('click', `.autocomplete-quiz-btn[data-part-id="${partId}"]`, function() {
             autocompleteQuiz(partId);
         });
         
         function autocompleteQuiz(partId) {
             const form = $(`#multiStepForm-${partId}`);
+            
+            // Reset form submission flag to allow autocomplete submission
+            form.data('submitted', false);
+            form.find('button[type="submit"]').prop('disabled', false);
+            
             const questions = form.find('.question');
+            
+            // Reset all radio buttons first
+            form.find('input[type="radio"]').prop('checked', false);
             
             questions.each(function() {
                 const correctAnswerId = $(this).data('correct-answer');
@@ -1278,6 +1363,14 @@ $(document).ready(function () {
             // Navigate to last question to show submit button
             currentQuestion = totalQuestions;
             showQuestion(currentQuestion);
+            
+            // Auto-submit the form after a short delay to ensure all answers are set
+            setTimeout(function() {
+                // Double-check that form is not already submitted
+                if (!form.data('submitted')) {
+                    form.trigger('submit');
+                }
+            }, 300);
         }
         {% endif %}
 
@@ -1392,90 +1485,129 @@ $(document).ready(function () {
                             resultScreen.find('.incorrect-count').text(data.scores[0].quiz_result.incorrect_answers);
                         }
                         
+                        // Update attempt number display
+                        // If no_of_attempt is 0, it means quiz was passed (attempt track deleted), so show "1" for first attempt
+                        // Otherwise show the actual attempt number (1, 2, or 3)
+                        const attemptNumber = data.no_of_attempt !== undefined ? data.no_of_attempt : 1;
+                        const displayAttempt = attemptNumber === 0 ? 1 : attemptNumber;
+                        resultScreen.find('.attempt-count').text(displayAttempt);
+                        
                         // Update retry button based on server response
                         const retryButtonContainer = resultScreen.find('.retry-button-container');
                         const movetoresumepartbutton = resultScreen.find('.move-to-resume-part');
                         // Clear previous retry button content
                         retryButtonContainer.empty();
+                        // Clear Next button when showing Re-attempt
+                        movetoresumepartbutton.empty();
                         
-                        // Update with new retry button based on server response
-                        if (data.no_of_attempt === 1) {
-                            retryButtonContainer.html(`<div class="alert-info">
-                              <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                              </svg> 
-
-                              <div>
-                              You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz. </div>
-                              </div>
-
-                              <div><button type="button" id="startTestButton-${partId}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
-                              `);
-                        }
-                        else if(data.no_of_attempt === 0){
-                            {% if next_part %}
-                            movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
-                            {% else %}
-                            movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
-                            {% endif %}
-                        }else if(data.no_of_attempt === 3){
-                            {% if next_part %}
-                            movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
-                            {% else %}
-                            movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
-                            {% endif %}
-                        }else if (data.no_of_attempt === 2) {
-                            // Check if time restriction applies
-                            if (data.time_difference && data.time_difference < 86400) {
-                                // Time restriction applies
-                                if (data.time_difference < 300) {
-                                    // Show countdown timer
-                                    retryButtonContainer.html(`
-                                       
-                                      <div class="block-test">
-                                     <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
-                                     <li>You can review the chapter content and prepare for the third attempt.</li>
-                                     <li>After 24 hours, a <strong>third and final attempt</strong> becomes available automatically</li>
-                                     </div>
-                                    
-                                    <div>
-                                            <button type="button" id="startTestButton-${partId}" 
-                                                class="btn purple-button px-md-6 fw-600 mt-3 disabled" 
-                                                disabled="disabled"
-                                                data-window-closed-time="${data.window_closed_time}" 
-                                                data-part-id="${partId}">
-                                                Retry available in <span id="countdown-${partId}"></span>
-                                            </button>
-                                        </div>
-                                      
-                                    `);
-                                    
-                                    // Initialize countdown timer
-                                    initializeCountdown(partId, data.window_closed_time);
-                                } else {
-                                    // Just disabled button
-                                    retryButtonContainer.html(`
-                                        <div>
-                                            <button type="button" id="startTestButton-${partId}" 
-                                                class="btn purple-button px-md-6 fw-600 mt-3 disabled" 
-                                                disabled="disabled">
-                                                Last attempt
-                                            </button>
-                                        </div>
-                                    `);
-                                }
-                            } else {
-                                // No time restriction
-                                retryButtonContainer.html(`
-                                    <div>
-                                        <button type="button" id="startTestButton-${partId}" 
-                                            class="btn purple-button px-md-6 fw-600 mt-3">
-                                            Last attempt
-                                        </button>
-                                    </div>
-                                `);
+                        // Calculate score percentage to determine if quiz passed
+                        let scorePercent = 0;
+                        if (data.scores && data.scores.length > 0) {
+                            const correct = data.scores[0].quiz_result.correct_answers || 0;
+                            const incorrect = data.scores[0].quiz_result.incorrect_answers || 0;
+                            const total = correct + incorrect;
+                            if (total > 0) {
+                                scorePercent = Math.round((correct / total) * 100);
                             }
                         }
+                        
+                        // Convert no_of_attempt to number for comparison
+                        // Note: no_of_attempt from server is 1, 2, or 3 (or 0 if passed and track deleted)
+                        const noOfAttempt = parseInt(data.no_of_attempt) || 0;
+                        const quizPassed = scorePercent >= 60;
+                        
+                        console.log("Quiz result - Score:", scorePercent + "%", "Attempt:", noOfAttempt, "Passed:", quizPassed);
+                        console.log("Data from server:", {
+                            no_of_attempt: data.no_of_attempt,
+                            scorePercent: scorePercent,
+                            quizPassed: quizPassed,
+                            correct: correct,
+                            total: total
+                        });
+                        
+                        // Update with new retry button based on server response
+                        // Priority: Check for failed attempts first, then passed
+                        if (!quizPassed && noOfAttempt >= 1 && noOfAttempt <= 3) {
+                            // Quiz failed - show Re-attempt button (for attempts 1, 2, or 3)
+                            movetoresumepartbutton.empty();
+                            
+                            if (noOfAttempt === 1) {
+                                // First attempt failed - show Re-attempt button
+                                retryButtonContainer.html(`<div class="alert-info">
+                                  <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                  </svg> 
+                                  <div>
+                                  You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz. </div>
+                                  </div>
+                                  <div><button type="button" id="startTestButton-${partId}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
+                                  `);
+                            } else if (noOfAttempt === 2) {
+                                // Second attempt failed - check time restriction
+                                if (data.time_difference && data.time_difference < 86400) {
+                                    // Time restriction applies
+                                    if (data.time_difference < 300) {
+                                        // Show countdown timer
+                                        const hours = Math.floor(data.time_difference / 3600);
+                                        const minutes = Math.floor((data.time_difference % 3600) / 60);
+                                        const seconds = Math.floor(data.time_difference % 60);
+                                        retryButtonContainer.html(`
+                                          <div class="block-test">
+                                            <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
+                                            <li>You can review the chapter content and prepare for the third attempt.</li>
+                                            <li>After 24 hours, a <strong>third and final attempt</strong> becomes available automatically</li>
+                                            <li>Time remaining: <strong>${hours}h ${minutes}m ${seconds}s</strong></li>
+                                          </div>
+                                        `);
+                                    } else {
+                                        // Show time remaining
+                                        const hours = Math.floor(data.time_difference / 3600);
+                                        const minutes = Math.floor((data.time_difference % 3600) / 60);
+                                        retryButtonContainer.html(`
+                                          <div class="block-test">
+                                            <li>You have failed to reach 60% in both attempts, the quiz is <strong>locked for 24 hours</strong>.</li>
+                                            <li>Time remaining: <strong>${hours}h ${minutes}m</strong></li>
+                                          </div>
+                                        `);
+                                    }
+                                } else {
+                                    // No time restriction - show Re-attempt button for third attempt
+                                    retryButtonContainer.html(`<div class="alert-info">
+                                      <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                      </svg> 
+                                      <div>
+                                      You must score <strong>at least 60%</strong> to pass a quiz and have that score count toward your final certificate. Please review the chapter & Re-attempt the Quiz. </div>
+                                      </div>
+                                      <div><button type="button" id="startTestButton-${partId}" class="btn purple-button px-md-6 fw-600 mt-3">Re-attempt</button></div>
+                                      `);
+                                }
+                            } else if (noOfAttempt === 3) {
+                                // Third attempt failed - show final note
+                                retryButtonContainer.html(`
+                                  <div class="final-note">
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                    <p> This part will not be considered in evaluation </p>
+                                  </div>
+                                `);
+                                // Show Next button to continue
+                                {% if next_part %}
+                                movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
+                                {% else %}
+                                movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
+                                {% endif %}
+                            }
+                        }
+                        else if(noOfAttempt === 0 || quizPassed){
+                            // Quiz passed (attempt track deleted) or score >= 60% - show Next button
+                            retryButtonContainer.empty(); // Clear any retry button
+                            {% if next_part %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:fetch_current_part' course_name=course.title current_part_id=next_part.id part_or_quiz=1 %}" class="btn btn-primary px-md-6 fw-600 mt-3"><i class="fa-solid fa-arrow-right me-2"></i> Next</a>`)
+                            {% else %}
+                            movetoresumepartbutton.html(`<a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">Move to next part</a>`)
+                            {% endif %}
+                        }
+                        // Note: Attempt 2 and 3 failed cases are already handled in the !quizPassed block above
                         
                         resultScreen.show(); // Show the results
                         multiStepForm.hide(); // Hide the quiz form
@@ -1547,7 +1679,64 @@ $(document).ready(function () {
     buttons.forEach(btn => btn.classList.remove('active'));
     // Add active class to the clicked button
     button.classList.add('active');
+    
+    // Scroll to active button in sidebar
+    scrollToActiveButton(button);
   }
+  
+  function scrollToActiveButton(activeButton) {
+    if (!activeButton) {
+      // Try to find the active button if not provided
+      activeButton = document.querySelector('.t-button.active');
+    }
+    
+    if (activeButton) {
+      const sidebarContent = document.querySelector('.sidebar-content');
+      if (sidebarContent) {
+        // Check if sidebar is scrollable
+        const isScrollable = sidebarContent.scrollHeight > sidebarContent.clientHeight;
+        if (!isScrollable) {
+          // Sidebar is not scrollable, no need to scroll
+          return;
+        }
+        
+        // Get the position of the active button relative to the sidebar content
+        const buttonOffsetTop = activeButton.offsetTop;
+        const sidebarHeight = sidebarContent.clientHeight;
+        const buttonHeight = activeButton.offsetHeight;
+        
+        // Get current scroll position
+        const currentScrollTop = sidebarContent.scrollTop;
+        
+        // Calculate the desired scroll position (center the button in the viewport)
+        const desiredScrollTop = buttonOffsetTop - (sidebarHeight / 2) + (buttonHeight / 2);
+        
+        // Check if button is already visible in viewport
+        const buttonTop = buttonOffsetTop - currentScrollTop;
+        const buttonBottom = buttonTop + buttonHeight;
+        
+        // Only scroll if button is not fully visible
+        if (buttonTop < 0 || buttonBottom > sidebarHeight) {
+          // Smooth scroll to the active button
+          sidebarContent.scrollTo({
+            top: Math.max(0, desiredScrollTop),
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }
+  
+  // Auto-scroll to active button on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for content to render
+    setTimeout(function() {
+      const activeButton = document.querySelector('.t-button.active');
+      if (activeButton) {
+        scrollToActiveButton(activeButton);
+      }
+    }, 300);
+  });
   </script>
 
 
@@ -1560,11 +1749,19 @@ document.addEventListener("DOMContentLoaded", function () {
         let button = document.querySelector(`[data-target="contentquiz-${partId}"]`);
         if (button) {
             toggleAccordion(button, partId);
+            // Scroll to active button after a short delay
+            setTimeout(function() {
+                scrollToActiveButton(button);
+            }, 200);
         }
     } else {
         let button = document.querySelector(`[data-target="content-${partId}"]`);
         if (button) {
             toggleAccordion(button, partId);
+            // Scroll to active button after a short delay
+            setTimeout(function() {
+                scrollToActiveButton(button);
+            }, 200);
         }
     }
 });
@@ -1732,4 +1929,5 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
   {% endif %}
 
+</html>
 </html>
