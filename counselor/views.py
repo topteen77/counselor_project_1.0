@@ -36,7 +36,85 @@ def user_logout(request):
 def icef_view(request):
     if not request.session.get('id'):
         return redirect('counselor:login_view')
-    return render(request, 'icef-course.html')
+    
+    # Get user
+    user_id = request.session.get('id')
+    user = CounselorUser.objects.only('id').get(id=user_id)
+    
+    # List of all courses
+    course_list = ['Germany', 'UK', 'USA', 'Singapore', 'Newzealand', 'Ireland', 'France', 'Dubai', 'Canada', 'Australia']
+    
+    # Calculate course status for each course
+    course_statuses = {}
+    for course_name in course_list:
+        try:
+            course = CounselorCourse.objects.only('id', 'title').get(title=course_name)
+            
+            # Check if certificate exists (course is complete)
+            try:
+                certificate = CounselorCertification.objects.only('id', 'grade', 'certificate_code', 'created_at').get(
+                    user=user, course=course
+                )
+                # Only mark as complete if certificate actually exists
+                course_statuses[course_name] = {
+                    'status': 'complete',
+                    'has_certificate': True,
+                    'certificate_code': certificate.certificate_code,
+                    'grade': certificate.grade,
+                    'issued_date': certificate.created_at.strftime('%d-%m-%Y')
+                }
+            except CounselorCertification.DoesNotExist:
+                # No certificate - check if course is in progress (has some progress)
+                course_with_related_data = get_course_with_related_data(course_name)
+                if course_with_related_data:
+                    total_parts, part_ids, user_progress, scores, found, answers_data, part_scores, correct_answers, incorrect_answers, complete_status, introduction_id, user_progress_quiz = getUserProgress(user, course_with_related_data, course_name)
+                    
+                    # Filter user_progress to only include parts from THIS course
+                    course_part_ids = set(part_ids)
+                    course_user_progress = [pid for pid in user_progress if pid in course_part_ids]
+                    
+                    # Filter scores to only include scores from THIS course
+                    # Scores are from QuizResults which is already filtered by course in getUserProgress
+                    course_scores = [s for s in scores if s.get('part_id') in course_part_ids] if scores else []
+                    
+                    # Check if user has any progress in THIS specific course
+                    has_progress = len(course_user_progress) > 0 or len(course_scores) > 0
+                    
+                    if has_progress:
+                        course_statuses[course_name] = {
+                            'status': 'inprocess',
+                            'has_certificate': False
+                        }
+                    else:
+                        course_statuses[course_name] = {
+                            'status': 'not_started',
+                            'has_certificate': False
+                        }
+                else:
+                    course_statuses[course_name] = {
+                        'status': 'not_started',
+                        'has_certificate': False
+                    }
+        except CounselorCourse.DoesNotExist:
+            course_statuses[course_name] = {
+                'status': 'not_started',
+                'has_certificate': False
+            }
+        except Exception as e:
+            # Log error and default to not_started
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error calculating status for course {course_name}: {str(e)}")
+            course_statuses[course_name] = {
+                'status': 'not_started',
+                'has_certificate': False
+            }
+    
+    context = {
+        'course_statuses': course_statuses
+    }
+    
+    return render(request, 'icef-course.html', context)
 
 @csrf_exempt
 def update_part_status(request, part_id):

@@ -1168,6 +1168,41 @@
     const quizButtons = document.querySelectorAll('.quiz-button'); // Select only enabled quiz buttons
     const contents = document.querySelectorAll('.content');
 
+    // Check if show_certificate parameter is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const showCertificate = urlParams.get('show_certificate');
+    
+    // If show_certificate parameter is present, show certificate section
+    if (showCertificate === '1') {
+      // Hide all content divs
+      contents.forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Show certificate section
+      const certificateContent = document.getElementById('certificate-clam');
+      if (certificateContent) {
+        certificateContent.style.display = 'block';
+        console.log('Showing certificate section');
+        
+        // Also trigger the certificate button in sidebar to activate it
+        const certificateButton = document.getElementById('certificate');
+        if (certificateButton) {
+          certificateButton.classList.add('active');
+          // Expand the certificate accordion
+          const accordionButton = document.querySelector('[data-accordion-target="#accordion-collapse-body-00"]');
+          if (accordionButton) {
+            accordionButton.setAttribute('aria-expanded', 'true');
+            const accordionBody = document.getElementById('accordion-collapse-body-00');
+            if (accordionBody) {
+              accordionBody.classList.remove('hidden');
+            }
+          }
+        }
+      }
+      return; // Exit early, don't show part content
+    }
+    
     // Get the initial part ID from Django context
     const initialPartId = "{{ show_part_id }}";
     const initialQuizId = "{{ show_quiz_id }}";

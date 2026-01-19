@@ -126,6 +126,45 @@
         display: none;
         /* Hidden by default */
       }
+
+      /* Completed ribbon styles */
+      .completed-ribbon {
+        position: absolute;
+        top: 10px;
+        right: -35px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 5px 40px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transform: rotate(45deg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        letter-spacing: 0.5px;
+      }
+
+      /* In Progress ribbon styles */
+      .inprogress-ribbon {
+        position: absolute;
+        top: 10px;
+        right: -35px;
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        padding: 5px 40px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transform: rotate(45deg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        letter-spacing: 0.5px;
+      }
+
+      .event-card {
+        position: relative;
+        overflow: hidden;
+      }
     </style>
   </head>
 
@@ -554,6 +593,11 @@
           class="grid lg:grid-cols-3 grid-cols-1 lg:gap-[52px] gap-x-[71px] gap-y-[36px] course_list"
         >
           <div class="event-card shadow">
+            {% if course_statuses.Germany.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Germany.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -588,7 +632,7 @@
                     <ul class="sales_points">
                       <li>
                         <span
-                          >Learn about Germany’s education system and
+                          >Learn about Germany's education system and
                           application processes.</span
                         >
                       </li>
@@ -601,6 +645,21 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Germany.status == 'complete' %}
+                    <a
+                      class="btn learn_more"
+                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}?show_certificate=1"
+                      style="background-color: #28a745; border-color: #28a745;"
+                      >View Certificate</a
+                    >
+                    {% elif course_statuses.Germany.status == 'inprocess' %}
+                    <a
+                      class="btn learn_more"
+                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}"
+                      style="background-color: #ffc107; border-color: #ffc107;"
+                      >Resume</a
+                    >
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a
                       class="btn learn_more"
@@ -608,6 +667,7 @@
                       >Start Now</a
                     >
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Germany' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -616,6 +676,11 @@
           </div>
 
           <div id="target-start-course" class="event-card shadow">
+            {% if course_statuses.UK.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.UK.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -664,6 +729,21 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.UK.status == 'complete' %}
+                    <a
+                      class="btn learn_more"
+                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}?show_certificate=1"
+                      style="background-color: #28a745; border-color: #28a745;"
+                      >View Certificate</a
+                    >
+                    {% elif course_statuses.UK.status == 'inprocess' %}
+                    <a
+                      class="btn learn_more"
+                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}"
+                      style="background-color: #ffc107; border-color: #ffc107;"
+                      >Resume</a
+                    >
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a
                       class="btn learn_more"
@@ -671,6 +751,7 @@
                       >Start Now</a
                     >
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='UK' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -679,6 +760,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.USA.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.USA.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -726,9 +812,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.USA.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.USA.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='USA' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -737,6 +829,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Singapore.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Singapore.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -785,9 +882,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Singapore.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Singapore.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Singapore' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -796,6 +899,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Newzealand.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Newzealand.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -844,9 +952,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Newzealand.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Newzealand.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Newzealand' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -855,6 +969,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Ireland.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Ireland.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -902,9 +1021,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Ireland.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Ireland.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Ireland' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -913,6 +1038,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.France.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.France.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -961,9 +1091,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.France.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.France.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='France' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -972,6 +1108,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Dubai.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Dubai.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -1020,9 +1161,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Dubai.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Dubai.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Dubai' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -1031,6 +1178,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Canada.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Canada.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -1079,9 +1231,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Canada.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Canada.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Canada' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
@@ -1090,6 +1248,11 @@
           </div>
 
           <div class="event-card shadow">
+            {% if course_statuses.Australia.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course_statuses.Australia.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
                 <div class="event-card-inner text-center">
@@ -1138,9 +1301,15 @@
                     </ul>
                   </div>
                   <div class="card_hover_bottom">
+                    {% if course_statuses.Australia.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
+                    {% elif course_statuses.Australia.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    {% else %}
                     <!-- rocket_no_cache -->
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">Start Now</a>
                     <!-- end_rocket_no_cache -->
+                    {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Australia' %}" class="btn-icef-t">Learn More</a>
                   </div>
                 </div>
