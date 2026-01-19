@@ -803,6 +803,7 @@ class CounselorEnrolledCourseViewV2(View):
                 'issued_date': issued_date,
                 'certificate_code': certificate_code,
                 'grade': grade,
+                'user': user,  # Pass full user object for avatar display
                 'user_name': user.username,
                 'show_part_id': show_part_id,
                 'show_quiz_id': show_quiz_id,  # Keep -1 for template logic (template checks show_quiz_id == -1)
@@ -1299,6 +1300,7 @@ class FetchCurrentPartViewV2(View):
                 'issued_date': issued_date,
                 'certificate_code': certificate_code,
                 'grade': grade,
+                'user': user,  # Pass full user object for avatar display
                 'user_name': user.username,
                 'show_part_id': show_part_id,
                 'show_quiz_id': show_quiz_id,  # Keep -1 for template logic (template checks show_quiz_id == -1)

@@ -161,6 +161,97 @@
         letter-spacing: 0.5px;
       }
 
+      /* User Avatar Dropdown Styles */
+      .user-avatar-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .user-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .user-avatar-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+      }
+
+      .user-avatar-dropdown.show {
+        display: block;
+      }
+
+      .user-avatar-dropdown-header {
+        padding: 16px;
+        border-bottom: 1px solid #EBEBEE;
+        background: #FBFBFB;
+      }
+
+      .user-avatar-dropdown-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .user-avatar-dropdown-email {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .user-avatar-dropdown-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        border: none;
+        background: white;
+        width: 100%;
+        text-align: left;
+        font-size: 14px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .user-avatar-dropdown-item:hover {
+        background: #FBFBFB;
+      }
+
+      .user-avatar-dropdown-item.logout {
+        color: #dc3545;
+        border-top: 1px solid #EBEBEE;
+      }
+
+      .user-avatar-dropdown-item.logout:hover {
+        background: #fff5f5;
+      }
+
       .event-card {
         position: relative;
         overflow: hidden;
@@ -191,14 +282,34 @@
             </a>
           </li>
 
-          <form
-            method="post"
-            action="{% url 'counselor:user_logout' %}"
-            style="display: inline"
-          >
-            {% csrf_token %}
-            <button type="submit" class="logout-button">Logout</button>
-          </form>
+          <li class="flex items-center">
+            <div class="user-avatar-container">
+              <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()">
+                {% if user %}
+                  {{ user.username|first|upper }}
+                {% else %}
+                  U
+                {% endif %}
+              </div>
+              <div class="user-avatar-dropdown" id="userDropdown">
+                <div class="user-avatar-dropdown-header">
+                  <div class="user-avatar-dropdown-name">
+                    {% if user %}{{ user.username }}{% else %}User{% endif %}
+                  </div>
+                  <div class="user-avatar-dropdown-email">
+                    {% if user %}{{ user.email }}{% else %}user@example.com{% endif %}
+                  </div>
+                </div>
+                <form method="post" action="{% url 'counselor:user_logout' %}" style="margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" class="user-avatar-dropdown-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                  </button>
+                </form>
+              </div>
+            </div>
+          </li>
 
           <li class="hidden">
             <i
@@ -1513,6 +1624,24 @@
         </div>
       </div>
     </footer>
+
+    <!-- User Avatar Dropdown Script -->
+    <script>
+      function toggleUserDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('show');
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        const avatarContainer = document.querySelector('.user-avatar-container');
+        const dropdown = document.getElementById('userDropdown');
+        
+        if (avatarContainer && !avatarContainer.contains(event.target)) {
+          dropdown.classList.remove('show');
+        }
+      });
+    </script>
 
     <!-- Mobile Drawer for Counsellor Book Course -->
 

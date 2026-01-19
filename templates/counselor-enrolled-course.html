@@ -69,6 +69,30 @@
       <a href="{% url 'counselor:icef_view' %}" class="btn purple-button px-md-5 bg-[#4CC9F0] rounded-[10px] text-xs text-whi fw-600">
         <i class="fa-solid fa-arrow-left me-1"></i> Back
       </a>
+
+      <!-- User Avatar Dropdown -->
+      <div class="user-avatar-container" style="position: relative; display: inline-block;">
+        <div class="user-avatar" id="userAvatarEnrolled" onclick="toggleUserDropdownEnrolled()" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;">
+          {% if user %}{{ user.username|first|upper }}{% else %}U{% endif %}
+        </div>
+        <div class="user-avatar-dropdown" id="userDropdownEnrolled" style="position: absolute; top: 50px; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 200px; z-index: 1000; display: none; overflow: hidden;">
+          <div style="padding: 16px; border-bottom: 1px solid #EBEBEE; background: #FBFBFB;">
+            <div style="font-weight: 600; font-size: 14px; color: #333; margin-bottom: 4px;">
+              {% if user %}{{ user.username }}{% else %}User{% endif %}
+            </div>
+            <div style="font-size: 12px; color: #666;">
+              {% if user %}{{ user.email }}{% else %}user@example.com{% endif %}
+            </div>
+          </div>
+          <form method="post" action="{% url 'counselor:user_logout' %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" style="padding: 12px 16px; cursor: pointer; transition: background-color 0.2s ease; border: none; background: white; width: 100%; text-align: left; font-size: 14px; color: #dc3545; display: flex; align-items: center; gap: 8px; border-top: 1px solid #EBEBEE;">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -1963,6 +1987,24 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
   </script>
   {% endif %}
+
+  <!-- User Avatar Dropdown Script -->
+  <script>
+    function toggleUserDropdownEnrolled() {
+      const dropdown = document.getElementById('userDropdownEnrolled');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const avatarContainer = document.querySelector('.user-avatar-container');
+      const dropdown = document.getElementById('userDropdownEnrolled');
+      
+      if (avatarContainer && dropdown && !avatarContainer.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  </script>
 
 </html>
 </html>

@@ -39,7 +39,7 @@ def icef_view(request):
     
     # Get user
     user_id = request.session.get('id')
-    user = CounselorUser.objects.only('id').get(id=user_id)
+    user = CounselorUser.objects.only('id', 'username', 'email').get(id=user_id)
     
     # List of all courses
     course_list = ['Germany', 'UK', 'USA', 'Singapore', 'Newzealand', 'Ireland', 'France', 'Dubai', 'Canada', 'Australia']
@@ -111,7 +111,8 @@ def icef_view(request):
             }
     
     context = {
-        'course_statuses': course_statuses
+        'course_statuses': course_statuses,
+        'user': user  # Pass user info for avatar display
     }
     
     return render(request, 'icef-course.html', context)
