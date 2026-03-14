@@ -1,0 +1,44 @@
+{% load static %}
+<header class="dashboard-header d-lg-block d-none">
+  <div class="container">
+    <nav class="header-nav">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="hd-left">
+            <div class="logo"> <a href="{% url 'app:dashboard' %}"><img src="{% static 'images_new/logos/topteen-logo.svg' %}" class="h-10 w-auto" alt="Logo" /> </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="nav-info">
+            <ul class="nav-items-menu">
+              <li> <a href="{% url 'app:dashboard' %}" class="dashboard"> My Dashboard </a> </li>
+              <li> <a href="{% url 'app:app_submit' %}" class="dashboard"> My Assessments </a> </li>
+              <li class="nav-item dropend">
+                <a class="nav-link dropdown-toggle user-icon" href="#"
+                  role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <span>
+                    {% if user_profile %}
+                      {% if user_profile.gender == 'M' %}
+                        <img src="{% static 'images/1_male.png' %}" />
+                      {% elif user_profile.gender == 'F' %}
+                        <img src="{% static 'images/female.png' %}" />
+                      {% else %}
+                        <img src="{% static 'images/default-user-image.png' %}" />
+                      {% endif %}
+                    {% else %}
+                      <img src="{% static 'images/default-user-image.png' %}" />
+                    {% endif %}
+                  </span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'app:logout' %}">Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>

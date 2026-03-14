@@ -22,14 +22,22 @@ class CounselorUser(models.Model):
 
 class CounselorCourse(models.Model):
     title = models.CharField(max_length=200, blank=True, null=True)  # Name of the course
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, default=0,
+        help_text='Course price in INR. 0 or null = free.'
+    )
     created_at = models.DateTimeField(auto_now_add=True)  # Course creation date
     updated_at = models.DateTimeField(auto_now=True)  # Course last update time
 
     class Meta:
         verbose_name_plural = "CounselorCourses"
 
-    def __str__(self):  
+    def __str__(self):
         return self.title
+
+    @property
+    def is_free(self):
+        return self.price is None or self.price == 0
 
 class Chapter(models.Model):
     course = models.ForeignKey(CounselorCourse, on_delete=models.CASCADE, related_name="chapters",blank=True, null=True)
@@ -158,4 +166,114 @@ class UserQuizAttemptTrack(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.part} - Attempts: {self.no_of_attempt}'
-    
+
+
+class DiscountCoupon(models.Model):
+    """Admin-created coupon for course payment discount. Code is case-insensitive for lookup. Can apply to multiple courses or all (empty)."""
+    DISCOUNT_TYPES = (('percent', 'Percentage'), ('fixed', 'Fixed amount'))
+
+    code = models.CharField(max_length=64, unique=True, db_index=True)
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPES, default='percent')
+    value = models.DecimalField(max_digits=10, decimal_places=2, help_text='Percentage (e.g. 10) or fixed amount in INR')
+    courses = models.ManyToManyField(
+        CounselorCourse, blank=True, related_name='coupons',
+        help_text='Leave empty for all courses; otherwise this coupon applies only to selected courses.'
+    )
+    valid_from = models.DateTimeField(null=True, blank=True)
+    valid_until = models.DateTimeField(null=True, blank=True)
+    max_uses = models.PositiveIntegerField(null=True, blank=True, help_text='Leave blank for unlimited')
+    times_used = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Discount coupons'
+        ordering = ('-created',)
+
+    def save(self, *args, **kwargs):
+        if self.code:
+            self.code = self.code.strip().upper()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.code} ({self.get_discount_type_display()} {self.value})'
+
+
+class CourseTrialStart(models.Model):
+    """Tracks when a user started their freemium trial for a course. One per user per course."""
+    user = models.ForeignKey(CounselorUser, on_delete=models.CASCADE, related_name='course_trials')
+    course = models.ForeignKey(CounselorCourse, on_delete=models.CASCADE, related_name='trial_starts')
+    started_at = models.DateTimeField()
+    # Set when user clicks "Back to course list" in trial-expired modal (only if they have not bought)
+    expired_acknowledged_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Course trial starts'
+        unique_together = ('user', 'course')
+
+    def __str__(self):
+        return f'{self.user} – {self.course} from {self.started_at}'
+
+
+class CoursePayment(models.Model):
+    """Tracks payment attempts per user per course. is_success=True means enrolled."""
+    user = models.ForeignKey(CounselorUser, on_delete=models.CASCADE, related_name='course_payments')
+    course = models.ForeignKey(CounselorCourse, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon = models.ForeignKey(
+        DiscountCoupon, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments'
+    )
+    currency = models.CharField(max_length=10, default='INR', blank=True)
+    gateway_receipt = models.CharField(max_length=120, blank=True, null=True)
+    gateway_order_id = models.CharField(max_length=120, blank=True, null=True)
+    gateway_payment_id = models.CharField(max_length=120, blank=True, null=True)
+    gateway_signature = models.CharField(max_length=120, blank=True, null=True)
+    is_success = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = 'Course payments'
+        ordering = ('-created',)
+
+    def __str__(self):
+        return f'{self.user} - {self.course} - {self.amount} - {"OK" if self.is_success else "pending"}'
+
+    def get_gateway_amount(self):
+        """Amount in paise for Razorpay."""
+        return int(self.amount * 100)
+
+
+def payment_receipt_upload_to(instance, filename):
+    return 'receipts/{0}/{1}'.format(instance.payment.id, filename)
+
+
+class PaymentReceipt(models.Model):
+    """One receipt per successful CoursePayment; used for download payment."""
+    payment = models.OneToOneField(
+        CoursePayment, on_delete=models.CASCADE, related_name='receipt'
+    )
+    transaction_id = models.CharField(max_length=120, blank=True)
+    invoice_number = models.CharField(max_length=64, blank=True)
+    invoice_pdf = models.FileField(upload_to=payment_receipt_upload_to, blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Payment receipts'
+
+    def __str__(self):
+        return f'Receipt {self.invoice_number or self.id} for payment {self.payment.id}'
+
+
+class SiteLabel(models.Model):
+    """Admin-configurable button and label text used across the site (listing, detail, trial modal)."""
+    key = models.CharField(max_length=80, unique=True, db_index=True)
+    value = models.CharField(max_length=200, help_text='Display text for this label')
+
+    class Meta:
+        verbose_name_plural = 'Site labels (buttons, ribbons)'
+        ordering = ('key',)
+
+    def __str__(self):
+        return f'{self.key}: {self.value}'

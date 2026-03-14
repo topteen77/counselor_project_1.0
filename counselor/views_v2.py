@@ -18,14 +18,46 @@ from django.db.models import Prefetch
 from django.contrib import messages
 from django.conf import settings
 
+from django.urls import reverse
+
 from .models import (
     CounselorCertification, CounselorUser, CourseOverviewSummary,
     Question, Quiz, Chapter, Part, QuizAnswers, QuizResults,
     CourseContentProgress, CounselorCourse, UserProgressTrack,
-    UserQuizAttemptTrack
+    UserQuizAttemptTrack, CoursePayment, CourseTrialStart,
 )
+from .utils import get_site_labels
 
 logger = logging.getLogger(__name__)
+
+
+def _require_payment_or_trial(user, course, course_name, request=None):
+    """
+    Freemium gate: allow access if user paid, or if within trial (TRIAL_MINUTES from .env).
+    Returns (allow: bool, redirect_response or None, trial_remaining_seconds or None, trial_expired: bool).
+    When trial expired, returns allow=False and trial_expired=True so view can show course page with modal.
+    When not paid and no trial (trial_minutes<=0), redirects to payment.
+    """
+    course_price = float(course.price or 0)
+    if course_price <= 0:
+        return True, None, None, False
+    if CoursePayment.objects.filter(user=user, course=course, is_success=True).exists():
+        return True, None, None, False
+    trial_minutes = getattr(settings, 'TRIAL_MINUTES', 0)
+    if trial_minutes <= 0:
+        return False, redirect(reverse('counselor:course_payment', kwargs={'course_name': course_name})), None, False
+    now = timezone.now()
+    trial, _ = CourseTrialStart.objects.get_or_create(
+        user=user, course=course,
+        defaults={'started_at': now}
+    )
+    elapsed = now - trial.started_at
+    if elapsed > timedelta(minutes=trial_minutes):
+        # Trial expired: don't redirect; let view show course page with trial-expired modal
+        return False, None, None, True
+    remaining = (trial.started_at + timedelta(minutes=trial_minutes)) - now
+    trial_remaining_seconds = max(0, int(remaining.total_seconds()))
+    return True, None, trial_remaining_seconds, False
 
 
 # ============================================================================
@@ -434,6 +466,19 @@ class PartNavigationService:
             return ordered_parts[current_index + 1]
         
         return None
+
+    @staticmethod
+    def get_previous_part(course_with_related_data, current_part_id):
+        """Get previous part before current part"""
+        ordered_parts = PartNavigationService.get_ordered_parts(course_with_related_data)
+        current_index = None
+        for idx, part in enumerate(ordered_parts):
+            if part.id == current_part_id:
+                current_index = idx
+                break
+        if current_index is not None and current_index > 0:
+            return ordered_parts[current_index - 1]
+        return None
     
     @staticmethod
     def determine_starting_part(found, introduction_id, first_part, user_progress=None, scores=None):
@@ -592,8 +637,11 @@ class CounselorEnrolledCourseViewV2(View):
             # Get user and course
             user_id = request.session.get('id')
             user = CounselorUser.objects.only('id', 'username', 'email').get(id=user_id)
-            course = CounselorCourse.objects.only('id', 'title').get(title=course_name)
-            
+            course = CounselorCourse.objects.only('id', 'title', 'price').get(title=course_name)
+            # Gate: freemium trial then payment for paid courses
+            allow, redirect_response, trial_remaining_seconds, trial_expired = _require_payment_or_trial(user, course, course_name, request=request)
+            if not allow and redirect_response is not None:
+                return redirect_response
             # Get course data
             course_with_related_data = CourseDataService.get_course_with_related_data(course_name)
             if not course_with_related_data:
@@ -749,8 +797,11 @@ class CounselorEnrolledCourseViewV2(View):
             else:
                 print("✗ ERROR: show_part_id is None/0, cannot fetch part content!")
             
-            # Get next part
+            # Get next and previous part
             next_part = PartNavigationService.get_next_part(
+                course_with_related_data, show_part_id
+            )
+            prev_part = PartNavigationService.get_previous_part(
                 course_with_related_data, show_part_id
             )
             next_part_for_quiz = next_part if quiz_completed else None
@@ -788,6 +839,8 @@ class CounselorEnrolledCourseViewV2(View):
             # Check autocomplete
             autocomplete_enabled = request.session.get(f'autocomplete_{course_name}', False)
             
+            # Trial banner when user is on trial
+            show_trial_banner = trial_remaining_seconds is not None and trial_remaining_seconds > 0
             # Build context
             context = {
                 'course': course_with_related_data,
@@ -805,6 +858,10 @@ class CounselorEnrolledCourseViewV2(View):
                 'grade': grade,
                 'user': user,  # Pass full user object for avatar display
                 'user_name': user.username,
+                'show_trial_banner': show_trial_banner,
+                'trial_remaining_seconds': trial_remaining_seconds or 0,
+                'trial_expired': trial_expired,
+                'course_list_url': reverse('counselor:icef_view'),
                 'show_part_id': show_part_id,
                 'show_quiz_id': show_quiz_id,  # Keep -1 for template logic (template checks show_quiz_id == -1)
                 'resume_chapter_id': resume_chapter_id,
@@ -820,6 +877,7 @@ class CounselorEnrolledCourseViewV2(View):
                 'autocomplete_enabled': autocomplete_enabled,
                 'course_name': course_name,
                 'next_part': next_part,
+                'prev_part': prev_part,
                 'quiz_completed': quiz_completed,
                 'next_part_for_quiz': next_part_for_quiz,
                 'quiz_pass_status': quiz_pass_status,
@@ -827,6 +885,7 @@ class CounselorEnrolledCourseViewV2(View):
                 'show_next_button': show_next_button,
                 'show_reattempt_button': show_reattempt_button,
                 'debug': settings.DEBUG,
+                'labels': get_site_labels(),
             }
             
             return render(request, self.template_name, context)
@@ -1086,8 +1145,11 @@ class FetchCurrentPartViewV2(View):
             # Get user and course
             user_id = request.session.get('id')
             user = CounselorUser.objects.only('id', 'username', 'email').get(id=user_id)
-            course = CounselorCourse.objects.only('id', 'title').get(title=course_name)
-            
+            course = CounselorCourse.objects.only('id', 'title', 'price').get(title=course_name)
+            # Gate: freemium trial then payment for paid courses
+            allow, redirect_response, trial_remaining_seconds, trial_expired = _require_payment_or_trial(user, course, course_name, request=request)
+            if not allow and redirect_response is not None:
+                return redirect_response
             # Get course data
             course_with_related_data = CourseDataService.get_course_with_related_data(course_name)
             if not course_with_related_data:
@@ -1212,8 +1274,11 @@ class FetchCurrentPartViewV2(View):
                 )
             )
             
-            # Get next part
+            # Get next and previous part
             next_part = PartNavigationService.get_next_part(
+                course_with_related_data, show_part_id
+            )
+            prev_part = PartNavigationService.get_previous_part(
                 course_with_related_data, show_part_id
             )
             next_part_for_quiz = next_part if quiz_completed else None
@@ -1285,6 +1350,8 @@ class FetchCurrentPartViewV2(View):
             # Check autocomplete
             autocomplete_enabled = request.session.get(f'autocomplete_{course_name}', False)
             
+            # Trial banner when user is on trial
+            show_trial_banner = trial_remaining_seconds is not None and trial_remaining_seconds > 0
             # Build context
             context = {
                 'course': course_with_related_data,
@@ -1302,6 +1369,10 @@ class FetchCurrentPartViewV2(View):
                 'grade': grade,
                 'user': user,  # Pass full user object for avatar display
                 'user_name': user.username,
+                'show_trial_banner': show_trial_banner,
+                'trial_remaining_seconds': trial_remaining_seconds or 0,
+                'trial_expired': trial_expired,
+                'course_list_url': reverse('counselor:icef_view'),
                 'show_part_id': show_part_id,
                 'show_quiz_id': show_quiz_id,  # Keep -1 for template logic (template checks show_quiz_id == -1)
                 'resume_chapter_id': resume_chapter_id,
@@ -1317,6 +1388,7 @@ class FetchCurrentPartViewV2(View):
                 'autocomplete_enabled': autocomplete_enabled,
                 'course_name': course_name,
                 'next_part': next_part,
+                'prev_part': prev_part,
                 'quiz_completed': quiz_completed,
                 'next_part_for_quiz': next_part_for_quiz,
                 'quiz_pass_status': quiz_pass_status,
@@ -1324,6 +1396,7 @@ class FetchCurrentPartViewV2(View):
                 'show_next_button': show_next_button,
                 'show_reattempt_button': show_reattempt_button,
                 'debug': settings.DEBUG,
+                'labels': get_site_labels(),
             }
             
             return render(request, self.template_name, context)
