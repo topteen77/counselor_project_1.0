@@ -153,7 +153,7 @@
             {% csrf_token %}
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div class="login-screen  text-center p-5">
-              <div class="sample-img"> <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
+              <div class="sample-img"> <img class="mx-auto" style="width:200px; height:auto;" src="{% static 'images_new/logos/topteen-logo.svg' %}"
                   alt="topteen" /> </div>
               <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">LOGIN</h1>
               {% if messages %}
