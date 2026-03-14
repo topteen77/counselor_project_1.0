@@ -40,7 +40,7 @@ def landing_view(request):
 
 
 def login_view(request):
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'hide_header_avatar': True})
 
 
 def signup_view(request):
@@ -250,7 +250,7 @@ def user_login(request):
         except CounselorUser.DoesNotExist:
             messages.error(request, "Username not found.")
     list(messages.get_messages(request))
-    context = {'next': next_url}
+    context = {'next': next_url, 'hide_header_avatar': True}
     return render(request, 'login.html', context)
 
 def user_signup(request):

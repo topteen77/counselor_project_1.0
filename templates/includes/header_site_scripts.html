@@ -1,0 +1,14 @@
+<script>
+(function() {
+  function toggleUserDropdown() {
+    var dd = document.getElementById('userDropdown');
+    if (dd) dd.classList.toggle('show');
+  }
+  window.toggleUserDropdown = toggleUserDropdown;
+  document.addEventListener('click', function(e) {
+    var dd = document.getElementById('userDropdown');
+    if (!dd || !dd.classList.contains('show')) return;
+    if (!e.target.closest('.user-avatar-container')) dd.classList.remove('show');
+  });
+})();
+</script>

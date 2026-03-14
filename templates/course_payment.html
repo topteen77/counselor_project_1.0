@@ -7,26 +7,9 @@
   <title>Payment | {{ course.title }}</title>
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
   <style>
     body { font-family: sans-serif; padding: 40px 20px; }
-    /* Header: match header_site_icef layout (no Tailwind on this page) */
-    .payment-header-wrap { border-bottom: 2px solid #EBEBEE; }
-    .payment-header-wrap > div { display: none; }
-    @media (min-width: 992px) {
-      .payment-header-wrap > div { display: flex !important; flex-direction: row; justify-content: center; padding: 16px 0; width: 100%; }
-      .payment-header-wrap > div > div { display: flex !important; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; max-width: 1082px; margin: 0 auto; padding: 0 15px; }
-      .payment-header-wrap ul { display: flex; flex-direction: row; list-style: none; margin: 0; padding: 0; width: 100%; justify-content: space-between; align-items: center; gap: 24px; }
-      .payment-header-wrap li { display: flex; align-items: center; }
-      .payment-header-wrap li a img { height: 38.5px; width: auto; max-width: 140px; display: block; }
-      .payment-header-wrap .user-avatar-container { position: relative; }
-      .payment-header-wrap .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; }
-      .payment-header-wrap .user-avatar-dropdown { position: absolute; top: 100%; right: 0; margin-top: 4px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px; z-index: 1000; display: none; }
-      .payment-header-wrap .user-avatar-dropdown.show { display: block; }
-      .payment-header-wrap .user-avatar-dropdown-header { padding: 16px; border-bottom: 1px solid #EBEBEE; }
-      .payment-header-wrap .user-avatar-dropdown-item { display: block; width: 100%; padding: 12px 16px; text-align: left; border: none; background: #fff; cursor: pointer; font-size: 14px; color: #333; border-top: 1px solid #EBEBEE; }
-      .payment-header-wrap .user-avatar-dropdown-item:hover { background: #f5f5f5; }
-      .payment-header-wrap .user-avatar-dropdown-item.logout { color: #dc3545; }
-    }
     .payment-card { max-width: 480px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px; }
     .price { font-size: 1.5rem; font-weight: 700; color: #3f37c9; margin: 16px 0; }
     .btn-pay { background: #3f37c9; color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; width: 100%; }
@@ -46,7 +29,7 @@
   </style>
 </head>
 <body>
-  <div class="payment-header-wrap">{% include 'includes/header_site_icef.html' %}</div>
+  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
   <section class="container py-4 py-md-5">
   <div class="payment-card">
     <h2>{{ course.title }}</h2>
@@ -215,16 +198,7 @@
       });
       rzp1.open();
     };
-
-    function toggleUserDropdown() {
-      var dd = document.getElementById('userDropdown');
-      if (dd) dd.classList.toggle('show');
-    }
-    document.addEventListener('click', function(e) {
-      var dd = document.getElementById('userDropdown');
-      if (!dd || !dd.classList.contains('show')) return;
-      if (!e.target.closest('.user-avatar-container')) dd.classList.remove('show');
-    });
   </script>
+  {% include 'includes/header_site_scripts.html' %}
 </body>
 </html>

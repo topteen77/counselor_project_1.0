@@ -5,7 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Payment Failed</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
   <style>
     body { font-family: sans-serif; padding: 40px 20px; text-align: center; }
     .fail-card { max-width: 480px; margin: 0 auto; }
@@ -14,6 +16,8 @@
   </style>
 </head>
 <body>
+  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
+  <section class="container py-4">
   <div class="fail-card">
     <div class="fail-icon">⚠</div>
     <h1>Payment Failed</h1>
@@ -21,6 +25,8 @@
     <a href="{{ payment_page_url }}" class="btn-retry">Retry</a>
     <p class="mt-4 mb-0"><a href="{% url 'counselor:icef_view' %}">Back to courses</a></p>
   </div>
+  </section>
   {% include 'includes/footer_nav_mobile.html' %}
+  {% include 'includes/header_site_scripts.html' %}
 </body>
 </html>

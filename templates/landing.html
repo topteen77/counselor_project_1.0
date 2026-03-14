@@ -9,10 +9,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
   <style>
     body { font-family: 'Galano Grotesque', sans-serif; padding-top: 20px; overflow-x: hidden; }
-    .landing-header { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
-    .landing-header a { padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
     .btn-login { background: #3f37c9; color: #fff; }
     .btn-signup { background: #4CC9F0; color: #fff; border-bottom: 4px solid #3CBAE1; }
     .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
@@ -34,11 +33,8 @@
   </style>
 </head>
 <body>
+  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
   <div class="container">
-    <div class="landing-header">
-      <a href="{% url 'counselor:login_view' %}" class="btn-login">Login</a>
-      <a href="{% url 'counselor:signup_view' %}" class="btn-signup">Sign Up</a>
-    </div>
     <h1 class="landing-title">Our Courses</h1>
     <div class="course-grid">
       {% for course in courses %}
@@ -58,5 +54,6 @@
     </div>
   </div>
   {% include 'includes/footer_nav_mobile.html' %}
+  {% include 'includes/header_site_scripts.html' %}
 </body>
 </html>
