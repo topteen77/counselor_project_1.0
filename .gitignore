@@ -5,6 +5,7 @@ db.sqlite3
 *.log
 .env
 */settings.py
+counselor_project/settings.py
 */urls.py
 counselor_project/urls.py
 staticfiles/
