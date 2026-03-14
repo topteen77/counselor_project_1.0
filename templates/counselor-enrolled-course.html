@@ -92,7 +92,7 @@
   </script>
   {% endif %}
 
-  <div class="ld-focus-header">
+  <div class="ld-focus-header ld-focus-header-sticky-mobile d-lg-none">
     <div class="ld-brand-logo">
       <a href="#">
         <img src="https://www.topteen.in/static/topteenfrontend/assets/images/logo.svg" alt="Logo">
@@ -154,7 +154,7 @@
   
 
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-  <main class="container-fluid mx-auto px-[15px] lg:px-0 w-full  pb-[60px] lg:pb-0 ">
+  <main class="container-fluid mx-auto px-[15px] lg:px-0 w-full pb-[100px] lg:pb-0 course-main-with-mobile-bar">
     <div class="row">
       <!-- Left part Desktop -->
       <div class="col-md-3 rounded-[10px] mx-auto bg-[#FBFBFB] course-sidebar">
@@ -1184,6 +1184,116 @@
     <!-- End of Right Part -->
     </div>
   </main>
+
+  <!-- Mobile bottom bar: Resume, Back, Previous, Next, Mark as complete (always render so bar never blank) -->
+  <nav class="d-lg-none course-mobile-bottom-bar" aria-label="Course actions">
+    <div class="course-mobile-bottom-bar-inner">
+      <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course_name %}" class="course-mobile-bottom-btn" title="Resume"><i class="fas fa-sync-alt" aria-hidden="true"></i><span>Resume</span></a>
+      <a href="{% url 'counselor:icef_view' %}" class="course-mobile-bottom-btn" title="Back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Back</span></a>
+      {% if prev_part %}
+      <a href="{% url 'counselor:fetch_current_part' course_name=course_name current_part_id=prev_part.id part_or_quiz=1 %}" class="course-mobile-bottom-btn" title="Previous"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Prev</span></a>
+      {% else %}
+      <span class="course-mobile-bottom-btn course-mobile-bottom-btn-disabled" title="Previous" aria-disabled="true"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Prev</span></span>
+      {% endif %}
+      {% if next_part %}
+      <a href="{% url 'counselor:fetch_current_part' course_name=course_name current_part_id=next_part.id part_or_quiz=1 %}" class="course-mobile-bottom-btn" title="Next"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Next</span></a>
+      {% else %}
+      <span class="course-mobile-bottom-btn course-mobile-bottom-btn-disabled" title="Next" aria-disabled="true"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>Next</span></span>
+      {% endif %}
+      {% if show_part_id and show_quiz_id == -1 and show_part_id not in complete_status %}
+      <button type="button" class="course-mobile-bottom-btn course-mobile-bottom-btn-mark" onclick="updatePartStatus({{ show_part_id }})" title="Mark as complete"><i class="fas fa-check-circle" aria-hidden="true"></i><span>Mark complete</span></button>
+      {% endif %}
+    </div>
+  </nav>
+  <style>
+    /* Top nav: sticky + single line on mobile */
+    @media (max-width: 991px) {
+      .ld-focus-header-sticky-mobile.ld-focus-header {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background: #f9f9f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        flex-direction: row !important;
+        flex-wrap: nowrap;
+        padding: 8px 10px;
+        gap: 6px;
+        align-items: center;
+      }
+      .ld-focus-header-sticky-mobile .ld-brand-logo img {
+        height: 36px;
+      }
+      .ld-focus-header-sticky-mobile .ld-progress-wrap {
+        width: auto;
+        min-width: 0;
+        max-width: 100px;
+      }
+      .ld-focus-header-sticky-mobile .ld-progress-stats {
+        flex-direction: column;
+        gap: 0;
+        font-size: 10px;
+      }
+      .ld-focus-header-sticky-mobile .ld-progress-bar {
+        height: 6px;
+      }
+      .ld-focus-header-sticky-mobile .top-right-flex {
+        flex-wrap: nowrap;
+        gap: 4px;
+      }
+      .ld-focus-header-sticky-mobile .top-right-flex a {
+        padding: 8px 10px !important;
+        font-size: 10px !important;
+      }
+      .ld-focus-header-sticky-mobile .top-right-flex .user-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+      }
+    }
+    /* Bottom nav: fixed so it stays at bottom on mobile */
+    .course-mobile-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid rgba(127,127,131,0.44);
+      z-index: 9999;
+      min-height: 56px;
+      padding: 8px 6px 12px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+    }
+    .course-mobile-bottom-bar-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+    }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 8px;
+      min-height: 44px;
+      justify-content: center;
+      background: #f0f0f0;
+      border: none;
+      cursor: pointer;
+    }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn i { font-size: 14px; }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn:hover { background: #e0e7ff; color: #3f37c9; }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn-mark { background: #28a745 !important; color: #fff !important; }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn-mark:hover { background: #218838 !important; color: #fff !important; }
+    .course-mobile-bottom-bar .course-mobile-bottom-btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+  </style>
 
 </body>
 

@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min.css' %}">
   <style>
-    body { font-family: 'Galano Grotesque', sans-serif; padding-top: 20px; }
-    .landing-header { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 40px; }
-    .landing-header a { padding: 10px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; }
+    body { font-family: 'Galano Grotesque', sans-serif; padding-top: 20px; overflow-x: hidden; }
+    .landing-header { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .landing-header a { padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
     .btn-login { background: #3f37c9; color: #fff; }
     .btn-signup { background: #4CC9F0; color: #fff; border-bottom: 4px solid #3CBAE1; }
     .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
@@ -21,10 +21,16 @@
     .course-price { font-size: 1.5rem; font-weight: 700; color: #3f37c9; margin-bottom: 16px; }
     .course-price.free { color: #28a745; }
     .course-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    .course-actions a { padding: 10px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px; }
+    .course-actions a { padding: 12px 18px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-learn { background: #e0e7ff; color: #3f37c9; }
     .btn-start { background: #4CC9F0; color: #fff; border-bottom: 4px solid #3CBAE1; }
     .landing-title { text-align: center; margin-bottom: 32px; color: #333; font-size: 1.75rem; }
+    @media (max-width: 576px) {
+      .container { padding-left: 1rem; padding-right: 1rem; max-width: 100%; }
+      .course-grid { grid-template-columns: 1fr; gap: 16px; }
+      .landing-title { font-size: 1.35rem; }
+      body { padding-bottom: 80px; }
+    }
   </style>
 </head>
 <body>
@@ -51,5 +57,6 @@
       {% endfor %}
     </div>
   </div>
+  {% include 'includes/footer_nav_mobile.html' %}
 </body>
 </html>

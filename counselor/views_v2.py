@@ -466,6 +466,19 @@ class PartNavigationService:
             return ordered_parts[current_index + 1]
         
         return None
+
+    @staticmethod
+    def get_previous_part(course_with_related_data, current_part_id):
+        """Get previous part before current part"""
+        ordered_parts = PartNavigationService.get_ordered_parts(course_with_related_data)
+        current_index = None
+        for idx, part in enumerate(ordered_parts):
+            if part.id == current_part_id:
+                current_index = idx
+                break
+        if current_index is not None and current_index > 0:
+            return ordered_parts[current_index - 1]
+        return None
     
     @staticmethod
     def determine_starting_part(found, introduction_id, first_part, user_progress=None, scores=None):
@@ -784,8 +797,11 @@ class CounselorEnrolledCourseViewV2(View):
             else:
                 print("✗ ERROR: show_part_id is None/0, cannot fetch part content!")
             
-            # Get next part
+            # Get next and previous part
             next_part = PartNavigationService.get_next_part(
+                course_with_related_data, show_part_id
+            )
+            prev_part = PartNavigationService.get_previous_part(
                 course_with_related_data, show_part_id
             )
             next_part_for_quiz = next_part if quiz_completed else None
@@ -861,6 +877,7 @@ class CounselorEnrolledCourseViewV2(View):
                 'autocomplete_enabled': autocomplete_enabled,
                 'course_name': course_name,
                 'next_part': next_part,
+                'prev_part': prev_part,
                 'quiz_completed': quiz_completed,
                 'next_part_for_quiz': next_part_for_quiz,
                 'quiz_pass_status': quiz_pass_status,
@@ -1257,8 +1274,11 @@ class FetchCurrentPartViewV2(View):
                 )
             )
             
-            # Get next part
+            # Get next and previous part
             next_part = PartNavigationService.get_next_part(
+                course_with_related_data, show_part_id
+            )
+            prev_part = PartNavigationService.get_previous_part(
                 course_with_related_data, show_part_id
             )
             next_part_for_quiz = next_part if quiz_completed else None
@@ -1368,6 +1388,7 @@ class FetchCurrentPartViewV2(View):
                 'autocomplete_enabled': autocomplete_enabled,
                 'course_name': course_name,
                 'next_part': next_part,
+                'prev_part': prev_part,
                 'quiz_completed': quiz_completed,
                 'next_part_for_quiz': next_part_for_quiz,
                 'quiz_pass_status': quiz_pass_status,
