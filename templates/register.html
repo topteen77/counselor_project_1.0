@@ -27,6 +27,7 @@
   <link rel="preload" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min_test.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
 
     <link rel="stylesheet" href="{% static 'css/custom-min.css' %}" type="text/css" media="all" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
@@ -72,6 +73,7 @@
 </head>
 
 <body>
+  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
     <section class="login-home mt-md-10">
         <div class="container">
             <div class="row">
@@ -79,9 +81,10 @@
                
                     <form method="post" action="{% url 'counselor:user_signup' %}" id="signupForm">
                         {% csrf_token %}
+                        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                         <div class="login-screen text-center p-5">
                             <div class="sample-img mb-4">
-                                <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
+                                <img class="mx-auto" style="width:200px; height:auto;" src="{% static 'images_new/logos/topteen-logo.svg' %}"
                                     alt="TopTeen Logo">
                             </div>
                             <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">SIGN UP</h1>
@@ -234,6 +237,8 @@
             });
         });
     </script>
+  {% include 'includes/footer_nav_mobile.html' %}
+  {% include 'includes/header_site_scripts.html' %}
 </body>
 
 </html>

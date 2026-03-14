@@ -27,6 +27,7 @@
   <link rel="preload" href="{% static 'topteenfrontend/assets/font/font-style.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 
   <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min_test.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
   <link rel="stylesheet" type="text/css"
@@ -145,14 +146,16 @@
 </head>
 
 <body>
+  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
   <section class="login-home mt-md-10">
     <div class="container">
       <div class="row">
         <div class="col-md-5 mx-auto ">
           <form method="post" action="{% url 'counselor:user_login' %}">
             {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div class="login-screen  text-center p-5">
-              <div class="sample-img"> <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
+              <div class="sample-img"> <img class="mx-auto" style="width:200px; height:auto;" src="{% static 'images_new/logos/topteen-logo.svg' %}"
                   alt="topteen" /> </div>
               <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">LOGIN</h1>
               {% if messages %}
@@ -178,11 +181,12 @@
               
                 
                  <div class="d-flex flex-col justify-content-center align-items-center mt-4">
-                  <div class="w-full mb-3">
+                  <div class="w-full mb-2">
                       <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
                   </div>
+                 
                   <div class="w-full">
-                      <a href="{% url 'counselor:signup_view' %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                      <a href="{% url 'counselor:signup_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
                           SIGN UP
                       </a>
                   </div>
@@ -227,6 +231,8 @@
       passwordField.focus();
     }
   </script>
+  {% include 'includes/footer_nav_mobile.html' %}
+  {% include 'includes/header_site_scripts.html' %}
 </body>
 
 </html>

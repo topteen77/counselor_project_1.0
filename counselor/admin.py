@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.db import models
 import nested_admin
-from .models import CounselorCertification, CounselorCourse, Chapter, CounselorUser, CourseContentProgress, CourseOverviewPoints, CourseOverviewSummary, Part, Quiz, Question, QuizAnswers, QuizResults, UserProgressTrack, UserQuizAttemptTrack
+from .models import CounselorCertification, CounselorCourse, Chapter, CounselorUser, CourseContentProgress, CourseOverviewPoints, CourseOverviewSummary, CoursePayment, DiscountCoupon, Part, PaymentReceipt, Quiz, Question, QuizAnswers, QuizResults, SiteLabel, UserProgressTrack, UserQuizAttemptTrack
 from ckeditor.widgets import CKEditorWidget
 
 class PartAdminForm(forms.ModelForm):
@@ -137,7 +137,7 @@ class PartInline(admin.StackedInline):
 
 @admin.register(CounselorCourse)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_at', 'updated_at')
+    list_display = ('title', 'price', 'created_at', 'updated_at')
     search_fields = ('title',)
     inlines = [ChapterInline]
     list_filter = ('created_at',)
@@ -256,6 +256,91 @@ class UserQuizAttemptTrackAdmin(admin.ModelAdmin):
     
 # Registering models
 # admin.site.register(CourseOverviewPoints, CourseOverviewPointsAdmin)
+def _generate_random_code(prefix, length=8):
+    import random
+    import string
+    chars = string.ascii_uppercase + string.digits
+    return prefix + '_' + ''.join(random.choices(chars, k=length))
+
+
+class DiscountCouponAdminForm(forms.ModelForm):
+    """Optional: generate N more codes with same settings when saving."""
+    generate_count = forms.IntegerField(
+        min_value=0, max_value=100, required=False, initial=0,
+        help_text='Generate this many additional coupon codes with same settings (codes will be PREFIX_random).'
+    )
+
+    class Meta:
+        model = DiscountCoupon
+        fields = '__all__'
+
+
+@admin.register(DiscountCoupon)
+class DiscountCouponAdmin(admin.ModelAdmin):
+    list_display = ('code', 'discount_type', 'value', 'courses_display', 'times_used', 'max_uses', 'is_active', 'valid_from', 'valid_until', 'created')
+    list_filter = ('is_active', 'discount_type')
+    search_fields = ('code',)
+    readonly_fields = ('times_used', 'created')
+    form = DiscountCouponAdminForm
+    filter_horizontal = ('courses',)
+
+    def courses_display(self, obj):
+        if obj.pk:
+            names = list(obj.courses.values_list('title', flat=True))
+            return ', '.join(names) if names else 'All courses'
+        return '—'
+
+    courses_display.short_description = 'Courses'
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        generate_count = form.cleaned_data.get('generate_count') or 0
+        if generate_count > 0:
+            prefix = (obj.code or '').strip().upper()
+            created = []
+            course_ids = list(obj.courses.values_list('id', flat=True))
+            for _ in range(generate_count):
+                new_code = _generate_random_code(prefix)
+                while DiscountCoupon.objects.filter(code__iexact=new_code).exists():
+                    new_code = _generate_random_code(prefix)
+                dup = DiscountCoupon(
+                    code=new_code.upper() if new_code else new_code,
+                    discount_type=obj.discount_type,
+                    value=obj.value,
+                    valid_from=obj.valid_from,
+                    valid_until=obj.valid_until,
+                    max_uses=obj.max_uses,
+                    is_active=obj.is_active,
+                )
+                dup.save()
+                if course_ids:
+                    dup.courses.set(course_ids)
+                created.append(dup.code)
+            messages.success(request, f'Generated {len(created)} coupon(s): {", ".join(created)}')
+
+
+@admin.register(CoursePayment)
+class CoursePaymentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'course', 'amount', 'discount_amount', 'coupon', 'is_success', 'gateway_payment_id', 'created')
+    list_filter = ('is_success', 'course')
+    search_fields = ('user__username', 'user__email', 'gateway_order_id', 'gateway_payment_id')
+    readonly_fields = ('created', 'updated')
+
+
+@admin.register(PaymentReceipt)
+class PaymentReceiptAdmin(admin.ModelAdmin):
+    list_display = ('id', 'payment', 'transaction_id', 'invoice_number', 'created')
+    search_fields = ('transaction_id', 'invoice_number')
+    readonly_fields = ('created',)
+
+
+@admin.register(SiteLabel)
+class SiteLabelAdmin(admin.ModelAdmin):
+    list_display = ('key', 'value')
+    search_fields = ('key', 'value')
+    list_editable = ('value',)
+
+
 admin.site.register(Chapter, ChapterAdmin)
 admin.site.register(Part, PartAdmin)
 admin.site.register(Quiz, QuizAdmin)

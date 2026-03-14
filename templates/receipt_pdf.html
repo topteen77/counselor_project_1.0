@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% if invoice_type == 'gst' %}GST Invoice{% else %}Sale Invoice{% endif %} - {% if receipt %}{{ receipt.invoice_number }}{% else %}Payment {{ payment.id }}{% endif %}</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { text-align: left; padding: 8px 0; border-bottom: 1px solid #eee; }
+    th { color: #666; font-weight: 600; }
+    .header { font-size: 1.25rem; margin-bottom: 8px; }
+    .sub { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
+    .amount-row { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="header">{% if invoice_type == 'gst' %}GST Invoice / Tax Invoice{% else %}Sale Invoice{% endif %}</div>
+  {% if receipt and receipt.invoice_number %}<div class="sub">Invoice No. {{ receipt.invoice_number }}</div>{% endif %}
+  <table>
+    <tr><th>Transaction ID</th><td>{{ transaction_id }}</td></tr>
+    <tr><th>Course</th><td>{{ payment.course.title }}</td></tr>
+    <tr><th>Original amount</th><td>₹ {{ original_amount }}</td></tr>
+    {% if payment.discount_amount and payment.discount_amount > 0 %}
+    <tr><th>Discount{% if payment.coupon %} (Code: {{ payment.coupon.code }}){% endif %}</th><td>− ₹ {{ payment.discount_amount }}</td></tr>
+    {% endif %}
+    <tr><th>Amount paid</th><td class="amount-row">₹ {{ payment.amount }}</td></tr>
+    <tr><th>Date</th><td>{{ payment.created|date:"d M Y H:i" }}</td></tr>
+    <tr><th>User</th><td>{{ payment.user.username }} ({{ payment.user.email }})</td></tr>
+  </table>
+</body>
+</html>

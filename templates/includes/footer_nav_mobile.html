@@ -1,0 +1,102 @@
+{% load static %}
+{# Mobile footer nav: contextual by page and user. Anonymous: Explore, Login. Logged-in: Explore, Logout. Course detail only: Invoice (if paid) or Buy/Trial. #}
+{% with path=request.path|default:"" is_logged_in=nav_is_logged_in|default:False user_has_paid=nav_user_has_paid|default:False %}
+<section class="footer-nav d-lg-none d-block" aria-label="Mobile navigation">
+  <div class="nav-footer">
+    <ul>
+      {% comment %} Explore: course list (all pages) {% endcomment %}
+      <li>
+        <a href="{% url 'counselor:icef_view' %}#first-course" class="ft-learn-icon{% if path == '/' or path == '/counsellor-courses/' %} active{% endif %}" title="Explore courses">
+          <span></span><p>Explore</p>
+        </a>
+      </li>
+
+      {% if course %}
+        {% if course.paid %}
+          {# If course is bought, show Start and Invoice #}
+          <li>
+            <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="ft-dash-icon{% if '/counselor_enrolled_course' in path %} active{% endif %}" title="Start course">
+              <span></span><p>Start</p>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'counselor:invoice_view' course_name=course.title %}" class="ft-search-icon{% if '/invoice' in path %} active{% endif %}" title="Invoice">
+              <span></span><p>Invoice</p>
+            </a>
+          </li>
+        {% else %}
+          {# If course not bought, show Buy and Trial #}
+          <li>
+            <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="ft-search-icon{% if '/payment' in path %} active{% endif %}" title="Buy course">
+              <span></span><p>Buy</p>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="ft-dash-icon{% if '/counselor_enrolled_course' in path %} active{% endif %}" title="Start trial">
+              <span></span><p>Trial</p>
+            </a>
+          </li>
+        {% endif %}
+      {% else %}
+        {% if is_logged_in %}
+          {# Invoice only on course detail page (see above when course is set) #}
+          <li>
+            <a href="{% url 'counselor:user_logout' %}" class="ft-profile-icon" title="Logout">
+              <span></span><p>Logout</p>
+            </a>
+          </li>
+        {% else %}
+          <li>
+            <a href="{% url 'counselor:login_view' %}" class="ft-profile-icon{% if '/login' in path or '/signup' in path or '/login-page' in path or '/signup-page' in path %} active{% endif %}" title="Login">
+              <span></span><p>Login</p>
+            </a>
+          </li>
+        {% endif %}
+      {% endif %}
+    </ul>
+  </div>
+</section>
+{% endwith %}
+<style>
+  /* Bottom nav: fixed on mobile so it stays at bottom when scrolling */
+  .footer-nav.d-lg-none.d-block {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    background: #fff;
+    border-top: 1px solid rgba(127, 127, 131, 0.44);
+    pointer-events: auto;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+  }
+  .footer-nav .nav-footer ul {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+  .footer-nav .nav-footer ul li a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    float: none;
+    padding-top: 28px !important;
+    padding-bottom: 6px !important;
+  }
+  .footer-nav .nav-footer li a::before {
+    pointer-events: none;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+  .footer-nav .nav-footer ul li a p {
+    text-align: center;
+  }
+  .footer-nav .nav-footer a {
+    pointer-events: auto;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .footer-nav .nav-footer a.active { font-weight: 700; opacity: 1; }
+  .footer-nav .nav-footer a.active p { color: #3f37c9; }
+</style>

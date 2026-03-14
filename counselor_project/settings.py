@@ -24,9 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_URL = config('BASE_URL', default='')
 FORCE_SCRIPT_NAME = config('FORCE_SCRIPT_NAME', default='')
 
-MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 
 # Quick-start development settings - unsuitable for production
@@ -38,7 +36,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-k4%g(nw_a8%sgui+^t6vk
 # SECURITY WARNING: don't run with debug turned on in production!
 # Local: DEBUG=True
 # Production: DEBUG=False
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Local: ALLOWED_HOSTS=*
 # Production: ALLOWED_HOSTS=test.topteen.in
@@ -47,11 +45,22 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 # Master Password for Quiz Autocomplete
 MASTER_PASSWORD = config('MASTER_PASSWORD', default='admin123')
 
-# Hello! This is a comment to explain the settings below.
+# Razorpay (payment gateway). Use RAZORPAY_KEY/RAZORPAY_SECRET or RAZORPAY_API_KEY/RAZORPAY_API_SECRET.
+RAZORPAY_KEY = config('RAZORPAY_KEY', default='')
+RAZORPAY_SECRET = config('RAZORPAY_SECRET', default='')
+
+# Freemium trial: minutes of free access per course before requiring payment (0 = no trial).
+TRIAL_MINUTES = config('TRIAL_MINUTES', default=2, cast=int)
+
+# Invoice type for payment receipts: 'gst' (GST Invoice / Tax Invoice) or 'sale' (Sale Invoice).
+INVOICE_TYPE = config('INVOICE_TYPE', default='sale').lower().strip() or 'sale'
+if INVOICE_TYPE not in ('gst', 'sale'):
+    INVOICE_TYPE = 'sale'
+
+
 # Application definition
 
 INSTALLED_APPS = [
-    "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -65,7 +74,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,6 +95,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'counselor.context_processors.mobile_nav_context',
             ],
         },
     },
@@ -105,13 +114,12 @@ WSGI_APPLICATION = 'counselor_project.wsgi.application'
 #     }
 # }
 
-# production database settings
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',  # Use the MySQL backend
 #         'NAME': 'counselor_course',        # Replace with your MySQL database name
-#         'USER': 'counselor121',                  # Your MySQL username
-#         'PASSWORD': '%=6-jRi;m@{C',          # Your MySQL password
+#         'USER': 'root',                  # Your MySQL username
+#         'PASSWORD': 'Root@Canam123',          # Your MySQL password
 #         'HOST': 'localhost',                  # MySQL is hosted locally
 #         'PORT': '3306',                       # Default MySQL port
 #     }
@@ -121,13 +129,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Use the MySQL backend
         'NAME': config('DB_NAME', default='counselor_course'),
-        'USER': config('DB_USER', default='counselor121'),
-        'PASSWORD': config('DB_PASSWORD', default='%=6-jRi;m@{C'),
-        'HOST': config('DB_HOST', default='localhost'),
+        'USER': config('DB_USER', default='workbench_user'),
+        'PASSWORD': config('DB_PASSWORD', default='User_001'),
+        'HOST': config('DB_HOST', default='43.205.138.85'),
         'PORT': config('DB_PORT', default='3306'),
     }
 }
-
 
 
 # Password validation
@@ -163,24 +170,18 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-#STATIC_URL = '/counselor_project/static/'
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
 import os
 
 # Static and Media URL Configuration
 # Local: STATIC_URL=/static/, MEDIA_URL=/media/
 # Production: STATIC_URL=/counselor_project/static/, MEDIA_URL=/counselor_project/media/
-STATIC_URL = f'{FORCE_SCRIPT_NAME}/static/' if FORCE_SCRIPT_NAME else '/counselor_project/static/'
-MEDIA_URL = f'{FORCE_SCRIPT_NAME}/media/' if FORCE_SCRIPT_NAME else '/counselor_project/media/'
-
-
+STATIC_URL = f'{FORCE_SCRIPT_NAME}/static/' if FORCE_SCRIPT_NAME else '/static/'
+MEDIA_URL = f'{FORCE_SCRIPT_NAME}/media/' if FORCE_SCRIPT_NAME else '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+# Add this line for production static file collection
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type

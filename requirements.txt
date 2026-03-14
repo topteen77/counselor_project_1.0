@@ -1,0 +1,6 @@
+Django>=5.0
+mysqlclient
+python-decouple
+django-nested-admin
+django-ckeditor
+razorpay>=1.4.0

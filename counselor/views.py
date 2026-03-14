@@ -8,10 +8,20 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from .models import CounselorCertification, CounselorUser, CourseOverviewSummary, Question, Quiz, Chapter, Part, QuizAnswers, QuizResults ,CourseContentProgress, CounselorCourse, UserProgressTrack, UserQuizAttemptTrack
+from .models import (
+    CounselorCertification, CounselorUser, CourseOverviewSummary, Question, Quiz,
+    Chapter, Part, QuizAnswers, QuizResults, CourseContentProgress, CounselorCourse,
+    UserProgressTrack, UserQuizAttemptTrack, CoursePayment, PaymentReceipt, DiscountCoupon,
+    CourseTrialStart,
+)
+from .utils import get_site_labels
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+from django.core.signing import Signer
+from urllib.parse import quote, unquote
 from django.db.models import Count
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -22,35 +32,94 @@ from django.shortcuts import HttpResponse,HttpResponseRedirect
 from django.db.models import Prefetch
 User = get_user_model()
 
+def landing_view(request):
+    """Public landing page: list all courses with price. No login required."""
+    courses = CounselorCourse.objects.only('id', 'title', 'price').order_by('title')
+    context = {'courses': courses}
+    return render(request, 'landing.html', context)
+
+
 def login_view(request):
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'hide_header_avatar': True})
+
 
 def signup_view(request):
-    return render(request,'register.html')
+    next_url = request.GET.get('next', '')
+    return render(request, 'register.html', {'next': next_url})
+
 
 def user_logout(request):
     if request.session.get('id'):
         del request.session['id']
-    return redirect('counselor:login_view')
+    return redirect('counselor:landing')
 
 def icef_view(request):
-    if not request.session.get('id'):
-        return redirect('counselor:login_view')
-    
-    # Get user
+    user = None
     user_id = request.session.get('id')
-    user = CounselorUser.objects.only('id', 'username', 'email').get(id=user_id)
-    
+    if user_id:
+        try:
+            user = CounselorUser.objects.only('id', 'username', 'email').get(id=user_id)
+        except CounselorUser.DoesNotExist:
+            user_id = None
+
     # List of all courses
     course_list = ['Germany', 'UK', 'USA', 'Singapore', 'Newzealand', 'Ireland', 'France', 'Dubai', 'Canada', 'Australia']
-    
-    # Calculate course status for each course
+
+    # Anonymous: build course_statuses with prices only (no progress); "Start Now" will go to login then payment
+    if not user_id:
+        course_statuses = {}
+        for course_name in course_list:
+            try:
+                course = CounselorCourse.objects.only('id', 'title', 'price').filter(title=course_name).first()
+                if course:
+                    price = course.price if course.price is not None else 0
+                    course_statuses[course_name] = {
+                        'status': 'not_started',
+                        'has_certificate': False,
+                        'has_paid': False,
+                        'price': price,
+                    }
+                else:
+                    course_statuses[course_name] = {
+                        'status': 'not_started',
+                        'has_certificate': False,
+                        'has_paid': False,
+                        'price': 0,
+                    }
+            except Exception as e:
+                logger.error(f"Error for course {course_name}: {str(e)}")
+                course_statuses[course_name] = {
+                    'status': 'not_started',
+                    'has_certificate': False,
+                    'has_paid': False,
+                    'price': 0,
+                }
+        trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
+        context = {'course_statuses': course_statuses, 'user': user, 'trial_minutes': trial_minutes, 'labels': get_site_labels()}
+        return render(request, 'icef-course.html', context)
+
+    # Logged-in: full course status with progress and payment
+    trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
+    paid_payment_ids = dict(
+        CoursePayment.objects.filter(user=user, is_success=True).values_list('course_id', 'id')
+    )
+    # Courses where trial has expired (user started trial, time elapsed, not paid)
+    now = timezone.now()
+    trial_expired_course_ids = set()
+    for t in CourseTrialStart.objects.filter(user=user).values_list('course_id', 'started_at'):
+        if (now - t[1]).total_seconds() > trial_minutes * 60:
+            trial_expired_course_ids.add(t[0])
+    labels = get_site_labels()
     course_statuses = {}
     for course_name in course_list:
         try:
-            course = CounselorCourse.objects.only('id', 'title').get(title=course_name)
-            
+            course = CounselorCourse.objects.only('id', 'title', 'price').get(title=course_name)
+            course_price = course.price if course.price is not None else 0
+
             # Check if certificate exists (course is complete)
+            has_paid = CoursePayment.objects.filter(
+                user=user, course=course, is_success=True
+            ).exists()
             try:
                 certificate = CounselorCertification.objects.only('id', 'grade', 'certificate_code', 'created_at').get(
                     user=user, course=course
@@ -61,7 +130,11 @@ def icef_view(request):
                     'has_certificate': True,
                     'certificate_code': certificate.certificate_code,
                     'grade': certificate.grade,
-                    'issued_date': certificate.created_at.strftime('%d-%m-%Y')
+                    'issued_date': certificate.created_at.strftime('%d-%m-%Y'),
+                    'has_paid': has_paid,
+                    'price': course_price,
+                    'payment_id': paid_payment_ids.get(course.id),
+                    'trial_expired': course.id in trial_expired_course_ids and not has_paid and course_price > 0,
                 }
             except CounselorCertification.DoesNotExist:
                 # No certificate - check if course is in progress (has some progress)
@@ -80,39 +153,60 @@ def icef_view(request):
                     # Check if user has any progress in THIS specific course
                     has_progress = len(course_user_progress) > 0 or len(course_scores) > 0
                     
+                    trial_expired = course.id in trial_expired_course_ids and not has_paid and course_price > 0
                     if has_progress:
                         course_statuses[course_name] = {
                             'status': 'inprocess',
-                            'has_certificate': False
+                            'has_certificate': False,
+                            'has_paid': has_paid,
+                            'price': course_price,
+                            'payment_id': paid_payment_ids.get(course.id),
+                            'trial_expired': trial_expired,
                         }
                     else:
                         course_statuses[course_name] = {
                             'status': 'not_started',
-                            'has_certificate': False
+                            'has_certificate': False,
+                            'has_paid': has_paid,
+                            'price': course_price,
+                            'payment_id': paid_payment_ids.get(course.id),
+                            'trial_expired': trial_expired,
                         }
                 else:
+                    trial_expired = course.id in trial_expired_course_ids and not has_paid and course_price > 0
                     course_statuses[course_name] = {
                         'status': 'not_started',
-                        'has_certificate': False
+                        'has_certificate': False,
+                        'has_paid': has_paid,
+                        'price': course_price,
+                        'payment_id': paid_payment_ids.get(course.id),
+                        'trial_expired': trial_expired,
                     }
         except CounselorCourse.DoesNotExist:
             course_statuses[course_name] = {
                 'status': 'not_started',
-                'has_certificate': False
+                'has_certificate': False,
+                'has_paid': False,
+                'price': 0,
+                'payment_id': None,
+                'trial_expired': False,
             }
         except Exception as e:
-            # Log error and default to not_started
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Error calculating status for course {course_name}: {str(e)}")
             course_statuses[course_name] = {
                 'status': 'not_started',
-                'has_certificate': False
+                'has_certificate': False,
+                'has_paid': False,
+                'price': 0,
+                'payment_id': None,
+                'trial_expired': False,
             }
     
     context = {
         'course_statuses': course_statuses,
-        'user': user  # Pass user info for avatar display
+        'user': user,
+        'trial_minutes': trial_minutes,
+        'labels': labels,
     }
     
     return render(request, 'icef-course.html', context)
@@ -140,29 +234,33 @@ def update_part_status(request, part_id):
         return JsonResponse({'success': False, 'message': 'Internal server error'}, status=500)
 
 def user_login(request):
+    next_url = request.GET.get('next') or request.POST.get('next', '')
     if request.method == "POST":
         username = request.POST.get('Username')
         password = request.POST.get('password')
         try:
             user = CounselorUser.objects.get(email=username)
-            if user.password == password:  # Use Django's password hashing in production
-                # print(user.id)    
+            if user.password == password:
                 request.session['id'] = user.id
-                # messages.success(request, "Login successful!")
-                return redirect('counselor:icef_view')  # Replace 'home' with the desired URL name
+                if next_url:
+                    return redirect(next_url)
+                return redirect('counselor:icef_view')
             else:
                 messages.error(request, "Incorrect password!")
         except CounselorUser.DoesNotExist:
             messages.error(request, "Username not found.")
     list(messages.get_messages(request))
-    return render(request, 'login.html')
+    context = {'next': next_url, 'hide_header_avatar': True}
+    return render(request, 'login.html', context)
 
 def user_signup(request):
+    next_url = request.GET.get('next') or request.POST.get('next', '')
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
+        next_url = request.POST.get('next', next_url)
         # Check if passwords match
         if password != confirm_password:
             messages.error(request, "Passwords do not match!")
@@ -171,12 +269,16 @@ def user_signup(request):
         try:
             user = CounselorUser(username=username, email=email, password=password)
             user.save()
-            messages.success(request, "Registration successful! Please log in.")
-            return redirect('counselor:login_view')  # Redirect to login page after successful signup
+            # Auto-login and send to payment (or next) so user goes directly to Razorpay
+            request.session['id'] = user.id
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=request.get_host()):
+                return redirect(next_url)
+            messages.success(request, "Registration successful!")
+            return redirect('counselor:landing')
         except IntegrityError:
             messages.error(request, "The email or username is already in use. Please try another.")
             return redirect('counselor:user_signup')
-    return render(request, 'register.html')
+    return render(request, 'register.html', {'next': next_url})
 
 def get_course_with_related_data(course_name):
     course_with_related_data = []
@@ -334,48 +436,77 @@ def getUserProgress(user,course_with_related_data,course_name):
 
     return total_parts,part_ids,user_progress,scores,found,answers_data,part_scores,correct_answers,incorrect_answers,complete_status,introduction_id,user_progress_quiz
 
-def course_overview(request,course_name):
-    course_overview_with_related_data=[]
-    intro=''
-    conclusion=''
-    resume=0
-    try:
-        # Prefetch parts, their quizzes, questions, and answers
-        course_overview_with_related_data = CounselorCourse.objects.prefetch_related(
+def course_overview(request, course_name):
+    course = get_object_or_404(CounselorCourse, title=course_name)
+    course_overview_with_related_data = CounselorCourse.objects.prefetch_related(
         'chapters__parts'
-    ).filter(
-        title=course_name
-    ).first()
-        summaries = CourseOverviewSummary.objects.filter(course__title=course_name).values('title1', 'title2')
-        intro=summaries[0]['title1']
-        conclusion=summaries[0]['title2']
-    except Chapter.DoesNotExist:
-        course_overview_with_related_data = []
+    ).filter(title=course_name).first()
+    intro = ''
+    conclusion = ''
+    summaries = CourseOverviewSummary.objects.filter(course__title=course_name).values('title1', 'title2')
+    if summaries:
+        intro = summaries[0].get('title1', '')
+        conclusion = summaries[0].get('title2', '')
+    price = course.price if course.price is not None else 0
+    is_anonymous = not request.session.get('id')
+    trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
+    labels = get_site_labels()
+    if is_anonymous:
+        context = {
+            'course': course_overview_with_related_data,
+            'image_name': 'ukcourse',
+            'intro': intro,
+            'conclusion': conclusion,
+            'resume': 0,
+            'total_parts': 0,
+            'number_of_completed_parts': 0,
+            'completed_percent_value': 0,
+            'price': price,
+            'has_paid': False,
+            'is_anonymous': True,
+            'trial_minutes': trial_minutes,
+            'payment_id': None,
+            'labels': labels,
+        }
+        return render(request, 'course-overview.html', context)
 
     user = CounselorUser.objects.get(id=request.session.get('id'))
-    course = CounselorCourse.objects.get(title=course_name)
+    has_paid = CoursePayment.objects.filter(user=user, course=course, is_success=True).exists()
+    payment_id = CoursePayment.objects.filter(user=user, course=course, is_success=True).values_list('id', flat=True).first() if has_paid else None
     exists = UserProgressTrack.objects.filter(user=user, course=course).first()
-    # print("Exists: ",exists.resume_part.id)
-
-    if exists:
-        resume=1
-
+    resume = 1 if exists else 0
+    course_price = float(price or 0)
+    trial_expired = False
+    if not has_paid and course_price > 0:
+        now = timezone.now()
+        started = CourseTrialStart.objects.filter(user=user, course=course).values_list('started_at', flat=True).first()
+        if started and (now - started).total_seconds() > trial_minutes * 60:
+            trial_expired = True
     course_with_related_data = get_course_with_related_data(course_name)
-    total_parts, part_ids, user_progress, scores, found, answers_data, part_scores, correct_answers, incorrect_answers, complete_status, introduction_id,user_progress_quiz = getUserProgress(user,course_with_related_data,course_name)
-
-    total_parts=total_parts-len(introduction_id)
-    completed_parts=list(set(part_ids) & set(user_progress))
-    number_of_completed_parts= len(list(set(completed_parts) - set(introduction_id)))
-    completed_percent_value = int((number_of_completed_parts/total_parts)*100)
-    context={
+    if not course_with_related_data:
+        total_parts = number_of_completed_parts = completed_percent_value = 0
+    else:
+        total_parts, part_ids, user_progress, scores, found, answers_data, part_scores, correct_answers, incorrect_answers, complete_status, introduction_id, user_progress_quiz = getUserProgress(user, course_with_related_data, course_name)
+        total_parts = total_parts - len(introduction_id)
+        completed_parts = list(set(part_ids) & set(user_progress))
+        number_of_completed_parts = len(list(set(completed_parts) - set(introduction_id)))
+        completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts else 0
+    context = {
         'course': course_overview_with_related_data,
         'image_name': 'ukcourse',
         'intro': intro,
         'conclusion': conclusion,
         'resume': resume,
-        'total_parts':total_parts,
-        'number_of_completed_parts':number_of_completed_parts,
-        'completed_percent_value':completed_percent_value,
+        'total_parts': total_parts,
+        'number_of_completed_parts': number_of_completed_parts,
+        'completed_percent_value': completed_percent_value,
+        'price': price,
+        'has_paid': has_paid,
+        'trial_expired': trial_expired,
+        'is_anonymous': False,
+        'trial_minutes': trial_minutes,
+        'payment_id': payment_id,
+        'labels': labels,
     }
     return render(request, 'course-overview.html', context)
     
@@ -566,6 +697,7 @@ def fetch_current_part(request,course_name,current_part_id,part_or_quiz):
         'has_passed_quiz': False,  # Whether user has passed (attempt track deleted)
         'show_next_button': False,  # Whether to show Next button
         'show_reattempt_button': False,  # Whether to show Re-attempt button
+        'labels': get_site_labels(),
     }
 
     return render(request,template_name, context)
@@ -1187,11 +1319,33 @@ class CounselorEnrolledCourseView(View):
             'show_next_button': show_next_button,  # NEW: Whether to show Next button for current quiz
             'show_reattempt_button': show_reattempt_button,  # NEW: Whether to show Re-attempt button for current quiz
             'debug': settings.DEBUG,  # NEW: Debug flag for console logging
+            'labels': get_site_labels(),
         }
         found = dict(found)
         
 
         return render(request, self.template_name, context)
+
+
+def trial_expired_back(request, course_name):
+    """
+    When user clicks "Back to course list" from the trial-expired modal:
+    update DB (set expired_acknowledged_at on CourseTrialStart) only if user has not bought the course,
+    then redirect to course list.
+    """
+    if not request.session.get('id'):
+        return redirect('counselor:login_view')
+    user = CounselorUser.objects.filter(id=request.session.get('id')).first()
+    if not user:
+        return redirect('counselor:icef_view')
+    course = get_object_or_404(CounselorCourse, title=course_name)
+    has_paid = CoursePayment.objects.filter(user=user, course=course, is_success=True).exists()
+    if not has_paid:
+        trial = CourseTrialStart.objects.filter(user=user, course=course).first()
+        if trial:
+            trial.expired_acknowledged_at = timezone.now()
+            trial.save(update_fields=['expired_acknowledged_at'])
+    return redirect('counselor:icef_view')
 
 
 def quiz_autocomplete(request, course_name):
@@ -1384,3 +1538,302 @@ def course_autocomplete(request, course_name):
         'course_name': course_name,
         'course': course,
     })
+
+
+# ---------------------------------------------------------------------------
+# Payment views (per-course; Razorpay)
+# ---------------------------------------------------------------------------
+
+def _payment_enc_id(payment_id):
+    """Build signed enc_id for success/fail URLs."""
+    signer = Signer()
+    signed = signer.sign_object({'payment_id': payment_id})
+    return quote(signed, safe='')
+
+
+def _payment_from_enc_id(enc_id):
+    """Decode enc_id and return CoursePayment id or None."""
+    try:
+        enc_id = unquote(enc_id)
+        signer = Signer()
+        obj = signer.unsign_object(enc_id)
+        return obj.get('payment_id')
+    except Exception:
+        return None
+
+
+def _validate_coupon(code, course, original_price):
+    """
+    Validate coupon for a course. Returns (discount_amount, error_message).
+    discount_amount is Decimal; if error_message is set, discount_amount is 0.
+    """
+    from decimal import Decimal
+    if not code or not str(code).strip():
+        return Decimal('0'), None
+    code = str(code).strip().upper()
+    coupon = DiscountCoupon.objects.filter(code__iexact=code).first()
+    if not coupon:
+        return Decimal('0'), 'Invalid coupon code.'
+    if not coupon.is_active:
+        return Decimal('0'), 'This coupon is no longer active.'
+    # If coupon has specific courses, this course must be one of them; empty = all courses.
+    if coupon.courses.exists() and not coupon.courses.filter(pk=course.pk).exists():
+        return Decimal('0'), 'This coupon is not valid for this course.'
+    now = timezone.now()
+    if coupon.valid_from and now < coupon.valid_from:
+        return Decimal('0'), 'This coupon is not yet valid.'
+    if coupon.valid_until and now > coupon.valid_until:
+        return Decimal('0'), 'This coupon has expired.'
+    if coupon.max_uses is not None and coupon.times_used >= coupon.max_uses:
+        return Decimal('0'), 'This coupon has reached its usage limit.'
+    price = Decimal(str(original_price))
+    if coupon.discount_type == 'percent':
+        discount = (price * coupon.value / 100).quantize(Decimal('0.01'))
+    else:
+        discount = min(coupon.value, price)
+    if discount <= 0:
+        return Decimal('0'), None
+    return discount, None
+
+
+@require_http_methods(["POST"])
+def create_course_order(request, course_name):
+    """
+    Create a Razorpay order for the course, optionally with a coupon.
+    POST: course_name in URL; body or form: coupon_code (optional).
+    Returns JSON: order_id, amount_paise, payment_record_id, final_amount, discount_applied, error.
+    """
+    if not request.session.get('id'):
+        return JsonResponse({'success': False, 'error': 'Please log in.'}, status=403)
+    user = get_object_or_404(CounselorUser, id=request.session.get('id'))
+    course = get_object_or_404(CounselorCourse, title=course_name)
+    original_price = course.price if course.price is not None else 0
+    if original_price == 0:
+        return JsonResponse({'success': False, 'error': 'This course is free.'}, status=400)
+    if CoursePayment.objects.filter(user=user, course=course, is_success=True).exists():
+        return JsonResponse({'success': False, 'error': 'You have already paid for this course.'}, status=400)
+
+    # Coupon is optional. Frontend sends FormData, so use POST only (do not read request.body after POST).
+    coupon_code = (request.POST.get('coupon_code') or '').strip().upper()
+    from decimal import Decimal
+    # Empty coupon is valid (no discount). Only non-empty codes are validated.
+    discount_amount, coupon_error = _validate_coupon(coupon_code, course, float(original_price))
+    if coupon_error:
+        return JsonResponse({'success': False, 'error': coupon_error}, status=400)
+
+    final_amount = Decimal(str(original_price)) - discount_amount
+    if final_amount < 0:
+        final_amount = Decimal('0')
+    final_amount = final_amount.quantize(Decimal('0.01'))
+
+    coupon = DiscountCoupon.objects.filter(code__iexact=coupon_code).first() if coupon_code else None
+    from counselor.payment.razorpay import RazorpayService
+    import uuid
+    gateway_receipt = f"counselor_{course.id}_{uuid.uuid4().hex[:12]}"
+    payment_record = CoursePayment.objects.create(
+        user=user, course=course, amount=final_amount, currency='INR',
+        discount_amount=discount_amount, coupon=coupon,
+        gateway_receipt=gateway_receipt, is_success=False
+    )
+    rsvc = RazorpayService()
+    razorpay_order = rsvc.client.order.create(data={
+        'amount': int(payment_record.amount * 100),
+        'currency': 'INR',
+        'receipt': gateway_receipt,
+    })
+    payment_record.gateway_order_id = razorpay_order.get('id')
+    payment_record.save(update_fields=['gateway_order_id'])
+    enc = _payment_enc_id(payment_record.id)
+
+    return JsonResponse({
+        'success': True,
+        'order_id': razorpay_order.get('id'),
+        'amount_paise': int(payment_record.amount * 100),
+        'payment_record_id': payment_record.id,
+        'final_amount': str(payment_record.amount),
+        'discount_applied': str(discount_amount),
+        'original_amount': str(original_price),
+        'enc_id': enc,
+    })
+
+
+def course_payment_view(request, course_name):
+    """Payment page for a course. Login required. Order is created when user applies coupon / proceeds (create_course_order)."""
+    if not request.session.get('id'):
+        login_url = reverse('counselor:login_view') + '?next=' + quote(
+            reverse('counselor:course_payment', kwargs={'course_name': course_name})
+        )
+        return redirect(login_url)
+    user_id = request.session.get('id')
+    user = get_object_or_404(CounselorUser, id=user_id)
+    course = get_object_or_404(CounselorCourse, title=course_name)
+    price = course.price if course.price is not None else 0
+    if price == 0:
+        return redirect('counselor:counselor_enrolled_course_param', course_name=course_name)
+    if CoursePayment.objects.filter(user=user, course=course, is_success=True).exists():
+        return redirect('counselor:counselor_enrolled_course_param', course_name=course_name)
+
+    create_order_url = request.build_absolute_uri(
+        reverse('counselor:create_course_order', kwargs={'course_name': course_name})
+    )
+    # Placeholder __ENC__ replaced in JS with enc_id from create_order response
+    success_url_pattern = request.build_absolute_uri(
+        reverse('counselor:course_payment_success', kwargs={'enc_id': '__ENC__'})
+    )
+    fail_url_pattern = request.build_absolute_uri(
+        reverse('counselor:course_payment_fail', kwargs={'enc_id': '__ENC__'})
+    )
+    context = {
+        'course': course,
+        'original_price': price,
+        'key': getattr(settings, 'RAZORPAY_KEY', '') or getattr(settings, 'RAZORPAY_API_KEY', ''),
+        'create_order_url': create_order_url,
+        'update_payment_url': request.build_absolute_uri(reverse('counselor:update_counselor_course_payment')),
+        'success_url_pattern': success_url_pattern,
+        'fail_url_pattern': fail_url_pattern,
+    }
+    return render(request, 'course_payment.html', context)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_counselor_course_payment(request):
+    """API: verify Razorpay payment and update CoursePayment. Returns JSON with redirect_url."""
+    if not request.session.get('id'):
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    payment_id = data.get('payment_id')
+    gateway_payment_id = data.get('gateway_payment_id')
+    gateway_order_id = data.get('gateway_order_id')
+    gateway_signature = data.get('gateway_signature')
+    if not all([payment_id, gateway_payment_id, gateway_order_id, gateway_signature]):
+        return JsonResponse({'success': False, 'error': 'Missing payment details'}, status=400)
+    user_id = request.session.get('id')
+    payment = CoursePayment.objects.filter(
+        id=payment_id, user_id=user_id, is_success=False
+    ).first()
+    if not payment:
+        return JsonResponse({'success': False, 'error': 'Payment not found'}, status=404)
+    payment.gateway_payment_id = gateway_payment_id
+    payment.gateway_order_id = gateway_order_id
+    payment.gateway_signature = gateway_signature
+    payment.save(update_fields=['gateway_payment_id', 'gateway_order_id', 'gateway_signature'])
+    from counselor.payment.razorpay import RazorpayService
+    rsvc = RazorpayService()
+    if rsvc.verify_payment(payment):
+        payment.is_success = True
+        payment.save(update_fields=['is_success'])
+        if payment.coupon_id:
+            payment.coupon.times_used += 1
+            payment.coupon.save(update_fields=['times_used'])
+        if not hasattr(payment, 'receipt') or not payment.receipt:
+            PaymentReceipt.objects.get_or_create(
+                payment=payment,
+                defaults={
+                    'transaction_id': gateway_payment_id,
+                    'invoice_number': f"INV-{payment.id}-{payment.created.strftime('%Y%m%d')}",
+                }
+            )
+        enc = _payment_enc_id(payment.id)
+        success_url = request.build_absolute_uri(
+            reverse('counselor:course_payment_success', kwargs={'enc_id': enc})
+        )
+        return JsonResponse({'success': True, 'redirect_url': success_url})
+    fail_url = request.build_absolute_uri(
+        reverse('counselor:course_payment_fail', kwargs={'enc_id': _payment_enc_id(payment.id)})
+    )
+    return JsonResponse({'success': False, 'redirect_url': fail_url})
+
+
+def course_payment_success_view(request, enc_id):
+    """Success page: payment details, transaction ID, download receipt, Start course."""
+    if not request.session.get('id'):
+        return redirect('counselor:login_view')
+    payment_id = _payment_from_enc_id(enc_id)
+    if not payment_id:
+        return redirect('counselor:icef_view')
+    payment = CoursePayment.objects.filter(
+        id=payment_id, user_id=request.session.get('id'), is_success=True
+    ).select_related('course', 'coupon').first()
+    if not payment:
+        payment = CoursePayment.objects.filter(
+            id=payment_id, user_id=request.session.get('id')
+        ).select_related('course', 'coupon').first()
+    if not payment or not payment.course:
+        return redirect('counselor:icef_view')
+    course_name = payment.course.title
+    start_course_url = reverse('counselor:counselor_enrolled_course_param', kwargs={'course_name': course_name})
+    receipt = getattr(payment, 'receipt', None)
+    invoice_id = receipt.id if receipt else None
+    original_amount = payment.amount + payment.discount_amount
+    invoice_type = getattr(settings, 'INVOICE_TYPE', 'sale')
+    context = {
+        'payment': payment,
+        'course': payment.course,
+        'start_course_url': start_course_url,
+        'receipt_id': payment.id,
+        'invoice_id': invoice_id,
+        'original_amount': original_amount,
+        'invoice_type': invoice_type,
+    }
+    return render(request, 'course_payment_success.html', context)
+
+
+def course_payment_fail_view(request, enc_id):
+    """Fail page: message and Retry button to payment page."""
+    if not request.session.get('id'):
+        return redirect('counselor:login_view')
+    payment_id = _payment_from_enc_id(enc_id)
+    payment_page_url = reverse('counselor:icef_view')
+    if payment_id:
+        payment = CoursePayment.objects.filter(
+            id=payment_id, user_id=request.session.get('id')
+        ).select_related('course').first()
+        if payment and payment.course:
+            payment_page_url = reverse(
+                'counselor:course_payment',
+                kwargs={'course_name': payment.course.title}
+            )
+    context = {'payment_page_url': payment_page_url}
+    return render(request, 'course_payment_fail.html', context)
+
+
+def receipt_download_view(request, payment_id):
+    """Download payment receipt (PDF or HTML). User must own payment and it must be successful."""
+    if not request.session.get('id'):
+        return redirect('counselor:login_view')
+    payment = CoursePayment.objects.filter(
+        id=payment_id, user_id=request.session.get('id'), is_success=True
+    ).select_related('course', 'user', 'coupon').first()
+    if not payment:
+        from django.http import HttpResponseNotFound
+        return HttpResponseNotFound('Receipt not found')
+    from django.http import HttpResponse
+    receipt = getattr(payment, 'receipt', None)
+    if receipt and receipt.invoice_pdf:
+        try:
+            with receipt.invoice_pdf.open('rb') as f:
+                content = f.read()
+            response = HttpResponse(content, content_type='application/pdf')
+            filename = f"receipt-{receipt.invoice_number or payment_id}.pdf"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        except Exception:
+            pass
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    original_amount = payment.amount + payment.discount_amount
+    invoice_type = getattr(settings, 'INVOICE_TYPE', 'sale')
+    html = render_to_string('receipt_pdf.html', {
+        'payment': payment,
+        'receipt': receipt,
+        'transaction_id': payment.gateway_payment_id or payment.gateway_order_id or f'pay-{payment.id}',
+        'original_amount': original_amount,
+        'invoice_type': invoice_type,
+    })
+    response = HttpResponse(html, content_type='text/html; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="payment-receipt-{payment_id}.html"'
+    return response
