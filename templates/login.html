@@ -151,6 +151,7 @@
         <div class="col-md-5 mx-auto ">
           <form method="post" action="{% url 'counselor:user_login' %}">
             {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div class="login-screen  text-center p-5">
               <div class="sample-img"> <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"
                   alt="topteen" /> </div>
@@ -182,7 +183,7 @@
                       <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
                   </div>
                   <div class="w-full">
-                      <a href="{% url 'counselor:signup_view' %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                      <a href="{% url 'counselor:signup_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
                           SIGN UP
                       </a>
                   </div>

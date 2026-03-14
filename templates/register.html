@@ -79,6 +79,7 @@
                
                     <form method="post" action="{% url 'counselor:user_signup' %}" id="signupForm">
                         {% csrf_token %}
+                        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                         <div class="login-screen text-center p-5">
                             <div class="sample-img mb-4">
                                 <img class="mx-auto" style="width:200px;" src="{% static 'topteenfrontend/assets/images/logo.svg' %}"

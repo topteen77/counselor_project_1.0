@@ -36,6 +36,62 @@
 
 <body>
 
+  {% if show_trial_banner %}
+  <div class="trial-banner" id="trialBanner" data-remaining="{{ trial_remaining_seconds }}" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #000; text-align: center; padding: 10px 16px; font-weight: 600; font-size: 14px;">
+    <span id="trialCountdown">Trial: <span id="trialMins">0</span> min <span id="trialSecs">0</span> sec remaining</span>
+  </div>
+  <script>
+  (function() {
+    var banner = document.getElementById('trialBanner');
+    if (!banner) return;
+    var remaining = parseInt(banner.getAttribute('data-remaining') || '0', 10);
+    var courseListUrl = '{{ course_list_url|default:"/counsellor-courses/"|escapejs }}';
+    function pad(n) { return n < 10 ? '0' + n : n; }
+    function update() {
+      if (remaining <= 0) {
+        var modal = document.getElementById('trialExpiredModal');
+        if (modal) modal.style.display = 'block';
+        return;
+      }
+      var m = Math.floor(remaining / 60);
+      var s = remaining % 60;
+      var minsEl = document.getElementById('trialMins');
+      var secsEl = document.getElementById('trialSecs');
+      if (minsEl) minsEl.textContent = m;
+      if (secsEl) secsEl.textContent = pad(s);
+      remaining--;
+      setTimeout(update, 1000);
+    }
+    update();
+  })();
+  </script>
+  {% endif %}
+
+  <!-- Trial expired modal -->
+  <div id="trialExpiredModal" role="dialog" aria-modal="true" aria-labelledby="trialExpiredTitle" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+    <div style="position: relative; margin: 10% auto; max-width: 420px; background: #fff; border-radius: 8px; padding: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+      <div style="padding: 16px 20px; border-bottom: 1px solid #eee;">
+        <h5 id="trialExpiredTitle" style="margin: 0; font-size: 1.25rem;">{{ labels.trial_expired_title|default:"Trial expired" }}</h5>
+      </div>
+      <div style="padding: 20px;">
+        <p style="margin: 0 0 12px 0;">{{ labels.trial_expired_message|default:"Your trial has ended. Pay for the course to unlock all content and continue learning." }}</p>
+        <p style="margin: 0; font-size: 0.95rem; color: #555;">{{ labels.trial_expired_instruction|default:"Click Buy now to complete payment and get full access." }}</p>
+      </div>
+      <div style="padding: 12px 20px; border-top: 1px solid #eee; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <a href="{% url 'counselor:course_payment' course_name=course_name %}" class="btn btn-primary" id="trialBuyNowBtn" style="background: #28a745; border-color: #28a745;">{{ labels.buy_now|default:"Buy now" }}</a>
+        <a href="{% if trial_expired %}{% url 'counselor:trial_expired_back' course_name=course_name %}{% else %}{{ course_list_url|default:'/counsellor-courses/' }}{% endif %}" class="btn btn-secondary" id="trialExpiredBtn">{{ labels.back_to_course_list|default:"Back to course list" }}</a>
+      </div>
+    </div>
+  </div>
+  {% if trial_expired %}
+  <script>
+    (function() {
+      var modal = document.getElementById('trialExpiredModal');
+      if (modal) modal.style.display = 'block';
+    })();
+  </script>
+  {% endif %}
+
   <div class="ld-focus-header">
     <div class="ld-brand-logo">
       <a href="#">

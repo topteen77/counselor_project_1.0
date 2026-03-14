@@ -161,6 +161,40 @@
         letter-spacing: 0.5px;
       }
 
+      /* Paid ribbon styles */
+      .paid-ribbon {
+        position: absolute;
+        top: 10px;
+        right: -35px;
+        background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+        color: white;
+        padding: 5px 40px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transform: rotate(45deg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        letter-spacing: 0.5px;
+      }
+
+      /* Trial ended ribbon styles */
+      .trial-ended-ribbon {
+        position: absolute;
+        top: 10px;
+        right: -35px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 5px 40px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        transform: rotate(45deg);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        letter-spacing: 0.5px;
+      }
+
       /* User Avatar Dropdown Styles */
       .user-avatar-container {
         position: relative;
@@ -256,6 +290,20 @@
         position: relative;
         overflow: hidden;
       }
+      .course-price-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+        color: #fff;
+        padding: 8px 18px;
+        border-radius: 24px;
+        font-weight: 700;
+        font-size: 1.15rem;
+        margin-top: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      }
+      .course-price-badge.free {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      }
     </style>
   </head>
 
@@ -266,14 +314,14 @@
       <div class="hidden lg:flex justify-between lg:container mx-auto">
         <ul class="flex gap-[24px] mb-0 w-full justify-between">
           <li class="flex">
-            <a href="/">
+            <a href="{% url 'counselor:landing' %}">
               <img
                 src="https://www.topteen.in/static/topteenfrontend/assets/images/logo.svg"
                 class="w-[38.5px] h-[38.5px]"
                 alt=""
               />
             </a>
-            <a href="/">
+            <a href="{% url 'counselor:landing' %}">
               <p
                 class="text-[13.8px] leading-[18px] mt-[14px] ml-[8px] font-bold text-[#494949] tracking-[0.01em]"
               >
@@ -283,22 +331,15 @@
           </li>
 
           <li class="flex items-center">
+            {% if user %}
             <div class="user-avatar-container">
               <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()">
-                {% if user %}
-                  {{ user.username|first|upper }}
-                {% else %}
-                  U
-                {% endif %}
+                {{ user.username|first|upper }}
               </div>
               <div class="user-avatar-dropdown" id="userDropdown">
                 <div class="user-avatar-dropdown-header">
-                  <div class="user-avatar-dropdown-name">
-                    {% if user %}{{ user.username }}{% else %}User{% endif %}
-                  </div>
-                  <div class="user-avatar-dropdown-email">
-                    {% if user %}{{ user.email }}{% else %}user@example.com{% endif %}
-                  </div>
+                  <div class="user-avatar-dropdown-name">{{ user.username }}</div>
+                  <div class="user-avatar-dropdown-email">{{ user.email }}</div>
                 </div>
                 <form method="post" action="{% url 'counselor:user_logout' %}" style="margin: 0;">
                   {% csrf_token %}
@@ -309,6 +350,10 @@
                 </form>
               </div>
             </div>
+            {% else %}
+            <a href="{% url 'counselor:login_view' %}" class="btn btn-sm me-2" style="background: #3f37c9; color: #fff;">Login</a>
+            <a href="{% url 'counselor:signup_view' %}" class="btn btn-sm" style="background: #4CC9F0; color: #fff;">Sign up</a>
+            {% endif %}
           </li>
 
           <li class="hidden">
@@ -708,6 +753,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Germany.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Germany.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Germany.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -722,6 +771,9 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Germany</p>
+                      <div class="w-100 mt-2">
+                        <span class="course-price-badge {% if not course_statuses.Germany.price %}free{% endif %}">{% if course_statuses.Germany.price %}₹ {{ course_statuses.Germany.price }}{% else %}Free{% endif %}</span>
+                      </div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
@@ -757,29 +809,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Germany.status == 'complete' %}
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}?show_certificate=1"
-                      style="background-color: #28a745; border-color: #28a745;"
-                      >View Certificate</a
-                    >
-                    {% elif course_statuses.Germany.status == 'inprocess' %}
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}"
-                      style="background-color: #ffc107; border-color: #ffc107;"
-                      >Resume</a
-                    >
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}"
-                      >Start Now</a
-                    >
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Germany.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Germany.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Germany.has_paid and course_statuses.Germany.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Germany' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Germany.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Germany' %}">{% if course_statuses.Germany.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Germany' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -791,6 +840,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.UK.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.UK.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.UK.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -805,11 +858,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">UK</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.UK.price %}free{% endif %}">{% if course_statuses.UK.price %}₹ {{ course_statuses.UK.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         UK Study Abroad Counsellor Training Course (UKSACTC)
-                      </h3>                     
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -841,29 +895,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.UK.status == 'complete' %}
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}?show_certificate=1"
-                      style="background-color: #28a745; border-color: #28a745;"
-                      >View Certificate</a
-                    >
-                    {% elif course_statuses.UK.status == 'inprocess' %}
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}"
-                      style="background-color: #ffc107; border-color: #ffc107;"
-                      >Resume</a
-                    >
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a
-                      class="btn learn_more"
-                      href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}"
-                      >Start Now</a
-                    >
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.UK.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.UK.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.UK.has_paid and course_statuses.UK.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='UK' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.UK.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='UK' %}">{% if course_statuses.UK.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='UK' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -875,6 +926,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.USA.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.USA.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.USA.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -889,11 +944,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">USA</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.USA.price %}free{% endif %}">{% if course_statuses.USA.price %}₹ {{ course_statuses.USA.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         US Study Abroad Counsellor Training Course (USSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -924,15 +980,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.USA.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.USA.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.USA.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.USA.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.USA.has_paid and course_statuses.USA.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='USA' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.USA.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='USA' %}">{% if course_statuses.USA.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='USA' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -944,6 +1011,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Singapore.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Singapore.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Singapore.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -958,11 +1029,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Singapore</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Singapore.price %}free{% endif %}">{% if course_statuses.Singapore.price %}₹ {{ course_statuses.Singapore.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         Singapore Study Abroad Counsellor Training Course (SSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -994,15 +1066,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Singapore.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Singapore.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Singapore.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Singapore.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Singapore.has_paid and course_statuses.Singapore.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Singapore' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Singapore.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Singapore' %}">{% if course_statuses.Singapore.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Singapore' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1014,6 +1097,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Newzealand.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Newzealand.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Newzealand.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1028,11 +1115,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">New Zealand</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Newzealand.price %}free{% endif %}">{% if course_statuses.Newzealand.price %}₹ {{ course_statuses.Newzealand.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         New Zealand Study Abroad Counsellor Training Course (NZSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1064,15 +1152,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Newzealand.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Newzealand.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Newzealand.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Newzealand.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Newzealand.has_paid and course_statuses.Newzealand.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Newzealand' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Newzealand.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Newzealand' %}">{% if course_statuses.Newzealand.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Newzealand' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1084,6 +1183,12 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Ireland.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Ireland.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Ireland.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Ireland.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1098,11 +1203,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Ireland</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Ireland.price %}free{% endif %}">{% if course_statuses.Ireland.price %}₹ {{ course_statuses.Ireland.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         Ireland Study Abroad Counsellor Training Course (ISACTC)
-                      </h3>            
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1133,15 +1239,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Ireland.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Ireland.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Ireland.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Ireland.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Ireland.has_paid and course_statuses.Ireland.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Ireland' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Ireland.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Ireland' %}">{% if course_statuses.Ireland.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Ireland' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1153,6 +1270,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.France.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.France.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.France.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1167,11 +1288,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">France</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.France.price %}free{% endif %}">{% if course_statuses.France.price %}₹ {{ course_statuses.France.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         France Study Abroad Counsellor Training Course (FSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1203,15 +1325,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.France.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.France.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.France.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.France.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.France.has_paid and course_statuses.France.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='France' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.France.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='France' %}">{% if course_statuses.France.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='France' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1223,6 +1356,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Dubai.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Dubai.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Dubai.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1237,11 +1374,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Dubai</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Dubai.price %}free{% endif %}">{% if course_statuses.Dubai.price %}₹ {{ course_statuses.Dubai.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         Dubai Study Abroad Counsellor Training Course (DSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1273,15 +1411,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Dubai.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Dubai.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Dubai.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Dubai.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Dubai.has_paid and course_statuses.Dubai.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Dubai' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Dubai.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Dubai' %}">{% if course_statuses.Dubai.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Dubai' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1293,6 +1442,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Canada.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Canada.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Canada.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1307,11 +1460,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Canada</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Canada.price %}free{% endif %}">{% if course_statuses.Canada.price %}₹ {{ course_statuses.Canada.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         Canada Study Abroad Counsellor Training Course (CSACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1343,15 +1497,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Canada.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Canada.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Canada.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Canada.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Canada.has_paid and course_statuses.Canada.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Canada' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Canada.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Canada' %}">{% if course_statuses.Canada.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Canada' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -1363,6 +1528,10 @@
             <div class="completed-ribbon">Completed</div>
             {% elif course_statuses.Australia.status == 'inprocess' %}
             <div class="inprogress-ribbon">In Progress</div>
+            {% elif course_statuses.Australia.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course_statuses.Australia.has_paid %}
+            <div class="paid-ribbon">Paid</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="#" class="course_card_link">
@@ -1377,11 +1546,12 @@
                         alt="Canada"
                       />
                       <p class="text-[21px] text-white fw-500">Australia</p>
+                      <div class="w-100 mt-2"><span class="course-price-badge {% if not course_statuses.Australia.price %}free{% endif %}">{% if course_statuses.Australia.price %}₹ {{ course_statuses.Australia.price }}{% else %}Free{% endif %}</span></div>
                     </div>
                     <div class="ft-text px-4 py-5">
                       <h3 class="header_title text-[#04A9DD] mt-3">
                         Australia Study Abroad Counsellor Training Course (ASACTC)
-                      </h3>                      
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -1413,15 +1583,26 @@
                   </div>
                   <div class="card_hover_bottom">
                     {% if course_statuses.Australia.status == 'complete' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">View Certificate</a>
-                    {% elif course_statuses.Australia.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}" style="background-color: #ffc107; border-color: #ffc107;">Resume</a>
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    <!-- rocket_no_cache -->
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">Start Now</a>
-                    <!-- end_rocket_no_cache -->
+                    {% if course_statuses.Australia.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course_statuses.Australia.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    {% elif not course_statuses.Australia.has_paid and course_statuses.Australia.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
                     {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='Australia' %}" class="btn-icef-t">Learn More</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course_statuses.Australia.price %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Australia' %}">{% if course_statuses.Australia.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name='Australia' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>

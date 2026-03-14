@@ -147,6 +147,175 @@
     .custom-faq ul {
       list-style: disc;
     }
+
+    /* Trial popup modal */
+    .trial-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .trial-popup-overlay.show {
+      display: flex;
+    }
+    .trial-popup-box {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      padding: 28px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .trial-popup-box h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .trial-popup-box p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .trial-popup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    .trial-popup-actions .btn-trial {
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .trial-popup-actions .btn-trial-primary {
+      background: #4CC9F0;
+      color: #fff;
+      border-bottom: 4px solid #3CBAE1;
+    }
+    .trial-popup-actions .btn-trial-primary:hover {
+      background: #3CBAE1;
+      color: #fff;
+    }
+    .trial-popup-actions .btn-trial-secondary {
+      background: #fff;
+      color: #3f37c9;
+      border: 2px solid #3f37c9;
+    }
+    .trial-popup-actions .btn-trial-secondary:hover {
+      background: #f0efff;
+      color: #3f37c9;
+    }
+    .trial-popup-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .trial-popup-close:hover { color: #333; }
+
+    /* Top action bar – primary CTAs */
+    .course-overview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .course-overview-actions .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .course-overview-actions .action-btn-primary {
+      background: #4CC9F0;
+      color: #fff;
+      border: none;
+      border-bottom: 4px solid #3CBAE1;
+    }
+    .course-overview-actions .action-btn-primary:hover {
+      background: #3CBAE1;
+      color: #fff;
+    }
+    .course-overview-actions .action-btn-outline {
+      background: #fff;
+      color: #3f37c9;
+      border: 2px solid #3f37c9;
+    }
+    .course-overview-actions .action-btn-outline:hover {
+      background: #f0efff;
+      color: #3f37c9;
+    }
+    .course-overview-progress-wrap {
+      margin-left: 0;
+      margin-top: 4px;
+    }
+
+    /* Footer CTA – Start Free Trial bar */
+    .footer-trial-cta {
+      position: relative;
+      background: linear-gradient(135deg, #3f37c9 0%, #5b54d4 100%);
+      color: #fff;
+      padding: 20px 24px;
+      /* border-radius: 12px; */
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+    .footer-trial-cta p {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .footer-trial-cta .btn-start-trial {
+      display: inline-flex;
+      align-items: center;
+      padding: 14px 24px;
+      background: #4CC9F0;
+      color: #fff;
+      border: none;
+      border-bottom: 4px solid #3CBAE1;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .footer-trial-cta .btn-start-trial:hover {
+      background: #3CBAE1;
+      color: #fff;
+    }
   </style>
 
   <style>
@@ -348,35 +517,51 @@
               the Study Abroad Counsellor Training Course for the {{ course.title }}</h1>
             <p class="font-normal text-[16px] leading-[1.68em] text-[#0F0F0F] text-opacity-70 mb-[34px] ">{{ intro }}
             </p>
-            <div class="flex lg:flex-row lg:justify-start lg:gap-x-[29px] flex-col gap-y-[25px] mx-auto">
-              {% if resume == 0 %}
-              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}"
-                class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
-                <span class="text-[18px]">Start Course</span>
-              </a>
+            <p class="font-semibold text-[18px] text-[#333333] mb-3">Price: {% if price %}₹ {{ price }}{% else %}Free{% endif %}</p>
+            <div class="course-overview-actions">
+              {% if is_anonymous %}
+                {% if price %}
+                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
+                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+                {% else %}
+                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
+                {% endif %}
+              {% elif trial_expired %}
+                <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.pay_now|default:"Pay now" }}</a>
+              {% elif resume == 0 %}
+                {% if not has_paid and price %}
+                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                  <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+                {% else %}
+                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
+                {% endif %}
+                {% if has_paid and payment_id %}
+                  <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
+                {% endif %}
               {% else %}
-              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title  %}"
-                class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
-                <span class="text-[18px]">Resume Course</span></a>
-              <div class="ld-progress">
-                <div class="ld-progress-wrap">
-                  <div class="ld-progress-heading">
-                    <div class="ld-progress-stats">
-                      <div class="ld-progress-percentage">
-                        {{completed_percent_value}}% Complete
-                      </div>
-                      <div class="ld-progress-steps">
-                        {{number_of_completed_parts}}/{{total_parts}} Steps
+                {% if not has_paid and price %}
+                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
+                  <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+                {% else %}
+                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
+                {% endif %}
+                {% if has_paid and payment_id %}
+                  <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
+                {% endif %}
+                <div class="ld-progress course-overview-progress-wrap">
+                  <div class="ld-progress-wrap">
+                    <div class="ld-progress-heading">
+                      <div class="ld-progress-stats">
+                        <div class="ld-progress-percentage">{{ completed_percent_value }}% Complete</div>
+                        <div class="ld-progress-steps">{{ number_of_completed_parts }}/{{ total_parts }} Steps</div>
                       </div>
                     </div>
-                  </div>
-                  <div class="ld-progress-bar">
-                    <div class="ld-progress-bar-percentage" style="width: {{completed_percent_value}}%;"></div>
+                    <div class="ld-progress-bar">
+                      <div class="ld-progress-bar-percentage" style="width: {{ completed_percent_value }}%;"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
               {% endif %}
-
             </div>
           </div>
         </div>
@@ -422,18 +607,56 @@
     </div>
   </section>
 
-  <div class="secondBlogDetailBlueBanner w-full lg:h-[115px] ">
-    <div class="lg:flex lg:container lg:justify-between py-[24px] lg:pt-[34px] my-auto  mx-auto">
-      <p class="text-[28px] leading-[37.8px] text-[#ffffff] semibold tracking-[0.035em] text-center pt-[5px]">Interested
-        in getting latest updates?</p>
-      <div class="bg-[#eaeaea] rounded-[10px] w-[239px] h-[53px] mx-auto my-[6px] lg:my-auto ">
-        <button class="bg-[#ffffff] rounded-[10px] flex content-center justify-center gap-[3px] h-[48px] w-[239px]">
-          <img src="../assets/images/bookmark.png" class="max-w-[28px] max-h-[28px] my-auto" alt="">
-          <p class="text-[14px] leading-[18.9px] boldFont text-[#4f4f4f] my-auto">SUBSCRIBE NOW</p>
-        </button>
+  <div class="w-full lg:h-[115px] ">
+    {% if price and not has_paid %}
+    <div class="footer-trial-cta" id="footerTrialCta">
+      <p>{{ labels.footer_trial_text|default:"Ready to try? Start your free trial and explore the course." }}</p>
+      {% if is_anonymous %}
+        <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-start-trial">{{ labels.start_trial|default:"Start Free Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+      {% else %}
+        <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-start-trial">{{ labels.start_trial|default:"Start Free Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    
+  </div>
+
+  <!-- Trial popup: shown on back button or tab close intent -->
+  <div id="trialPopupOverlay" class="trial-popup-overlay" aria-hidden="true">
+    <div class="trial-popup-box" style="position: relative;">
+      <button type="button" class="trial-popup-close" id="trialPopupClose" aria-label="Close">&times;</button>
+      <h3>{{ labels.trial_popup_title|default:"Start your free trial" }}</h3>
+      <p>{{ labels.trial_popup_message|default:"Try this course free for" }} {{ trial_minutes|default:2 }} {{ labels.trial_popup_minutes|default:"minutes" }}. No payment required.</p>
+      <div class="trial-popup-actions">
+        {% if is_anonymous and price %}
+          <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-trial btn-trial-primary">{{ labels.start_trial|default:"Start Trial" }}</a>
+          <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:course_payment' course_name=course.title %}" class="btn-trial btn-trial-secondary">{{ labels.book_course|default:"Book course" }}</a>
+        {% elif not is_anonymous and not has_paid and price and not trial_expired %}
+          <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-trial btn-trial-primary">{{ labels.start_trial|default:"Start Trial" }}</a>
+          <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="btn-trial btn-trial-secondary">{{ labels.book_course|default:"Book course" }}</a>
+        {% elif trial_expired %}
+          <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="btn-trial btn-trial-primary">{{ labels.buy_now|default:"Buy now" }}</a>
+        {% else %}
+          <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-trial btn-trial-primary">{{ labels.start_course|default:"Start Course" }}</a>
+        {% endif %}
+        <button type="button" class="btn-trial btn-trial-secondary" id="trialPopupStay">Stay on page</button>
       </div>
     </div>
   </div>
+
+  
+
+  {% if price and not has_paid %}
+  <div class="footer-trial-cta d-lg-none px-3" style="margin: 24px 0 16px 0;">
+    <p style="font-size: 16px;">{{ labels.footer_trial_text|default:"Start your free trial" }}</p>
+    {% if is_anonymous %}
+      <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-start-trial">{{ labels.start_trial|default:"Start Free Trial" }}</a>
+    {% else %}
+      <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-start-trial">{{ labels.start_trial|default:"Start Free Trial" }}</a>
+    {% endif %}
+  </div>
+  {% endif %}
   <section class="footer-nav d-lg-none d-block">
     <div class="nav-footer">
       <ul>
@@ -455,8 +678,9 @@
       </ul>
     </div>
   </section>
-  <footer class="hidden lg:block bg-[#fdfcff]  mx-auto py-[60px]">
+  <footer class="hidden lg:block bg-[#fdfcff] mx-auto py-[60px]" id="mainFooter">
     <div class="lg:container mx-auto">
+     
       <div class="flex justify-between">
         <div class="w-[246px]">
           <div class="flex gap-[8.2px]"> <img src="/static/topteenfrontend/assets/images/logo.svg"
@@ -612,5 +836,49 @@
   });
 
   /** mobile drawer js **/
+
+  /** Trial popup: show on back button or tab/window close **/
+  (function() {
+    var trialOverlay = document.getElementById('trialPopupOverlay');
+    var trialCloseBtn = document.getElementById('trialPopupClose');
+    var trialStayBtn = document.getElementById('trialPopupStay');
+    if (!trialOverlay) return;
+
+    function showTrialPopup() {
+      trialOverlay.classList.add('show');
+      trialOverlay.setAttribute('aria-hidden', 'false');
+    }
+    function hideTrialPopup() {
+      trialOverlay.classList.remove('show');
+      trialOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    if (trialCloseBtn) trialCloseBtn.addEventListener('click', hideTrialPopup);
+    if (trialStayBtn) trialStayBtn.addEventListener('click', hideTrialPopup);
+    trialOverlay.addEventListener('click', function(e) {
+      if (e.target === trialOverlay) hideTrialPopup();
+    });
+
+    // Back button: push state so we can intercept first "back"
+    if (typeof history !== 'undefined' && history.pushState) {
+      history.pushState({ trialPage: true }, '', window.location.href);
+      window.addEventListener('popstate', function(e) {
+        showTrialPopup();
+        history.pushState({ trialPage: true }, '', window.location.href);
+      });
+    }
+
+    // Tab/window close: show native "Leave site?" only when leaving (close/refresh), not when clicking in-page links
+    var allowLeave = false;
+    document.querySelectorAll('.trial-popup-overlay a[href], .course-overview-actions a[href], .footer-trial-cta a[href]').forEach(function(link) {
+      link.addEventListener('click', function() { allowLeave = true; });
+    });
+    window.addEventListener('beforeunload', function(e) {
+      if (!allowLeave) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  })();
 
 </script>

@@ -45,6 +45,18 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 # Master Password for Quiz Autocomplete
 MASTER_PASSWORD = config('MASTER_PASSWORD', default='admin123')
 
+# Razorpay (payment gateway). Use RAZORPAY_KEY/RAZORPAY_SECRET or RAZORPAY_API_KEY/RAZORPAY_API_SECRET.
+RAZORPAY_KEY = config('RAZORPAY_KEY', default='')
+RAZORPAY_SECRET = config('RAZORPAY_SECRET', default='')
+
+# Freemium trial: minutes of free access per course before requiring payment (0 = no trial).
+TRIAL_MINUTES = config('TRIAL_MINUTES', default=2, cast=int)
+
+# Invoice type for payment receipts: 'gst' (GST Invoice / Tax Invoice) or 'sale' (Sale Invoice).
+INVOICE_TYPE = config('INVOICE_TYPE', default='sale').lower().strip() or 'sale'
+if INVOICE_TYPE not in ('gst', 'sale'):
+    INVOICE_TYPE = 'sale'
+
 
 # Application definition
 
