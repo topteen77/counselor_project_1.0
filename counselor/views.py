@@ -17,8 +17,8 @@ from .models import (
 from .utils import get_site_labels, completed_course_step_count
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.core.signing import Signer
-from urllib.parse import quote, unquote
+from django.core.signing import BadSignature, SignatureExpired, Signer, TimestampSigner
+from urllib.parse import quote, unquote, urlencode
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -31,6 +31,10 @@ logger = logging.getLogger(__name__)
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from django.db.models import Prefetch
 User = get_user_model()
+
+PW_RESET_SIGNER = TimestampSigner(salt='counselor-pw-reset')
+PW_RESET_MAX_AGE = 86400 * 3  # 3 days
+
 
 def landing_view(request):
     """Public landing page: list all courses with price. No login required."""
@@ -270,6 +274,81 @@ def user_login(request):
     list(messages.get_messages(request))
     context = {'next': next_url, 'hide_header_avatar': True}
     return render(request, 'login.html', context)
+
+
+def forgot_password_view(request):
+    next_url = request.GET.get('next') or request.POST.get('next', '')
+    if request.method == 'POST':
+        email = (request.POST.get('email') or '').strip()
+        if not email:
+            messages.error(request, "Please enter your email address.")
+            return render(
+                request,
+                'forgot_password.html',
+                {'next': next_url, 'hide_header_avatar': True},
+            )
+        try:
+            user = CounselorUser.objects.get(email__iexact=email)
+        except CounselorUser.DoesNotExist:
+            messages.error(request, "We could not find an account with that email address.")
+            return render(
+                request,
+                'forgot_password.html',
+                {'next': next_url, 'hide_header_avatar': True},
+            )
+        token = PW_RESET_SIGNER.sign(str(user.id))
+        params = {'token': token}
+        if next_url:
+            params['next'] = next_url
+        return redirect(f"{reverse('counselor:reset_password')}?{urlencode(params)}")
+
+    return render(
+        request,
+        'forgot_password.html',
+        {'next': next_url, 'hide_header_avatar': True},
+    )
+
+
+def reset_password_view(request):
+    next_url = request.GET.get('next') or request.POST.get('next', '')
+    token = request.GET.get('token') or request.POST.get('token')
+    if not token:
+        messages.error(request, "Invalid or missing password reset link.")
+        return redirect('counselor:user_login')
+
+    try:
+        uid = PW_RESET_SIGNER.unsign(token, max_age=PW_RESET_MAX_AGE)
+        user = CounselorUser.objects.get(pk=int(uid))
+    except (BadSignature, SignatureExpired, ValueError, CounselorUser.DoesNotExist):
+        messages.error(request, "This reset link is invalid or has expired. Please request a new one.")
+        return redirect('counselor:forgot_password')
+
+    if request.method == 'POST':
+        password = request.POST.get('password') or ''
+        confirm = request.POST.get('confirm_password') or ''
+        if len(password) < 6:
+            messages.error(request, "Password must be at least 6 characters.")
+        elif password != confirm:
+            messages.error(request, "Passwords do not match.")
+        else:
+            user.password = password
+            user.save(update_fields=['password'])
+            messages.success(request, "Your password has been updated. You can sign in now.")
+            login_url = reverse('counselor:user_login')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                login_url = f"{login_url}?next={quote(next_url, safe='/')}"
+            return redirect(login_url)
+
+    return render(
+        request,
+        'reset_password.html',
+        {
+            'token': token,
+            'next': next_url,
+            'hide_header_avatar': True,
+        },
+    )
+
 
 def user_signup(request):
     next_url = request.GET.get('next') or request.POST.get('next', '')

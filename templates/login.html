@@ -172,15 +172,18 @@
                   <input type="text" id="Username" name="Username" class="form-control custom-input" placeholder="Enter Email ID">
                   <div class="invalid-feedback float-start text-start mt-0"> Please Enter Correct username. </div>
                 </div>
-                <div class="col mb-4">
+                <div class="col mb-2">
                   <input type="password" id="password" name="password" class="form-control custom-input" placeholder="Enter Password">
 
                   <div class="invalid-feedback float-start text-start mt-0"> Please Enter Correct Password. </div>
                 </div>
+                <div class="col mb-4 text-start">
+                  <a href="{% url 'counselor:forgot_password' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="boldFont" style="font-size: 14px; color: #3f37c9;">Forgot password?</a>
+                </div>
                 
               
                 
-                 <div class="d-flex flex-col justify-content-center align-items-center mt-4">
+                 <div class="d-flex flex-col justify-content-center align-items-center mt-2">
                   <div class="w-full mb-2">
                       <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
                   </div>
