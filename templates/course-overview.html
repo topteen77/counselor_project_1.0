@@ -500,7 +500,7 @@
   </section>
 
   <div class="w-full lg:h-[115px] ">
-    {% if price and not has_paid %}
+    {% if price and not has_paid and not trial_expired %}
     <div class="footer-trial-cta d-none d-lg-flex" id="footerTrialCta">
       <p>{{ labels.footer_trial_text|default:"Ready to try? Start your free trial and explore the course." }}</p>
       {% if is_anonymous %}
@@ -514,6 +514,7 @@
     
   </div>
 
+  {% if price and not has_paid and not trial_expired %}
   <!-- Trial popup: shown on back button or tab close intent -->
   <div id="trialPopupOverlay" class="trial-popup-overlay" aria-hidden="true">
     <div class="trial-popup-box" style="position: relative;">
@@ -536,10 +537,11 @@
       </div>
     </div>
   </div>
+  {% endif %}
 
   
 
-  {% if price and not has_paid %}
+  {% if price and not has_paid and not trial_expired %}
   <div class="footer-trial-cta d-lg-none px-3" style="margin: 24px 0 16px 0;">
     <p style="font-size: 16px;">{{ labels.footer_trial_text|default:"Start your free trial" }}</p>
     {% if is_anonymous %}
@@ -651,6 +653,7 @@
   })();
   /** mobile drawer js **/
 
+  {% if price and not has_paid and not trial_expired %}
   /** Trial popup: show on back button or tab/window close **/
   (function() {
     var trialOverlay = document.getElementById('trialPopupOverlay');
@@ -694,5 +697,6 @@
       }
     });
   })();
+  {% endif %}
 
 </script>

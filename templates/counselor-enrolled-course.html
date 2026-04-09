@@ -118,9 +118,11 @@
     </div>
   
     <div class="flex items-center gap-2 top-right-flex">
+      {% if not certificate_grant %}
       <a href="{% url 'counselor:counselor_enrolled_course_param' course %}" class="uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
         <i class="fas fa-sync-alt"></i> Resume course
     </a>    
+      {% endif %}
 
       <a href="{% url 'counselor:icef_view' %}" class="btn purple-button px-md-5 bg-[#4CC9F0] rounded-[10px] text-xs text-whi fw-600">
         <i class="fa-solid fa-arrow-left me-1"></i> Back
@@ -231,7 +233,7 @@
                   </button>
                 </div>
             
-                {% if part.title != "Introduction" %}
+                {% if part.title != "Introduction" and part.quizzes.exists %}
                   {% if part.id in complete_status %}
                     <button 
                       id="quiz-{{ part.id }}" 
@@ -1364,6 +1366,12 @@
     
     // If show_certificate parameter is present, show certificate section
     if (showCertificate === '1') {
+      // Safety: certificate view should never be blocked by trial UI
+      const trialBanner = document.getElementById('trialBanner');
+      if (trialBanner) trialBanner.style.display = 'none';
+      const trialModal = document.getElementById('trialExpiredModal');
+      if (trialModal) trialModal.style.display = 'none';
+
       // Hide all content divs
       contents.forEach(content => {
         content.style.display = 'none';

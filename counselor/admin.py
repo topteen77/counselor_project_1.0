@@ -2,7 +2,11 @@ from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.db import models
+from django.db.models import Count
 import nested_admin
 from .models import CounselorCertification, CounselorCourse, Chapter, CounselorUser, CourseContentProgress, CourseOverviewPoints, CourseOverviewSummary, CoursePayment, DiscountCoupon, Part, PaymentReceipt, Quiz, Question, QuizAnswers, QuizResults, SiteLabel, UserProgressTrack, UserQuizAttemptTrack
 from ckeditor.widgets import CKEditorWidget
@@ -115,16 +119,56 @@ class QuestionInline(nested_admin.NestedStackedInline):
     inlines = [QuizAnswersInline]
 
 class QuizAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('title', 'quiz_part')
+    list_display = ('title', 'part_link')
+    search_fields = (
+        'title',
+        'quiz_part__title',
+        'quiz_part__chapter__title',
+        'quiz_part__chapter__course__title',
+    )
+    list_filter = (
+        ('quiz_part__chapter__course', admin.RelatedOnlyFieldListFilter),
+        ('quiz_part__chapter', admin.RelatedOnlyFieldListFilter),
+        'quiz_part',
+    )
+    list_select_related = ('quiz_part', 'quiz_part__chapter', 'quiz_part__chapter__course')
     inlines = [QuestionInline]
+
+    @admin.display(description='Part')
+    def part_link(self, obj):
+        part = obj.quiz_part
+        if not part:
+            return '—'
+        base = reverse('admin:counselor_part_changelist')
+        # Part admin list, scoped to this part's chapter (same screen as Parts in admin)
+        params = {}
+        if part.chapter_id:
+            params['chapter__id__exact'] = str(part.chapter_id)
+        url = f'{base}?{urlencode(params)}' if params else base
+        return format_html('<a href="{}">{}</a>', url, part)
 
 class PartAdmin(admin.ModelAdmin):
     form = PartAdminForm
-    list_display = ('title', 'chapter','index')
+    list_display = ('title', 'chapter', 'index', 'quiz_count')
     fields = ('title', 'chapter', 'description','index')
     search_fields = ('title',)
     list_filter = ('chapter',)
     ordering = ('title',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(_quiz_count=Count('quizzes'))
+
+    @admin.display(description='Quizzes')
+    def quiz_count(self, obj):
+        n = getattr(obj, '_quiz_count', obj.quizzes.count())
+        base = reverse('admin:counselor_quiz_changelist')
+        params = {'quiz_part__id__exact': str(obj.pk)}
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'{base}?{urlencode(params)}',
+            n,
+        )
 
 class ChapterInline(admin.StackedInline):
     model = Chapter
@@ -137,12 +181,27 @@ class PartInline(admin.StackedInline):
 
 @admin.register(CounselorCourse)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'created_at', 'updated_at')
+    list_display = ('title', 'price', 'chapter_count', 'created_at', 'updated_at')
     search_fields = ('title',)
     inlines = [ChapterInline]
     list_filter = ('created_at',)
     ordering = ('-created_at',)
     actions = ['reset_all_users_course_data']
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(_chapter_count=Count('chapters'))
+
+    @admin.display(description='Chapters')
+    def chapter_count(self, obj):
+        n = getattr(obj, '_chapter_count', obj.chapters.count())
+        base = reverse('admin:counselor_chapter_changelist')
+        params = {'course__id__exact': str(obj.pk)}
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'{base}?{urlencode(params)}',
+            n,
+        )
     
     def reset_all_users_course_data(self, request, queryset):
         """
@@ -176,11 +235,26 @@ class CourseAdmin(admin.ModelAdmin):
     reset_all_users_course_data.short_description = "Reset all users' data for selected courses"
 
 class ChapterAdmin(admin.ModelAdmin):
-    list_display = ('title','course','index')
+    list_display = ('title', 'course', 'index', 'part_count')
     search_fields = ('title', 'course__title')
     inlines = [PartInline]
     list_filter = ('course',)
-    
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(_part_count=Count('parts'))
+
+    @admin.display(description='Parts')
+    def part_count(self, obj):
+        n = getattr(obj, '_part_count', obj.parts.count())
+        base = reverse('admin:counselor_part_changelist')
+        params = {'chapter__id__exact': str(obj.pk)}
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'{base}?{urlencode(params)}',
+            n,
+        )
+
 
 @admin.register(QuizResults)
 class QuizResultsAdmin(admin.ModelAdmin):

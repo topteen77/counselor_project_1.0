@@ -544,7 +544,7 @@
                     {% if course_statuses.Germany.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Germany.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Germany' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Germany.has_paid and course_statuses.Germany.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -554,8 +554,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Germany' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Germany.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Germany' %}">{% if course_statuses.Germany.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Germany.price and not course_statuses.Germany.trial_expired and not course_statuses.Germany.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Germany' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Germany' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -627,24 +627,26 @@
                     {% if course_statuses.UK.status == 'complete' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
                     {% else %}
-                    {% if course_statuses.UK.status == 'inprocess' %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
-                    {% elif course_statuses.UK.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
-                    {% elif not course_statuses.UK.has_paid and course_statuses.UK.price %}
-                    {% if user %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
-                    {% else %}
-                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
+                      {% if course_statuses.UK.status == 'inprocess' %}
+                      <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                      {% elif course_statuses.UK.trial_expired %}
+                      <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='UK' %}">{{ labels.book_course|default:"Book course" }}</a>
+                      {% elif not course_statuses.UK.has_paid and course_statuses.UK.price %}
+                        {% if user %}
+                        <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                        {% else %}
+                        <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
+                        {% endif %}
+                      {% else %}
+                      <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_course|default:"Start course" }}</a>
+                      {% endif %}
+
+                      {% if course_statuses.UK.price and not course_statuses.UK.trial_expired and not course_statuses.UK.has_paid %}
+                      <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='UK' %}">{{ labels.book_course|default:"Book course" }}</a>
+                      {% endif %}
+
+                      <a href="{% url 'counselor:course_overview' course_name='UK' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                     {% endif %}
-                    {% else %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='UK' %}">{{ labels.start_course|default:"Start course" }}</a>
-                    {% endif %}
-                    {% if course_statuses.UK.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='UK' %}">{% if course_statuses.UK.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
-                    {% endif %}
-                    {% endif %}
-                    <a href="{% url 'counselor:course_overview' course_name='UK' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
                   </div>
                 </div>
               </div>
@@ -715,7 +717,7 @@
                     {% if course_statuses.USA.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.USA.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='USA' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.USA.has_paid and course_statuses.USA.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -725,8 +727,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='USA' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.USA.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='USA' %}">{% if course_statuses.USA.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.USA.price and not course_statuses.USA.trial_expired and not course_statuses.USA.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='USA' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='USA' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -801,7 +803,7 @@
                     {% if course_statuses.Singapore.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Singapore.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Singapore' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Singapore.has_paid and course_statuses.Singapore.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -811,8 +813,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Singapore' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Singapore.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Singapore' %}">{% if course_statuses.Singapore.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Singapore.price and not course_statuses.Singapore.trial_expired and not course_statuses.Singapore.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Singapore' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Singapore' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -887,7 +889,7 @@
                     {% if course_statuses.Newzealand.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Newzealand.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Newzealand' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Newzealand.has_paid and course_statuses.Newzealand.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -897,8 +899,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Newzealand' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Newzealand.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Newzealand' %}">{% if course_statuses.Newzealand.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Newzealand.price and not course_statuses.Newzealand.trial_expired and not course_statuses.Newzealand.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Newzealand' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Newzealand' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -974,7 +976,7 @@
                     {% if course_statuses.Ireland.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Ireland.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Ireland' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Ireland.has_paid and course_statuses.Ireland.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -984,8 +986,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Ireland' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Ireland.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Ireland' %}">{% if course_statuses.Ireland.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Ireland.price and not course_statuses.Ireland.trial_expired and not course_statuses.Ireland.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Ireland' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Ireland' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -1060,7 +1062,7 @@
                     {% if course_statuses.France.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.France.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='France' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.France.has_paid and course_statuses.France.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -1070,8 +1072,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='France' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.France.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='France' %}">{% if course_statuses.France.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.France.price and not course_statuses.France.trial_expired and not course_statuses.France.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='France' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='France' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -1146,7 +1148,7 @@
                     {% if course_statuses.Dubai.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Dubai.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Dubai' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Dubai.has_paid and course_statuses.Dubai.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -1156,8 +1158,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Dubai' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Dubai.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Dubai' %}">{% if course_statuses.Dubai.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Dubai.price and not course_statuses.Dubai.trial_expired and not course_statuses.Dubai.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Dubai' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Dubai' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -1232,7 +1234,7 @@
                     {% if course_statuses.Canada.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Canada.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Canada' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Canada.has_paid and course_statuses.Canada.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -1242,8 +1244,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Canada' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Canada.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Canada' %}">{% if course_statuses.Canada.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Canada.price and not course_statuses.Canada.trial_expired and not course_statuses.Canada.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Canada' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Canada' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
@@ -1318,7 +1320,7 @@
                     {% if course_statuses.Australia.status == 'inprocess' %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
                     {% elif course_statuses.Australia.trial_expired %}
-                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_trial|default:"Start Trial" }}</a>
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Australia' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% elif not course_statuses.Australia.has_paid and course_statuses.Australia.price %}
                     {% if user %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
@@ -1328,8 +1330,8 @@
                     {% else %}
                     <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name='Australia' %}">{{ labels.start_course|default:"Start course" }}</a>
                     {% endif %}
-                    {% if course_statuses.Australia.price %}
-                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Australia' %}">{% if course_statuses.Australia.trial_expired %}{{ labels.pay_now|default:"Pay now" }}{% else %}{{ labels.book_course|default:"Book course" }}{% endif %}</a>
+                    {% if course_statuses.Australia.price and not course_statuses.Australia.trial_expired and not course_statuses.Australia.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name='Australia' %}">{{ labels.book_course|default:"Book course" }}</a>
                     {% endif %}
                     {% endif %}
                     <a href="{% url 'counselor:course_overview' course_name='Australia' %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>

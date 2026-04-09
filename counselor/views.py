@@ -14,7 +14,7 @@ from .models import (
     UserProgressTrack, UserQuizAttemptTrack, CoursePayment, PaymentReceipt, DiscountCoupon,
     CourseTrialStart,
 )
-from .utils import get_site_labels
+from .utils import get_site_labels, completed_course_step_count
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.core.signing import Signer
@@ -103,10 +103,17 @@ def icef_view(request):
     paid_payment_ids = dict(
         CoursePayment.objects.filter(user=user, is_success=True).values_list('course_id', 'id')
     )
+    paid_course_ids = set(paid_payment_ids.keys())
+    completed_course_ids = set(
+        CounselorCertification.objects.filter(user=user).values_list('course_id', flat=True)
+    )
     # Courses where trial has expired (user started trial, time elapsed, not paid)
     now = timezone.now()
     trial_expired_course_ids = set()
     for t in CourseTrialStart.objects.filter(user=user).values_list('course_id', 'started_at'):
+        course_id = t[0]
+        if course_id in paid_course_ids or course_id in completed_course_ids:
+            continue
         if (now - t[1]).total_seconds() > trial_minutes * 60:
             trial_expired_course_ids.add(t[0])
     labels = get_site_labels()
@@ -134,7 +141,8 @@ def icef_view(request):
                     'has_paid': has_paid,
                     'price': course_price,
                     'payment_id': paid_payment_ids.get(course.id),
-                    'trial_expired': course.id in trial_expired_course_ids and not has_paid and course_price > 0,
+                    # Never show/compute trial state for completed courses
+                    'trial_expired': False,
                 }
             except CounselorCertification.DoesNotExist:
                 # No certificate - check if course is in progress (has some progress)
@@ -153,7 +161,12 @@ def icef_view(request):
                     # Check if user has any progress in THIS specific course
                     has_progress = len(course_user_progress) > 0 or len(course_scores) > 0
                     
-                    trial_expired = course.id in trial_expired_course_ids and not has_paid and course_price > 0
+                    trial_expired = (
+                        course_price > 0
+                        and (not has_paid)
+                        and (course.id not in completed_course_ids)
+                        and (course.id in trial_expired_course_ids)
+                    )
                     if has_progress:
                         course_statuses[course_name] = {
                             'status': 'inprocess',
@@ -173,7 +186,12 @@ def icef_view(request):
                             'trial_expired': trial_expired,
                         }
                 else:
-                    trial_expired = course.id in trial_expired_course_ids and not has_paid and course_price > 0
+                    trial_expired = (
+                        course_price > 0
+                        and (not has_paid)
+                        and (course.id not in completed_course_ids)
+                        and (course.id in trial_expired_course_ids)
+                    )
                     course_statuses[course_name] = {
                         'status': 'not_started',
                         'has_certificate': False,
@@ -328,6 +346,7 @@ def get_course_with_related_data(course_name):
     except Chapter.DoesNotExist:
         course_with_related_data = []
     return course_with_related_data
+
 
 def getUserProgress(user,course_with_related_data,course_name):
     total_parts=0
@@ -488,8 +507,9 @@ def course_overview(request, course_name):
     else:
         total_parts, part_ids, user_progress, scores, found, answers_data, part_scores, correct_answers, incorrect_answers, complete_status, introduction_id, user_progress_quiz = getUserProgress(user, course_with_related_data, course_name)
         total_parts = total_parts - len(introduction_id)
-        completed_parts = list(set(part_ids) & set(user_progress))
-        number_of_completed_parts = len(list(set(completed_parts) - set(introduction_id)))
+        number_of_completed_parts = completed_course_step_count(
+            course_with_related_data, introduction_id, user_progress, found
+        )
         completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts else 0
     context = {
         'course': course_overview_with_related_data,
@@ -550,9 +570,10 @@ def fetch_current_part(request,course_name,current_part_id,part_or_quiz):
     ####################User progress Status########################
     print("User Progress Quiz: ", user_progress_quiz)
     total_parts=total_parts-len(introduction_id)
-    completed_parts=list(set(part_ids) & set(user_progress))
-    number_of_completed_parts= len(list(set(completed_parts) - set(introduction_id)))
-    completed_percent_value = int((number_of_completed_parts/total_parts)*100)
+    number_of_completed_parts = completed_course_step_count(
+        course_with_related_data, introduction_id, user_progress, found
+    )
+    completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts else 0
     #################### To grant certificate #################### 
     certificate_grant=True
 
@@ -568,7 +589,7 @@ def fetch_current_part(request,course_name,current_part_id,part_or_quiz):
     
     if part_or_quiz == 0:
         # User clicked quiz button - check if quiz is unlocked (part must be completed)
-        if current_part_id in complete_status:
+        if current_part_id in user_progress:
             # Part is completed, quiz is accessible
             # If quiz is already completed, show results; otherwise show quiz form
             if quiz_completed:
@@ -602,7 +623,7 @@ def fetch_current_part(request,course_name,current_part_id,part_or_quiz):
     # Fix: Handle case where part_or_quiz=1 but user is trying to access a quiz
     # Check if part has quizzes and part is completed (quiz should be unlocked)
     if part_or_quiz == 1 and quiz_content_testing and quiz_content_testing.quizzes.exists():
-        if show_part_id in complete_status:
+        if show_part_id in user_progress:
             # Part is completed, so quiz should be accessible
             # If quiz is already completed, show results instead of quiz form
             if quiz_completed:
@@ -1019,8 +1040,10 @@ class CounselorEnrolledCourseView(View):
         # OPTIMIZATION: Reuse counselor_user instead of querying again
         user = counselor_user
         total_parts=total_parts-len(introduction_id)
-        number_of_completed_parts= len(user_progress_quiz)
-        completed_percent_value = int((number_of_completed_parts/total_parts)*100)
+        number_of_completed_parts = completed_course_step_count(
+            course_with_related_data, introduction_id, user_progress, found
+        )
+        completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts else 0
         print("Correct answers: ",correct_answers)
         print("Incorrect answers: ",incorrect_answers)
         print("Length of correct answers: ",len(correct_answers))
@@ -1685,6 +1708,7 @@ def course_payment_view(request, course_name):
     )
     context = {
         'course': course,
+        'user': user,
         'original_price': price,
         'key': getattr(settings, 'RAZORPAY_KEY', '') or getattr(settings, 'RAZORPAY_API_KEY', ''),
         'create_order_url': create_order_url,
@@ -1770,9 +1794,11 @@ def course_payment_success_view(request, enc_id):
     invoice_id = receipt.id if receipt else None
     original_amount = payment.amount + payment.discount_amount
     invoice_type = getattr(settings, 'INVOICE_TYPE', 'sale')
+    counselor_user = CounselorUser.objects.only('id', 'username', 'email').get(id=request.session.get('id'))
     context = {
         'payment': payment,
         'course': payment.course,
+        'user': counselor_user,
         'start_course_url': start_course_url,
         'receipt_id': payment.id,
         'invoice_id': invoice_id,
@@ -1797,7 +1823,8 @@ def course_payment_fail_view(request, enc_id):
                 'counselor:course_payment',
                 kwargs={'course_name': payment.course.title}
             )
-    context = {'payment_page_url': payment_page_url}
+    counselor_user = CounselorUser.objects.only('id', 'username', 'email').get(id=request.session.get('id'))
+    context = {'payment_page_url': payment_page_url, 'user': counselor_user}
     return render(request, 'course_payment_fail.html', context)
 
 
