@@ -8961,3 +8961,7 @@ background-color: #FBFBFB;
 }
 }
 
+body, p, a, li, button, input, textarea, select, label, div, h1, h2, h3, h4, h5, h6 {
+    font-family: "Space Grotesk", sans-serif !important;
+}
+
