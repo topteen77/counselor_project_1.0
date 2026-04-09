@@ -10,7 +10,7 @@
       <li class="flex items-center">
         {% if user and not hide_header_avatar %}
         <div class="user-avatar-container">
-          <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()" style="color: #fff; font-size: 1rem; font-weight: 600;">{{ user.username|first|upper }}</div>
+          <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()" style="color: #fff; font-size: 1rem; font-weight: 600;">{% if user.username %}{{ user.username|first|upper }}{% elif user.email %}{{ user.email|first|upper }}{% else %}U{% endif %}</div>
           <div class="user-avatar-dropdown" id="userDropdown">
             <div class="user-avatar-dropdown-header">
               <div class="user-avatar-dropdown-name">{{ user.username }}</div>

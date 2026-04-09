@@ -26,7 +26,7 @@ from .models import (
     CourseContentProgress, CounselorCourse, UserProgressTrack,
     UserQuizAttemptTrack, CoursePayment, CourseTrialStart,
 )
-from .utils import get_site_labels
+from .utils import get_site_labels, completed_course_step_count_from_progress
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,9 @@ def _require_payment_or_trial(user, course, course_name, request=None):
     if course_price <= 0:
         return True, None, None, False
     if CoursePayment.objects.filter(user=user, course=course, is_success=True).exists():
+        return True, None, None, False
+    # If the course is completed (certificate exists), never enforce or evaluate trial rules.
+    if CounselorCertification.objects.filter(user=user, course=course).exists():
         return True, None, None, False
     trial_minutes = getattr(settings, 'TRIAL_MINUTES', 0)
     if trial_minutes <= 0:
@@ -380,15 +383,15 @@ class CertificateService:
             except CounselorCertification.DoesNotExist:
                 pass
             
-            # Calculate completion
+            # Calculate completion (parts without quiz: content marked; parts with quiz: quiz submitted)
             total_parts = progress_data['total_parts'] - len(progress_data['introduction_id'])
-            number_of_completed_parts = len(progress_data['user_progress_quiz'])
-            
+            number_of_completed_parts = completed_course_step_count_from_progress(progress_data)
+
             if total_parts == number_of_completed_parts:
                 # Calculate grade from quiz scores
                 total_questions = 0
                 correct_questions = 0
-                
+
                 try:
                     quiz_result = QuizResults.objects.only('scores').get(
                         user_id=user, course=course
@@ -402,7 +405,7 @@ class CertificateService:
                             if part_id in introduction_ids:
                                 continue
                             score_percent = int((
-                                score['quiz_result']['correct_answers'] / 
+                                score['quiz_result']['correct_answers'] /
                                 score["total_questions_in_quiz"]
                             ) * 100)
                             total_questions += score['total_questions_in_quiz']
@@ -410,12 +413,12 @@ class CertificateService:
                                 correct_questions += score['quiz_result']['correct_answers']
                 except QuizResults.DoesNotExist:
                     pass
-                
+
                 grade = CertificateService.calculate_grade(total_questions, correct_questions)
                 certificate = CounselorCertification.objects.create(
                     user=user, course=course, grade=grade
                 )
-                
+
                 return (
                     True,
                     grade,
@@ -653,12 +656,9 @@ class CounselorEnrolledCourseViewV2(View):
                 user_id, course_with_related_data, course_name
             )
             
-            # Calculate completion percentage
+            # Calculate completion percentage (quiz parts need quiz result; no-quiz parts need mark complete)
             total_parts = progress_data['total_parts'] - len(progress_data['introduction_id'])
-            completed_parts = list(set(progress_data['part_ids']) & set(progress_data['user_progress']))
-            number_of_completed_parts = len(
-                list(set(completed_parts) - set(progress_data['introduction_id']))
-            )
+            number_of_completed_parts = completed_course_step_count_from_progress(progress_data)
             completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts > 0 else 0
             
             # Log course status to server console
@@ -840,7 +840,13 @@ class CounselorEnrolledCourseViewV2(View):
             autocomplete_enabled = request.session.get(f'autocomplete_{course_name}', False)
             
             # Trial banner when user is on trial
+            has_paid = CoursePayment.objects.filter(user=user, course=course, is_success=True).exists()
             show_trial_banner = trial_remaining_seconds is not None and trial_remaining_seconds > 0
+            # Defensive override: never show/enforce trial UI once paid or completed.
+            if has_paid or certificate_grant:
+                show_trial_banner = False
+                trial_remaining_seconds = 0
+                trial_expired = False
             # Build context
             context = {
                 'course': course_with_related_data,
@@ -1161,14 +1167,11 @@ class FetchCurrentPartViewV2(View):
                 user_id, course_with_related_data, course_name
             )
             
-            # Calculate completion
+            # Calculate completion (quiz parts need quiz result; no-quiz parts need mark complete)
             total_parts = progress_data['total_parts'] - len(progress_data['introduction_id'])
-            completed_parts = list(set(progress_data['part_ids']) & set(progress_data['user_progress']))
-            number_of_completed_parts = len(
-                list(set(completed_parts) - set(progress_data['introduction_id']))
-            )
+            number_of_completed_parts = completed_course_step_count_from_progress(progress_data)
             completed_percent_value = int((number_of_completed_parts / total_parts) * 100) if total_parts > 0 else 0
-            
+
             # Log course status to server console
             print("COURSE STATUS - User Navigated to Part")
             print("="*80)
@@ -1351,7 +1354,13 @@ class FetchCurrentPartViewV2(View):
             autocomplete_enabled = request.session.get(f'autocomplete_{course_name}', False)
             
             # Trial banner when user is on trial
+            has_paid = CoursePayment.objects.filter(user=user, course=course, is_success=True).exists()
             show_trial_banner = trial_remaining_seconds is not None and trial_remaining_seconds > 0
+            # Defensive override: never show/enforce trial UI once paid or completed.
+            if has_paid or certificate_grant:
+                show_trial_banner = False
+                trial_remaining_seconds = 0
+                trial_expired = False
             # Build context
             context = {
                 'course': course_with_related_data,
