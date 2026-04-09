@@ -1,5 +1,19 @@
 <script>
 (function() {
+  if (!document.querySelector('link[data-space-grotesk="true"]')) {
+    var fontLink = document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap';
+    fontLink.setAttribute('data-space-grotesk', 'true');
+    document.head.appendChild(fontLink);
+  }
+  if (!document.getElementById('space-grotesk-global-style')) {
+    var style = document.createElement('style');
+    style.id = 'space-grotesk-global-style';
+    style.textContent = 'body, p, a, li, button, input, textarea, select, label, div, h1, h2, h3, h4, h5, h6 { font-family: "Space Grotesk", sans-serif !important; }';
+    document.head.appendChild(style);
+  }
+
   function toggleUserDropdown() {
     var dd = document.getElementById('userDropdown');
     if (dd) dd.classList.toggle('show');

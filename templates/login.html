@@ -13,6 +13,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'topteenfrontend/assets/images/favicon/favicon-16x16.png' %}">
   <link rel="mask-icon" href="{% static 'topteenfrontend/assets/images/favicon/safari-pinned-tab.svg ' %}" color="#5bbad5">
   <meta name="msapplication-TileColor" content="#da532c">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
   <title>Every Student, Career Ready | Top Teen</title>
 
   <!-- Bootstrap CSS -->
@@ -39,15 +40,15 @@
         margin-bottom: 0px;
     }
     body {
-        font-family: 'Galano Grotesque' !important;
+        font-family: 'Space Grotesk', sans-serif !important;
         /*  height: 200vh;*/
         position: relative;
     }
     p, semibold,a {
-        font-family: 'Galano Grotesque' !important;
+        font-family: 'Space Grotesk', sans-serif !important;
     }
     h1, h2, h3, h4, h5, h6, button {
-        font-family: 'Galano Grotesque' !important;
+        font-family: 'Space Grotesk', sans-serif !important;
         ;
     }
     .boldFont {
@@ -140,24 +141,132 @@
         margin-top: 8px;
         font-style: italic;
     }
+    .login-shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 24px 0;
+        background:
+            radial-gradient(circle at top left, rgba(76, 201, 240, 0.18), transparent 45%),
+            radial-gradient(circle at bottom right, rgba(63, 55, 201, 0.18), transparent 45%),
+            #f7f8fd;
+    }
+    .login-card {
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 18px 45px rgba(50, 54, 140, 0.16);
+        backdrop-filter: blur(4px);
+    }
+    .site-img {
+        width: 160px;
+        height: auto;
+    }
+    .login-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #272343;
+        margin-bottom: 6px;
+        letter-spacing: 0.01em;
+    }
+    .login-subtitle {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    .form-control.custom-input {
+        min-height: 50px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #f9fbff;
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+    .form-control.custom-input:focus {
+        border-color: #4CC9F0;
+        box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.18);
+        background: #fff;
+    }
+    .messages .alert {
+        border-radius: 10px;
+        font-size: 13px;
+        text-align: left;
+    }
+    .btn-login-main {
+        width: 100%;
+        min-height: 48px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #3f37c9 0%, #5a52d8 100%);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        box-shadow: 0 8px 18px rgba(63, 55, 201, 0.28);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-login-main:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 22px rgba(63, 55, 201, 0.35);
+    }
+    .btn-signup-alt {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #4CC9F0 0%, #38bde8 100%);
+        color: #ffffff !important;
+        border-bottom: 4px solid #29acd6;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-decoration: none;
+    }
+
+    .login-screen .login-logo {
+	display: flex;
+	justify-content: center;
+}
+
+
+    @media (max-width: 768px) {
+        .login-shell {
+            padding: 14px 0 24px;
+            min-height: calc(100vh - 56px);
+        }
+        .login-screen {
+            padding: 24px 16px !important;
+        }
+        .site-img {
+            width: 136px;
+        }
+        .login-title {
+            font-size: 24px;
+        }
+        .form-control.custom-input {
+            min-height: 46px;
+            font-size: 14px;
+        }
+    }
     </style>
 
 
 </head>
 
 <body>
-  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
-  <section class="login-home mt-md-10">
+ 
+  <section class="login-home  login-shell">
     <div class="container">
       <div class="row">
-        <div class="col-md-5 mx-auto ">
+        <div class="col-lg-5 col-md-7 col-sm-10 mx-auto">
           <form method="post" action="{% url 'counselor:user_login' %}">
             {% csrf_token %}
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-            <div class="login-screen  text-center p-5">
-              <div class="sample-img"> <img class="mx-auto" style="width:200px; height:auto;" src="{% static 'images_new/logos/topteen-logo.svg' %}"
-                  alt="topteen" /> </div>
-              <h1 class="fs-25 mt-2 mb-5 fw-600" style="color: #333333">LOGIN</h1>
+            <div class="login-screen login-card text-center p-5">
+              <a  class="login-logo" href="{% url 'counselor:landing' %}">
+                <img src="{% static 'images_new/logos/logo.svg' %}" class="site-img" alt="TopTeen">
+              </a>
+              <h1 class="login-title mt-3">Welcome Back</h1>
+              <p class="login-subtitle">Sign in to continue your counsellor learning journey</p>
               {% if messages %}
               <div class="messages">
                 {% for message in messages %}
@@ -185,11 +294,11 @@
                 
                  <div class="d-flex flex-col justify-content-center align-items-center mt-2">
                   <div class="w-full mb-2">
-                      <button type="submit" class="w-100 h-[48px] rounded-[10px] bg-[#3f37c9] boldFont text-[14px] leading-[18.9px] text-[#ffffff] tracking-[1%] modalTrigger" style="width:100%;">LOGIN</button>
+                      <button type="submit" class="btn-login-main modalTrigger">LOGIN</button>
                   </div>
                  
                   <div class="w-full">
-                      <a href="{% url 'counselor:signup_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="w-full uppercase pl-[23px] pr-[18px] py-[13px] bg-[#4CC9F0] rounded-[10px] text-xs text-white boldFont tracking-[0.01em] border-b-[6px] border-[#3CBAE1] flex flex-row justify-center gap-x-[11px] items-center">
+                      <a href="{% url 'counselor:signup_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="btn-signup-alt uppercase flex flex-row justify-center items-center">
                           SIGN UP
                       </a>
                   </div>

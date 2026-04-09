@@ -10816,6 +10816,10 @@ background-color: #FBFBFB;
 
 /** icef course **/
 
+body, p, a, li, button, input, textarea, select, label, div, h1, h2, h3, h4, h5, h6 {
+  font-family: "Space Grotesk", sans-serif !important;
+}
+
 .left-panel h1 {
 	line-height: 68px;
 }
@@ -10968,7 +10972,7 @@ background-color: #FBFBFB;
 .course_list .event-card {
   position: relative;
   border-radius: 10px;
-  height: 419px;
+  height: 490px;
 }
 .course_list .event_card_cont {
   overflow:hidden;
