@@ -1,60 +1,245 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="apple-touch-icon" sizes="180x180"
+    href="{% static 'topteenfrontend/assets/images/favicon/apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="{% static 'topteenfrontend/assets/images/favicon/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="{% static 'topteenfrontend/assets/images/favicon/favicon-16x16.png' %}">
   <title>Payment | {{ course.title }}</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
-  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
+  <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/styles.css">
+  <link rel="preload stylesheet" href="https://www.topteen.in/static/topteenfrontend/assets/css/custom.css">
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/tailwindcustom.css' %}">
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/css/bootstrap.min.css' %}">
+  <link rel="preload stylesheet" href="{% static 'topteenfrontend/assets/font/font-style.css' %}">
+  <link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/custom-min.css' %}" type="text/css" media="all">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
   <style>
-    body { font-family: "Space Grotesk", sans-serif; padding: 40px 20px; }
-    .payment-card { max-width: 480px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px; }
-    .price { font-size: 1.5rem; font-weight: 700; color: #3f37c9; margin: 16px 0; }
-    .btn-pay { background: #3f37c9; color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; width: 100%; }
-    .btn-pay:hover { color: #fff; opacity: 0.9; }
-    .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
-    .coupon-row { display: flex; gap: 8px; margin: 16px 0; }
-    .coupon-row input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid #e5e7eb; }
-    .btn-apply { background: #4CC9F0; color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
-    .btn-apply:hover { color: #fff; opacity: 0.9; }
-    .discount-line { color: #28a745; margin: 4px 0; }
-    .final-line { font-size: 1.25rem; font-weight: 700; color: #3f37c9; margin: 12px 0; }
-    .coupon-msg { margin-top: 8px; font-size: 0.9rem; }
+    p { margin-bottom: 0; }
+    body {
+      font-family: "Space Grotesk", sans-serif !important;
+      position: relative;
+      overflow-x: hidden;
+    }
+    p, semibold, a, li, button, input, label {
+      font-family: "Space Grotesk", sans-serif !important;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: "Space Grotesk", sans-serif !important;
+    }
+    .boldFont { font-weight: 700; }
+
+    /* User avatar + dropdown — match icef-course / course-overview */
+    .user-avatar-container { position: relative; display: inline-block; }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .user-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    .user-avatar-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 200px;
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+    .user-avatar-dropdown.show { display: block; }
+    .user-avatar-dropdown-header {
+      padding: 16px;
+      border-bottom: 1px solid #EBEBEE;
+      background: #FBFBFB;
+    }
+    .user-avatar-dropdown-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    .user-avatar-dropdown-email { font-size: 12px; color: #666; }
+    .user-avatar-dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .user-avatar-dropdown-item:hover { background: #FBFBFB; }
+    .user-avatar-dropdown-item.logout {
+      color: #dc3545;
+      border-top: 1px solid #EBEBEE;
+    }
+    .user-avatar-dropdown-item.logout:hover { background: #fff5f5; }
+
+    /* Payment content */
+    .payment-card {
+      max-width: 520px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #EBEBEE;
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 8px 32px rgba(41, 59, 74, 0.08);
+    }
+    .payment-card h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .payment-card .lead-muted {
+      font-size: 0.95rem;
+      color: rgba(15, 15, 15, 0.65);
+      margin-bottom: 20px;
+    }
+    .price-badge-wrap { margin: 8px 0 20px; }
+    .course-price-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    .coupon-row { display: flex; gap: 10px; margin: 16px 0; flex-wrap: wrap; }
+    .coupon-row input {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.95rem;
+    }
+    .coupon-row input:focus {
+      outline: none;
+      border-color: #4CC9F0;
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+    }
+    .btn-pay {
+      width: 100%;
+      background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      border-bottom: 4px solid #2fa8c9;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn-pay:hover:not(:disabled) {
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(60, 186, 225, 0.35);
+    }
+    .btn-pay:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .btn-apply {
+      background: #3f37c9;
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s ease;
+    }
+    .btn-apply:hover:not(:disabled) { color: #fff; opacity: 0.92; }
+    .discount-line { color: #198754; margin: 6px 0; font-weight: 500; }
+    .final-line {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #3f37c9;
+      margin: 14px 0 0;
+    }
+    .coupon-msg { margin-top: 10px; font-size: 0.9rem; }
     .coupon-msg.error { color: #dc3545; }
-    .coupon-msg.success { color: #28a745; }
-    #coupon-code:disabled, #apply-coupon:disabled { opacity: 0.7; cursor: not-allowed; }
-    @media (max-width: 991px) { body { padding-bottom: 80px; } }
+    .coupon-msg.success { color: #198754; }
+    #coupon-code:disabled, #apply-coupon:disabled { opacity: 0.65; cursor: not-allowed; }
+    .back-link a {
+      color: #3f37c9;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .back-link a:hover { text-decoration: underline; }
+    html { scroll-behavior: smooth; }
+    @media (max-width: 991px) {
+      body { padding-bottom: 80px; }
+    }
   </style>
 </head>
 <body>
-  <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
-  <section class="container py-4 py-md-5">
-  <div class="payment-card">
-    <h2>{{ course.title }}</h2>
-    <div class="price" id="price-line">₹ {{ original_price }}</div>
-    <p class="text-muted">Apply a coupon (optional) and proceed to pay.</p>
-
-    <div class="coupon-row">
-      <input type="text" id="coupon-code" placeholder="Coupon code" autocomplete="off" style="text-transform: uppercase;" maxlength="64" aria-label="Coupon code (optional)">
-      <button type="button" class="btn-apply" id="apply-coupon">Apply</button>
+  {% include 'includes/header_site.html' %}
+  <section class="mx-auto relative z-10 icef-hero-section py-8 md:py-10 lg:landingPageDesktopGradient landingPageMobileGradient">
+    <div class="max-w-[1082px] mx-auto px-4 px-md-5">
+      <p class="text-sm font-semibold text-[#04A9DD] uppercase tracking-wide mb-1">Checkout</p>
+      <h1 class="boldFont text-[#333333] text-[22px] md:text-[28px] leading-tight mb-2">Complete your payment</h1>
+      <p class="text-[16px] leading-relaxed text-[#0F0F0F] text-opacity-70">{{ course.title }}</p>
     </div>
-    <div class="coupon-msg" id="coupon-msg" style="display: none;"></div>
+  </section>
+  <section class="mx-auto relative z-10 py-8 md:py-11 px-4">
+    <div class="max-w-[1082px] mx-auto">
+      <div class="payment-card">
+        <h2 class="text-xl md:text-2xl">Order summary</h2>
+        <p class="lead-muted">Apply a coupon (optional), then proceed to secure payment.</p>
+        <div class="price-badge-wrap">
+          <span class="course-price-badge" id="price-line">₹ {{ original_price }}</span>
+        </div>
 
-    <div id="summary" style="display: none;">
-      <div class="discount-line" id="discount-line"></div>
-      <div class="final-line" id="final-line"></div>
-      <button id="rzp-button1" class="btn-pay mt-3" disabled>Pay Now</button>
-    </div>
-    <div id="before-apply">
-      <button type="button" class="btn-pay mt-3" id="proceed-btn">Proceed to Pay</button>
-      <p class="text-muted small mt-2">Click to apply coupon (or pay full price).</p>
-    </div>
+        <div class="coupon-row">
+          <input type="text" id="coupon-code" placeholder="Coupon code" autocomplete="off" style="text-transform: uppercase;" maxlength="64" aria-label="Coupon code (optional)">
+          <button type="button" class="btn-apply" id="apply-coupon">Apply</button>
+        </div>
+        <div class="coupon-msg" id="coupon-msg" style="display: none;"></div>
 
-    <p class="mt-3 mb-0"><a href="{% url 'counselor:icef_view' %}">Back to courses</a></p>
-  </div>
+        <div id="summary" style="display: none;">
+          <div class="discount-line" id="discount-line"></div>
+          <div class="final-line" id="final-line"></div>
+          <button id="rzp-button1" class="btn-pay mt-3" disabled>Pay Now</button>
+        </div>
+        <div id="before-apply">
+          <button type="button" class="btn-pay mt-2" id="proceed-btn">Proceed to Pay</button>
+          <p class="lead-muted small mt-3 mb-0" style="font-size: 0.85rem;">Uses your coupon if entered, otherwise the full price.</p>
+        </div>
+
+        <p class="back-link mt-4 mb-0 pt-3 border-top border-[#EBEBEE]"><a href="{% url 'counselor:icef_view' %}"><i class="fas fa-arrow-left me-2"></i>Back to courses</a></p>
+      </div>
+    </div>
   </section>
   {% include 'includes/footer_site.html' %}
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

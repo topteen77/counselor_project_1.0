@@ -8922,6 +8922,12 @@ background-color: #FBFBFB;
     border-radius: 10px;
     text-align: start;
     border: 1px solid #ed9292;
+    margin-top: 27px;
+}
+
+.block-test ul {
+  list-style: disc;
+  padding-left: 18px;
 }
 
 
@@ -8959,6 +8965,11 @@ background-color: #FBFBFB;
 .alert-info {
     width: 100%;
 }
+
+.block-test {
+  width: 100%;
+}
+
 }
 
 body, p, a, li, button, input, textarea, select, label, div, h1, h2, h3, h4, h5, h6 {

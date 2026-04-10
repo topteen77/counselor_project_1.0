@@ -1,5 +1,5 @@
 {% load static %}
-
+<html>
 <head>
   <meta charset="utf-8">
   <meta charset="UTF-8" />
@@ -60,7 +60,6 @@
     h6,
     button {
       font-family: 'Space Grotesk', sans-serif !important;
-      ;
     }
 
     .boldFont {
@@ -81,6 +80,99 @@
       /* Hidden by default */
     }
 
+    /* User Avatar Dropdown Styles (match icef-course page) */
+    .user-avatar-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .user-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-avatar-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 200px;
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+
+    .user-avatar-dropdown.show {
+      display: block;
+    }
+
+    .user-avatar-dropdown-header {
+      padding: 16px;
+      border-bottom: 1px solid #EBEBEE;
+      background: #FBFBFB;
+    }
+
+    .user-avatar-dropdown-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .user-avatar-dropdown-email {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .user-avatar-dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      border: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar-dropdown-item:hover {
+      background: #FBFBFB;
+    }
+
+    .user-avatar-dropdown-item.logout {
+      color: #dc3545;
+      border-top: 1px solid #EBEBEE;
+    }
+
+    .user-avatar-dropdown-item.logout:hover {
+      background: #fff5f5;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; }
 
     .accordion-button::after {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-plus' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3C/svg%3E");
@@ -379,16 +471,7 @@
     .ld-progress-bar-percentage {
       height: 100%;
       background-color: #0073e6;
-
-      /* Secondary background */
-      width: {
-          {
-          completed_percent_value
-        }
-      }
-
-      %;
-      /* transition: width 0.5s ease; */
+      /* width set inline on element */
     }
   </style>
 
@@ -493,9 +576,12 @@
           </div>
           {% endfor %}
         </div>
+
+
+        <p class="mt-5">{{ conclusion }}</p>
       </div>
     </div>
-    <p class="mt-5">{{ conclusion }}</p>
+   
 
     </div>
   </section>
@@ -553,6 +639,23 @@
   </div>
   {% endif %}
   {% include 'includes/footer_site.html' %}
+
+  <!-- User Avatar Dropdown Script (match icef-course page) -->
+  <script>
+    function toggleUserDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      if (dropdown) dropdown.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function (event) {
+      const avatarContainer = document.querySelector('.user-avatar-container');
+      const dropdown = document.getElementById('userDropdown');
+      if (!avatarContainer || !dropdown) return;
+      if (!avatarContainer.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  </script>
 
   <!-- Mobile Drawer for Counsellor Book Course -->
 
@@ -701,3 +804,5 @@
   {% endif %}
 
 </script>
+
+</html>
