@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import json
+import shutil
+import tempfile
+import zipfile
 from pathlib import Path
 
 from django.contrib import messages
@@ -18,6 +21,7 @@ OUTPUT_DIR = PROJECT_ROOT / "course_import" / "output"
 DEFAULT_FOLDER = "/home/itpc6/Public/share/arvinder/counsellor course/China"
 SESSION_FILE = "word_course_import_file"
 SESSION_RESULT = "word_course_import_result"
+MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 
 
 def _store_path(request) -> Path:
@@ -51,6 +55,99 @@ def _save_job(request, job):
     request.session.modified = True
 
 
+def _safe_filename(name: str) -> str:
+    cleaned = (name or "").replace("\\", "/").strip()
+    parts = [part for part in Path(cleaned).parts if part not in ("", ".", "..") and not part.startswith("/")]
+    if not parts:
+        return ""
+    return parts[-1]
+
+
+def _course_root(folder: Path) -> Path:
+    if any(folder.glob("*.docx")):
+        return folder
+    for child in sorted(folder.iterdir()):
+        if not child.is_dir() or child.name.startswith(".") or child.name == "__MACOSX":
+            continue
+        if any(child.glob("*.docx")):
+            return child
+    return folder
+
+
+def _write_upload(upload, dest: Path) -> str | None:
+    written = 0
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with dest.open("wb") as handle:
+        for chunk in upload.chunks():
+            written += len(chunk)
+            if written > MAX_UPLOAD_BYTES:
+                return "The upload is larger than 200 MB."
+            handle.write(chunk)
+    return None
+
+
+def _extract_zip(zip_path: Path, dest: Path) -> str | None:
+    try:
+        archive = zipfile.ZipFile(zip_path)
+    except zipfile.BadZipFile:
+        return "The uploaded file is not a valid zip archive."
+    total = 0
+    with archive:
+        for info in archive.infolist():
+            if info.is_dir():
+                continue
+            raw_name = info.filename.replace("\\", "/")
+            parts = [part for part in Path(raw_name).parts if part not in ("", ".", "..")]
+            if not parts or raw_name.startswith("/") or any(part.startswith("/") for part in parts):
+                return "The zip contains an unsafe path and was not extracted."
+            if not parts[-1].lower().endswith(".docx"):
+                continue
+            total += info.file_size
+            if total > MAX_UPLOAD_BYTES:
+                return "The zip expands to more than 200 MB."
+            target = dest.joinpath(*parts)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(info) as source, target.open("wb") as handle:
+                shutil.copyfileobj(source, handle)
+    return None
+
+
+def _prepare_upload(uploads) -> tuple[str | None, Path | None, str | None]:
+    chosen = [item for item in uploads if item and getattr(item, "name", "")]
+    if not chosen:
+        return None, None, "Choose Word files or a zip from your computer, or enter a folder path on the server."
+    temp_root = Path(tempfile.mkdtemp(prefix="word-course-"))
+    try:
+        if len(chosen) == 1 and chosen[0].name.lower().endswith(".zip"):
+            zip_path = temp_root / "upload.zip"
+            problem = _write_upload(chosen[0], zip_path)
+            if problem:
+                return None, temp_root, problem
+            problem = _extract_zip(zip_path, temp_root / "course")
+            zip_path.unlink(missing_ok=True)
+            if problem:
+                return None, temp_root, problem
+            course_dir = _course_root(temp_root / "course")
+        else:
+            saved = 0
+            for upload in chosen:
+                name = _safe_filename(upload.name)
+                if not name.lower().endswith(".docx"):
+                    continue
+                problem = _write_upload(upload, temp_root / name)
+                if problem:
+                    return None, temp_root, problem
+                saved += 1
+            if not saved:
+                return None, temp_root, "Upload Word .docx files, or one .zip of a single country folder."
+            course_dir = temp_root
+        if not any(course_dir.glob("*.docx")):
+            return None, temp_root, "No Word files were found in the upload."
+        return str(course_dir), temp_root, None
+    except OSError:
+        return None, temp_root, "The uploaded files could not be saved for conversion."
+
+
 def _importer():
     from course_import.convert import convert_folder
     from course_import.dbimport import CourseImportError, write_course
@@ -82,27 +179,72 @@ def import_word(modeladmin, request):
     step = 1
 
     if request.method == "POST" and action == "analyze":
-        payload = convert_folder(
-            (request.POST.get("folder") or "").strip(),
-            remove_blank_paragraphs=request.POST.get("remove_blank_paragraphs") == "on",
-            remove_blank_lines=request.POST.get("remove_blank_lines") == "on",
-        )
-        job = {
-            "payload": payload,
-            "config": {
-                "country": payload.get("country_guess") or "",
-                "display_title": payload.get("display_title_guess") or "",
-                "price": "0",
-                "intro_html": payload.get("intro_html") or "",
-                "conclusion_html": payload.get("conclusion_html") or "",
-                "replace_existing": False,
-            },
-        }
-        job["settings_saved"] = False
-        job["step"] = 2 if payload.get("ready") else 1
-        _save_job(request, job)
-        request.session.pop(SESSION_RESULT, None)
-        step = job["step"]
+        uploads = request.FILES.getlist("course_files")
+        posted_folder = (request.POST.get("folder") or "").strip()
+        remove_blank_paragraphs = request.POST.get("remove_blank_paragraphs") == "on"
+        remove_blank_lines = request.POST.get("remove_blank_lines") == "on"
+        temp_root = None
+        payload = None
+        try:
+            if uploads:
+                course_dir, temp_root, problem = _prepare_upload(uploads)
+                if problem:
+                    banner = problem
+                else:
+                    payload = convert_folder(
+                        course_dir,
+                        remove_blank_paragraphs=remove_blank_paragraphs,
+                        remove_blank_lines=remove_blank_lines,
+                    )
+                    payload["source_folder"] = "Uploaded from this computer"
+                    guess = payload.get("country_guess") or ""
+                    if guess.startswith("word-course-"):
+                        payload["country_guess"] = ""
+                        payload["display_title_guess"] = ""
+            elif not posted_folder:
+                banner = "Upload the Word files from your computer, or enter a folder path on the server."
+            else:
+                payload = convert_folder(
+                    posted_folder,
+                    remove_blank_paragraphs=remove_blank_paragraphs,
+                    remove_blank_lines=remove_blank_lines,
+                )
+        finally:
+            if temp_root is not None:
+                shutil.rmtree(temp_root, ignore_errors=True)
+        if payload is not None:
+            if not payload.get("ready"):
+                first = (payload.get("errors") or [{}])[0]
+                banner = first.get("message") or "The Word files could not be converted."
+                if uploads:
+                    banner = "%s The uploaded files were deleted." % banner
+            elif uploads:
+                banner = "Uploaded files were converted and then deleted from the server."
+                banner_ok = True
+            job = {
+                "payload": payload,
+                "folder_input": posted_folder,
+                "files_removed": bool(uploads),
+                "config": {
+                    "country": payload.get("country_guess") or "",
+                    "display_title": payload.get("display_title_guess") or "",
+                    "price": "0",
+                    "intro_html": payload.get("intro_html") or "",
+                    "conclusion_html": payload.get("conclusion_html") or "",
+                    "replace_existing": False,
+                },
+            }
+            job["settings_saved"] = False
+            job["step"] = 2 if payload.get("ready") else 1
+            _save_job(request, job)
+            request.session.pop(SESSION_RESULT, None)
+            step = job["step"]
+        else:
+            if uploads and "deleted" not in banner:
+                banner = "%s The uploaded files were deleted." % banner
+            job = {"folder_input": posted_folder, "step": 1, "files_removed": bool(uploads)}
+            _save_job(request, job)
+            step = 1
     elif request.method == "POST" and action == "configure":
         if not (job.get("payload") or {}).get("ready"):
             banner = "Read the Word folder successfully before saving settings."
@@ -157,7 +299,8 @@ def import_word(modeladmin, request):
         "step": step,
         "banner": banner,
         "banner_ok": banner_ok,
-        "folder": (payload.get("source_folder") or request.POST.get("folder") or DEFAULT_FOLDER),
+        "folder": job.get("folder_input", DEFAULT_FOLDER),
+        "files_removed": bool(job.get("files_removed")),
         "remove_blank_paragraphs": (payload.get("options") or {}).get("remove_blank_paragraphs", True),
         "remove_blank_lines": (payload.get("options") or {}).get("remove_blank_lines", True),
         "payload": payload,

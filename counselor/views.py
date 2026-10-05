@@ -57,35 +57,19 @@ def user_logout(request):
         del request.session['id']
     return redirect('counselor:landing')
 
-CATALOGUE_COURSES = [
-    'Germany', 'UK', 'USA', 'Singapore', 'Newzealand',
-    'Ireland', 'France', 'Dubai', 'Canada', 'Australia',
-]
-
-
 def catalogue_course_names():
-    """Featured cards stay in their existing order. Any other saved course is appended."""
-    names = list(CATALOGUE_COURSES)
-    seen = set(names)
-    saved = (
+    """Course cards come only from saved courses."""
+    return list(
         CounselorCourse.objects.exclude(title__isnull=True)
         .exclude(title='')
         .order_by('title')
         .values_list('title', flat=True)
     )
-    for title in saved:
-        if title not in seen:
-            names.append(title)
-            seen.add(title)
-    return names
 
 
 def extra_catalogue_cards(course_statuses):
-    featured = set(CATALOGUE_COURSES)
     cards = []
     for title, status in course_statuses.items():
-        if title in featured:
-            continue
         card = {'title': title}
         card.update(status)
         cards.append(card)
@@ -102,7 +86,6 @@ def icef_view(request):
         except CounselorUser.DoesNotExist:
             user_id = None
 
-    # Featured countries stay first. Courses imported later, such as China and Japan, are added from the database.
     course_list = catalogue_course_names()
 
     # Anonymous: build course_statuses with prices only (no progress); "Start Now" will go to login then payment
@@ -111,29 +94,18 @@ def icef_view(request):
         for course_name in course_list:
             try:
                 course = CounselorCourse.objects.only('id', 'title', 'price').filter(title=course_name).first()
-                if course:
-                    price = course.price if course.price is not None else 0
-                    course_statuses[course_name] = {
-                        'status': 'not_started',
-                        'has_certificate': False,
-                        'has_paid': False,
-                        'price': price,
-                    }
-                else:
-                    course_statuses[course_name] = {
-                        'status': 'not_started',
-                        'has_certificate': False,
-                        'has_paid': False,
-                        'price': 0,
-                    }
-            except Exception as e:
-                logger.error(f"Error for course {course_name}: {str(e)}")
+                if not course:
+                    continue
+                price = course.price if course.price is not None else 0
                 course_statuses[course_name] = {
                     'status': 'not_started',
                     'has_certificate': False,
                     'has_paid': False,
-                    'price': 0,
+                    'price': price,
+                    'trial_expired': False,
                 }
+            except Exception as e:
+                logger.error(f"Error for course {course_name}: {str(e)}")
         trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
         context = {
             'course_statuses': course_statuses,
@@ -247,24 +219,9 @@ def icef_view(request):
                         'trial_expired': trial_expired,
                     }
         except CounselorCourse.DoesNotExist:
-            course_statuses[course_name] = {
-                'status': 'not_started',
-                'has_certificate': False,
-                'has_paid': False,
-                'price': 0,
-                'payment_id': None,
-                'trial_expired': False,
-            }
+            continue
         except Exception as e:
             logger.error(f"Error calculating status for course {course_name}: {str(e)}")
-            course_statuses[course_name] = {
-                'status': 'not_started',
-                'has_certificate': False,
-                'has_paid': False,
-                'price': 0,
-                'payment_id': None,
-                'trial_expired': False,
-            }
     
     context = {
         'course_statuses': course_statuses,

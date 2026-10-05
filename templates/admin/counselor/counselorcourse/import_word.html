@@ -18,6 +18,7 @@
     max-width: 980px;
   }
   .import-card label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  .import-card input[type=file] { color: var(--body-fg); }
   .import-card input[type=text] {
     width: 100%;
     max-width: 720px;
@@ -70,13 +71,15 @@
 {% if banner %}<p class="{% if banner_ok %}ok{% else %}errornote{% endif %}">{{ banner }}</p>{% endif %}
 
 <div class="import-card">
-  <h2>1. Read Word files on this computer</h2>
-  <p>Choose the folder for one country on this computer. Use the China folder or the Japan folder, not the parent folder that contains both. The site can read folders under <code>/home/itpc6/Public/share</code>.</p>
-  <form method="post">
+  <h2>1. Word files</h2>
+  <p>Upload the Word files for one country from your computer, or one zip of that folder. The server keeps them in a temporary folder only while it converts them, then deletes them. You can instead enter a folder path that already exists on the server.</p>
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" name="action" value="analyze">
-    <label for="folder">Folder path</label>
-    <input id="folder" name="folder" type="text" value="{{ folder }}" required>
+    <label for="course_files">Upload from this computer</label>
+    <input id="course_files" name="course_files" type="file" multiple accept=".docx,.zip,application/zip">
+    <label for="folder">Folder path on the server</label>
+    <input id="folder" name="folder" type="text" value="{{ folder }}" placeholder="Leave this blank when uploading files">
     <p><label><input type="checkbox" name="remove_blank_paragraphs" {% if remove_blank_paragraphs %}checked{% endif %}> Remove blank paragraphs</label></p>
     <p><label><input type="checkbox" name="remove_blank_lines" {% if remove_blank_lines %}checked{% endif %}> Remove independent blank lines</label></p>
     <button type="submit" class="button default">Analyse and convert</button>
@@ -88,7 +91,7 @@
   <div class="errornote">
     <ul>
       {% for item in errors %}
-      <li><strong>{{ item.filename }} / {{ item.location }}</strong> {{ item.message }}</li>
+      <li>{% if item.filename or item.location %}<strong>{{ item.filename }}{% if item.filename and item.location %} / {% endif %}{{ item.location }}</strong> {% endif %}{{ item.message }}</li>
       {% endfor %}
     </ul>
   </div>
