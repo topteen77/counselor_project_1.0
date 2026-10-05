@@ -1341,6 +1341,74 @@
               </div>
             </div>
           </div>
+          {% for course in extra_courses %}
+          <div class="event-card shadow">
+            {% if course.status == 'complete' %}
+            <div class="completed-ribbon">Completed</div>
+            {% elif course.status == 'inprocess' %}
+            <div class="inprogress-ribbon">In Progress</div>
+            {% elif course.trial_expired %}
+            <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
+            {% elif course.has_paid %}
+            <div class="paid-ribbon">Paid</div>
+            {% endif %}
+            <div class="event_card_cont">
+              <a href="{% url 'counselor:course_overview' course_name=course.title %}" class="course_card_link">
+                <div class="event-card-inner text-center">
+                  <div class="event-card-bottom">
+                    <div class="flex_vert_center text-center flex flex-row justify-center row py-5">
+                      <p class="text-[21px] text-white fw-500">{{ course.title }}</p>
+                      <div class="w-100 mt-2">
+                        <span class="course-price-badge {% if not course.price %}free{% endif %}">{% if course.price %}₹ {{ course.price }}{% else %}Free{% endif %}</span>
+                      </div>
+                    </div>
+                    <div class="ft-text px-4 py-5">
+                      <h3 class="header_title text-[#04A9DD] mt-3">
+                        {{ course.title }} Study Abroad Counsellor Training Course
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              <div class="card_hover">
+                <div class="card_hover_inner">
+                  <div class="card_hover_top">
+                    <div class="card_hover_top_top">
+                      <span class="back_title">{{ course.title }} Study Abroad Counsellor Training Course</span>
+                    </div>
+                    <ul class="sales_points">
+                      <li><span>Work through the modules, lessons, and quizzes for {{ course.title }}.</span></li>
+                      <li><span>Track progress and complete the counsellor assessment.</span></li>
+                    </ul>
+                  </div>
+                  <div class="card_hover_bottom">
+                    {% if course.status == 'complete' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}?show_certificate=1" style="background-color: #28a745; border-color: #28a745;">{{ labels.view_certificate|default:"View Certificate" }}</a>
+                    {% else %}
+                    {% if course.status == 'inprocess' %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" style="background-color: #ffc107; border-color: #ffc107;">{{ labels.resume|default:"Resume" }}</a>
+                    {% elif course.trial_expired %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name=course.title %}">{{ labels.book_course|default:"Book course" }}</a>
+                    {% elif not course.has_paid and course.price %}
+                    {% if user %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
+                    {% endif %}
+                    {% else %}
+                    <a class="btn learn_more" href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}">{{ labels.start_course|default:"Start course" }}</a>
+                    {% endif %}
+                    {% if course.price and not course.trial_expired and not course.has_paid %}
+                    <a class="btn learn_more" href="{% url 'counselor:course_payment' course_name=course.title %}">{{ labels.book_course|default:"Book course" }}</a>
+                    {% endif %}
+                    {% endif %}
+                    <a href="{% url 'counselor:course_overview' course_name=course.title %}" class="btn-icef-t">{{ labels.view_detail|default:"View detail" }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </section>

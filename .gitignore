@@ -25,5 +25,14 @@ md-files/
 start_db.sh
 start_project.sh
 start_project_simple.sh
+deploy.sh
 md-docs/
 .cursor/
+
+# Local Docker setup only. Never commit or deploy these.
+.docker-local/
+.dockerignore
+counselor_project/settings_docker.py
+
+# Local course importer and its generated files. Never commit or deploy.
+course_import/

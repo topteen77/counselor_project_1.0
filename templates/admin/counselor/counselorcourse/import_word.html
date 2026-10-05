@@ -1,0 +1,171 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<style>
+  .import-card,
+  .import-card h2,
+  .import-card p,
+  .import-card label,
+  .import-card li,
+  .import-steps {
+    color: var(--body-fg);
+  }
+  .import-card {
+    background: var(--darkened-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 12px 0 20px;
+    max-width: 980px;
+  }
+  .import-card label { display: block; font-weight: 600; margin: 12px 0 4px; }
+  .import-card input[type=text] {
+    width: 100%;
+    max-width: 720px;
+    padding: 8px;
+    box-sizing: border-box;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--border-color);
+  }
+  .import-steps span {
+    display: inline-block;
+    background: var(--darkened-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 4px 10px;
+    margin-right: 6px;
+  }
+  .import-steps .on {
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border-color: var(--button-bg);
+  }
+  .text-editor {
+    min-height: 180px;
+    max-height: 360px;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    line-height: 1.5;
+  }
+  .editor-tools button { margin-right: 6px; }
+  .warning, .ok, .import-card .errornote {
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--body-fg);
+  }
+  .warning { background: var(--message-warning-bg); border: 1px solid var(--border-color); }
+  .ok { background: var(--message-success-bg); border: 1px solid var(--border-color); }
+  .import-card ul { margin-left: 18px; }
+</style>
+<p class="import-steps">
+  <span class="{% if step == 1 %}on{% endif %}">1. Word folder</span>
+  <span class="{% if step == 2 %}on{% endif %}">2. Course settings</span>
+  <span class="{% if step == 3 %}on{% endif %}">3. Import</span>
+</p>
+{% if banner %}<p class="{% if banner_ok %}ok{% else %}errornote{% endif %}">{{ banner }}</p>{% endif %}
+
+<div class="import-card">
+  <h2>1. Read Word files on this computer</h2>
+  <p>Choose the folder for one country on this computer. Use the China folder or the Japan folder, not the parent folder that contains both. The site can read folders under <code>/home/itpc6/Public/share</code>.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="analyze">
+    <label for="folder">Folder path</label>
+    <input id="folder" name="folder" type="text" value="{{ folder }}" required>
+    <p><label><input type="checkbox" name="remove_blank_paragraphs" {% if remove_blank_paragraphs %}checked{% endif %}> Remove blank paragraphs</label></p>
+    <p><label><input type="checkbox" name="remove_blank_lines" {% if remove_blank_lines %}checked{% endif %}> Remove independent blank lines</label></p>
+    <button type="submit" class="button default">Analyse and convert</button>
+  </form>
+  {% if stats.modules %}
+  <p>{{ stats.modules }} modules, {{ stats.parts }} parts, {{ stats.quizzes }} quizzes, {{ stats.questions }} questions, {{ stats.tables }} tables.</p>
+  {% endif %}
+  {% if errors %}
+  <div class="errornote">
+    <ul>
+      {% for item in errors %}
+      <li><strong>{{ item.filename }} / {{ item.location }}</strong> {{ item.message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% elif payload.ready %}
+  <p class="ok">No conversion errors.</p>
+  {% endif %}
+  {% if warnings %}
+  <div class="warning">
+    <ul>
+      {% for item in warnings %}
+      <li><strong>{{ item.filename }} / {{ item.location }}</strong> {{ item.message }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if payload.chapters %}
+  <p><a class="button" href="{% url 'admin:counselor_counselorcourse_import_word_preview' %}" target="_blank">Open converted preview</a></p>
+  {% endif %}
+</div>
+
+{% if payload.ready %}
+<div class="import-card">
+  <h2>2. Course settings</h2>
+  <p>The country key is the course name on the site, for example China or Japan. The overview introduction and closing are edited as formatted text.</p>
+  {{ config.intro_html|default:""|json_script:"intro-data" }}
+  {{ config.conclusion_html|default:""|json_script:"conclusion-data" }}
+  <form method="post" id="settings-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="configure">
+    <label for="country">Country key</label>
+    <input id="country" name="country" type="text" value="{{ config.country }}" required>
+    <label for="display_title">Display title</label>
+    <input id="display_title" name="display_title" type="text" value="{{ config.display_title }}">
+    <label for="price">Price in INR (0 means free)</label>
+    <input id="price" name="price" type="text" value="{{ config.price|default:'0' }}">
+    <label>Overview introduction</label>
+    <div class="editor-tools">
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('bold')">Bold</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('italic')">Italic</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('underline')">Underline</button>
+    </div>
+    <div id="intro_editor" class="text-editor" contenteditable="true"></div>
+    <input type="hidden" name="intro_html" id="intro_html">
+    <label>Overview closing</label>
+    <div class="editor-tools">
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('bold')">Bold</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('italic')">Italic</button>
+      <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('underline')">Underline</button>
+    </div>
+    <div id="conclusion_editor" class="text-editor" contenteditable="true"></div>
+    <input type="hidden" name="conclusion_html" id="conclusion_html">
+    <p><button type="submit" class="button default">Save settings</button></p>
+  </form>
+</div>
+<script>
+  document.getElementById("intro_editor").innerHTML = JSON.parse(document.getElementById("intro-data").textContent);
+  document.getElementById("conclusion_editor").innerHTML = JSON.parse(document.getElementById("conclusion-data").textContent);
+  document.getElementById("settings-form").addEventListener("submit", function () {
+    document.getElementById("intro_html").value = document.getElementById("intro_editor").innerHTML;
+    document.getElementById("conclusion_html").value = document.getElementById("conclusion_editor").innerHTML;
+  });
+</script>
+{% endif %}
+
+{% if settings_saved %}
+<div class="import-card">
+  <h2>3. Import into this site</h2>
+  <p>Country <strong>{{ config.country }}</strong>, price <strong>{{ config.price }}</strong>. This writes {{ stats.modules }} chapters, {{ stats.parts }} parts, {{ stats.quizzes }} quizzes, and {{ stats.questions }} questions into the database this admin is using.</p>
+  <p>Dry run inserts the rows and then rolls them back. Import saves them. If anything fails, the transaction is rolled back.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="import">
+    <p><label><input type="checkbox" name="replace_existing" {% if config.replace_existing %}checked{% endif %}> Replace chapters if this country already exists. Learner progress for those chapters is cleared. Payments on the course are kept.</label></p>
+    <p><label><input type="checkbox" name="confirm_write"> I understand Import will write this course into this site’s database.</label></p>
+    <button class="button" type="submit" name="mode" value="dry">Dry run</button>
+    <button class="button default" type="submit" name="mode" value="apply">Import</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

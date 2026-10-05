@@ -40,6 +40,10 @@
       margin-bottom: 0px;
     }
 
+    .course-overview-html p {
+      margin-bottom: 12px;
+    }
+
     body {
       font-family: 'Space Grotesk', sans-serif !important;
       /*  height: 200vh;*/
@@ -408,8 +412,8 @@
               style="line-height: 35px;">
               Welcome to
               the Study Abroad Counsellor Training Course for the {{ course.title }}</h1>
-            <p class="font-normal text-[16px] leading-[1.68em] text-[#0F0F0F] text-opacity-70 mb-[34px] ">{{ intro }}
-            </p>
+            <div class="font-normal text-[16px] leading-[1.68em] text-[#0F0F0F] text-opacity-70 mb-[34px] course-overview-html">{{ intro|safe }}
+            </div>
             <p class="font-semibold text-[18px] text-[#333333] mb-3">Price: {% if price %}₹ {{ price }}{% else %}Free{% endif %}</p>
             <div class="course-overview-actions">
               {% if is_anonymous %}
@@ -495,7 +499,7 @@
         </div>
       </div>
     </div>
-    <p class="mt-5">{{ conclusion }}</p>
+    <div class="mt-5 course-overview-html">{{ conclusion|safe }}</div>
 
     </div>
   </section>

@@ -57,6 +57,42 @@ def user_logout(request):
         del request.session['id']
     return redirect('counselor:landing')
 
+CATALOGUE_COURSES = [
+    'Germany', 'UK', 'USA', 'Singapore', 'Newzealand',
+    'Ireland', 'France', 'Dubai', 'Canada', 'Australia',
+]
+
+
+def catalogue_course_names():
+    """Featured cards stay in their existing order. Any other saved course is appended."""
+    names = list(CATALOGUE_COURSES)
+    seen = set(names)
+    saved = (
+        CounselorCourse.objects.exclude(title__isnull=True)
+        .exclude(title='')
+        .order_by('title')
+        .values_list('title', flat=True)
+    )
+    for title in saved:
+        if title not in seen:
+            names.append(title)
+            seen.add(title)
+    return names
+
+
+def extra_catalogue_cards(course_statuses):
+    featured = set(CATALOGUE_COURSES)
+    cards = []
+    for title, status in course_statuses.items():
+        if title in featured:
+            continue
+        card = {'title': title}
+        card.update(status)
+        cards.append(card)
+    cards.sort(key=lambda item: item['title'])
+    return cards
+
+
 def icef_view(request):
     user = None
     user_id = request.session.get('id')
@@ -66,8 +102,8 @@ def icef_view(request):
         except CounselorUser.DoesNotExist:
             user_id = None
 
-    # List of all courses
-    course_list = ['Germany', 'UK', 'USA', 'Singapore', 'Newzealand', 'Ireland', 'France', 'Dubai', 'Canada', 'Australia']
+    # Featured countries stay first. Courses imported later, such as China and Japan, are added from the database.
+    course_list = catalogue_course_names()
 
     # Anonymous: build course_statuses with prices only (no progress); "Start Now" will go to login then payment
     if not user_id:
@@ -99,7 +135,13 @@ def icef_view(request):
                     'price': 0,
                 }
         trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
-        context = {'course_statuses': course_statuses, 'user': user, 'trial_minutes': trial_minutes, 'labels': get_site_labels()}
+        context = {
+            'course_statuses': course_statuses,
+            'extra_courses': extra_catalogue_cards(course_statuses),
+            'user': user,
+            'trial_minutes': trial_minutes,
+            'labels': get_site_labels(),
+        }
         return render(request, 'icef-course.html', context)
 
     # Logged-in: full course status with progress and payment
@@ -226,6 +268,7 @@ def icef_view(request):
     
     context = {
         'course_statuses': course_statuses,
+        'extra_courses': extra_catalogue_cards(course_statuses),
         'user': user,
         'trial_minutes': trial_minutes,
         'labels': labels,

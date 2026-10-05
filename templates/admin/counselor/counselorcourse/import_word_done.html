@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="import-card" style="background:var(--darkened-bg);color:var(--body-fg);border:1px solid var(--border-color);border-radius:8px;padding:16px 18px;max-width:720px;">
+  <h2>Course saved</h2>
+  <p>{{ summary.message }}</p>
+  <p>{{ summary.course_title }} now has {{ summary.chapters }} chapters, {{ summary.parts }} parts, {{ summary.quizzes }} quizzes, and {{ summary.questions }} questions.</p>
+  <p>
+    <a class="button default" href="{{ overview_url }}">Open course overview</a>
+    <a class="button" href="{{ admin_url }}">Open in admin</a>
+    <a class="button" href="{{ site_url }}">Open course list</a>
+  </p>
+  <p><a href="{{ list_url }}">Back to courses</a></p>
+</div>
+{% endblock %}

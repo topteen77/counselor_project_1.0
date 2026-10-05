@@ -187,6 +187,40 @@ class CourseAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     ordering = ('-created_at',)
     actions = ['reset_all_users_course_data']
+    change_list_template = "admin/counselor/counselorcourse/change_list.html"
+
+    def get_urls(self):
+        from django.urls import path
+        custom = [
+            path(
+                "import-word/",
+                self.admin_site.admin_view(self.import_word_view),
+                name="counselor_counselorcourse_import_word",
+            ),
+            path(
+                "import-word/preview/",
+                self.admin_site.admin_view(self.import_word_preview_view),
+                name="counselor_counselorcourse_import_word_preview",
+            ),
+            path(
+                "import-word/done/",
+                self.admin_site.admin_view(self.import_word_done_view),
+                name="counselor_counselorcourse_import_word_done",
+            ),
+        ]
+        return custom + super().get_urls()
+
+    def import_word_view(self, request):
+        from counselor.word_course_admin import import_word
+        return import_word(self, request)
+
+    def import_word_preview_view(self, request):
+        from counselor.word_course_admin import import_word_preview
+        return import_word_preview(self, request)
+
+    def import_word_done_view(self, request):
+        from counselor.word_course_admin import import_word_done
+        return import_word_done(self, request)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
