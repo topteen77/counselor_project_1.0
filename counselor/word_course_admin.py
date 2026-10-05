@@ -8,13 +8,10 @@ import zipfile
 from pathlib import Path
 
 from django.contrib import messages
-from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
-PRODUCTION_HOST = "43.205.138.85"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_ROOT / "course_import" / "output"
@@ -157,19 +154,18 @@ def _importer():
 def import_word(modeladmin, request):
     try:
         convert_folder, course_import_error, write_course = _importer()
-    except ImportError:
-        messages.error(
-            request,
-            "The Word importer is not available on this server. The course_import folder must sit next to the project.",
-        )
-        return redirect("admin:counselor_counselorcourse_changelist")
-
-    host = (connection.settings_dict.get("HOST") or "").strip()
-    if host == PRODUCTION_HOST:
-        messages.error(
-            request,
-            "This admin is connected to the production database. Course import is only allowed on the local site.",
-        )
+    except ImportError as exc:
+        missing = getattr(exc, "name", "") or ""
+        if missing == "docx" or "docx" in str(exc):
+            messages.error(
+                request,
+                "The Word importer needs the python-docx package on this server. Install the project requirements and try again.",
+            )
+        else:
+            messages.error(
+                request,
+                "The Word importer code is not on this server. Deploy the course_import folder with the project and try again.",
+            )
         return redirect("admin:counselor_counselorcourse_changelist")
 
     job = _load_job(request) or {}
@@ -219,8 +215,8 @@ def import_word(modeladmin, request):
                 if uploads:
                     banner = "%s The uploaded files were deleted." % banner
             elif uploads:
-                banner = "Uploaded files were converted and then deleted from the server."
-                banner_ok = True
+                banner = ""
+                banner_ok = False
             job = {
                 "payload": payload,
                 "folder_input": posted_folder,
@@ -262,6 +258,13 @@ def import_word(modeladmin, request):
             job["step"] = 3
             _save_job(request, job)
             step = 3
+    elif request.method == "POST" and action == "back":
+        target = 2 if request.POST.get("to") == "2" and (job.get("payload") or {}).get("ready") else 1
+        job["step"] = target
+        if target < 3:
+            job["settings_saved"] = False
+        _save_job(request, job)
+        step = target
     elif request.method == "POST" and action == "import":
         step = 3
         if not (job.get("payload") or {}).get("ready") or not (job.get("config") or {}).get("country"):

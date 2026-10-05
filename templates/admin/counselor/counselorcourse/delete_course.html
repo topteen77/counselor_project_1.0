@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<style>
+  .delete-card, .delete-card h2, .delete-card p, .delete-card label, .delete-card li { color: var(--body-fg); }
+  .delete-card {
+    background: var(--darkened-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px 18px;
+    max-width: 760px;
+  }
+  .delete-card input[type=text], .delete-card textarea {
+    width: 100%;
+    max-width: 520px;
+    box-sizing: border-box;
+    padding: 8px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--border-color);
+  }
+  .delete-card textarea { min-height: 90px; }
+  .delete-card .errornote { color: var(--body-fg); }
+</style>
+<div class="delete-card">
+  <h2>Delete {% if summaries|length == 1 %}this course{% else %}these courses{% endif %}</h2>
+  <p>This removes the course and the records stored with it: chapters, lessons, quizzes, answers, overview text, learner progress, certificates, trials, payments, and receipt files. An overview image named after the course is removed when one exists.</p>
+  {% if banner %}<p class="errornote">{{ banner }}</p>{% endif %}
+  {% for item in summaries %}
+  <h3>{{ item.phrase }}</h3>
+  <ul>
+    <li>{{ item.chapters }} chapters, {{ item.parts }} lessons, {{ item.quizzes }} quizzes, {{ item.questions }} questions, {{ item.answers }} answers</li>
+    <li>{{ item.summaries }} overview summaries</li>
+    <li>{{ item.progress }} progress rows, {{ item.results }} quiz results, {{ item.certificates }} certificates, {{ item.tracks }} resume rows, {{ item.attempts }} quiz attempts, {{ item.trials }} trials</li>
+    <li>{{ item.payments }} payments, {{ item.receipts }} receipts</li>
+    {% if item.overview_files %}<li>Overview image: {{ item.overview_files|join:", " }}</li>{% endif %}
+    {% if item.receipt_files %}<li>Receipt files: {{ item.receipt_files|join:", " }}</li>{% endif %}
+  </ul>
+  {% endfor %}
+  <form method="post">
+    {% csrf_token %}
+    {% for course in courses %}
+    <input type="hidden" name="course_ids" value="{{ course.pk }}">
+    {% endfor %}
+    {% if summaries|length == 1 %}
+    <label for="confirm_text">Type <strong>{{ summaries.0.phrase }}</strong> to confirm</label>
+    <input id="confirm_text" name="confirm_text" type="text" autocomplete="off" required>
+    {% else %}
+    <label for="confirm_text">Type each course title on its own line</label>
+    <textarea id="confirm_text" name="confirm_text" autocomplete="off" required></textarea>
+    {% endif %}
+    <p>
+      <button type="submit" class="button" style="background: var(--delete-button-bg); color: var(--button-fg);">Delete course and files</button>
+      <a class="button" href="{{ cancel_url }}">Cancel</a>
+    </p>
+  </form>
+</div>
+{% endblock %}

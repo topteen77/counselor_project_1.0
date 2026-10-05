@@ -34,5 +34,5 @@ md-docs/
 .dockerignore
 counselor_project/settings_docker.py
 
-# Local course importer and its generated files. Never commit or deploy.
-course_import/
+# Generated files from the course importer. The converter itself is deployed with the admin.
+course_import/output/

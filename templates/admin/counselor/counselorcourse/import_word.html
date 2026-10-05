@@ -64,12 +64,13 @@
   .import-card ul { margin-left: 18px; }
 </style>
 <p class="import-steps">
-  <span class="{% if step == 1 %}on{% endif %}">1. Word folder</span>
+  <span class="{% if step == 1 %}on{% endif %}">1. Word files</span>
   <span class="{% if step == 2 %}on{% endif %}">2. Course settings</span>
   <span class="{% if step == 3 %}on{% endif %}">3. Import</span>
 </p>
 {% if banner %}<p class="{% if banner_ok %}ok{% else %}errornote{% endif %}">{{ banner }}</p>{% endif %}
 
+{% if step == 1 %}
 <div class="import-card">
   <h2>1. Word files</h2>
   <p>Upload the Word files for one country from your computer, or one zip of that folder. The server keeps them in a temporary folder only while it converts them, then deletes them. You can instead enter a folder path that already exists on the server.</p>
@@ -111,8 +112,9 @@
   <p><a class="button" href="{% url 'admin:counselor_counselorcourse_import_word_preview' %}" target="_blank">Open converted preview</a></p>
   {% endif %}
 </div>
+{% endif %}
 
-{% if payload.ready %}
+{% if step == 2 and payload.ready %}
 <div class="import-card">
   <h2>2. Course settings</h2>
   <p>The country key is the course name on the site, for example China or Japan. The overview introduction and closing are edited as formatted text.</p>
@@ -143,7 +145,15 @@
     </div>
     <div id="conclusion_editor" class="text-editor" contenteditable="true"></div>
     <input type="hidden" name="conclusion_html" id="conclusion_html">
-    <p><button type="submit" class="button default">Save settings</button></p>
+    <p>
+      <button type="submit" class="button default">Save settings</button>
+    </p>
+  </form>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="back">
+    <input type="hidden" name="to" value="1">
+    <button type="submit" class="button">Back to Word files</button>
   </form>
 </div>
 <script>
@@ -156,7 +166,7 @@
 </script>
 {% endif %}
 
-{% if settings_saved %}
+{% if step == 3 and settings_saved %}
 <div class="import-card">
   <h2>3. Import into this site</h2>
   <p>Country <strong>{{ config.country }}</strong>, price <strong>{{ config.price }}</strong>. This writes {{ stats.modules }} chapters, {{ stats.parts }} parts, {{ stats.quizzes }} quizzes, and {{ stats.questions }} questions into the database this admin is using.</p>
@@ -168,6 +178,12 @@
     <p><label><input type="checkbox" name="confirm_write"> I understand Import will write this course into this site’s database.</label></p>
     <button class="button" type="submit" name="mode" value="dry">Dry run</button>
     <button class="button default" type="submit" name="mode" value="apply">Import</button>
+  </form>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="back">
+    <input type="hidden" name="to" value="2">
+    <button type="submit" class="button">Back to course settings</button>
   </form>
 </div>
 {% endif %}

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -186,8 +187,13 @@ class CourseAdmin(admin.ModelAdmin):
     inlines = [ChapterInline]
     list_filter = ('created_at',)
     ordering = ('-created_at',)
-    actions = ['reset_all_users_course_data']
+    actions = ['reset_all_users_course_data', 'delete_course_and_files']
     change_list_template = "admin/counselor/counselorcourse/change_list.html"
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
 
     def get_urls(self):
         from django.urls import path
@@ -207,6 +213,11 @@ class CourseAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.import_word_done_view),
                 name="counselor_counselorcourse_import_word_done",
             ),
+            path(
+                "delete-confirm/",
+                self.admin_site.admin_view(self.delete_courses_view),
+                name="counselor_counselorcourse_delete_confirm",
+            ),
         ]
         return custom + super().get_urls()
 
@@ -221,6 +232,65 @@ class CourseAdmin(admin.ModelAdmin):
     def import_word_done_view(self, request):
         from counselor.word_course_admin import import_word_done
         return import_word_done(self, request)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        course = self.get_object(request, object_id)
+        if course is None:
+            return self._get_obj_does_not_exist_redirect(request, self.model._meta, object_id)
+        return self._confirm_course_delete(request, [course])
+
+    def delete_course_and_files(self, request, queryset):
+        ids = [str(pk) for pk in queryset.values_list("pk", flat=True)]
+        request.session["course_delete_ids"] = ids
+        request.session.modified = True
+        return redirect("admin:counselor_counselorcourse_delete_confirm")
+
+    delete_course_and_files.short_description = "Delete selected courses and their files"
+
+    def delete_courses_view(self, request):
+        ids = request.POST.getlist("course_ids") or request.session.get("course_delete_ids") or []
+        courses = list(self.get_queryset(request).filter(pk__in=ids))
+        if not courses:
+            self.message_user(request, "Select a course before deleting.", level=messages.WARNING)
+            return redirect("admin:counselor_counselorcourse_changelist")
+        return self._confirm_course_delete(request, courses)
+
+    def _confirm_course_delete(self, request, courses):
+        from django.core.exceptions import PermissionDenied
+        from counselor.course_delete import course_delete_summary, delete_courses, phrases_match
+
+        for course in courses:
+            if not self.has_delete_permission(request, course):
+                raise PermissionDenied
+        banner = ""
+        if request.method == "POST" and "confirm_text" in request.POST:
+            posted_ids = {str(pk) for pk in request.POST.getlist("course_ids")}
+            selected_ids = {str(course.pk) for course in courses}
+            if posted_ids != selected_ids:
+                banner = "The confirmation did not match the courses on this page. Start the delete again."
+            elif not phrases_match(courses, request.POST.get("confirm_text") or ""):
+                banner = "Type the course title exactly. Nothing was deleted."
+            else:
+                result = delete_courses(courses)
+                request.session.pop("course_delete_ids", None)
+                names = ", ".join((course.title or "untitled-%s" % course.pk) for course in courses)
+                detail = "Deleted %s." % names
+                if result["removed_files"]:
+                    detail += " Removed files: %s." % ", ".join(result["removed_files"])
+                if result["failed_files"]:
+                    detail += " Some files could not be removed: %s." % ", ".join(result["failed_files"])
+                self.message_user(request, detail, level=messages.SUCCESS)
+                return redirect("admin:counselor_counselorcourse_changelist")
+        context = {
+            **self.admin_site.each_context(request),
+            "title": "Delete course",
+            "opts": self.model._meta,
+            "courses": courses,
+            "summaries": [course_delete_summary(course) for course in courses],
+            "banner": banner,
+            "cancel_url": reverse("admin:counselor_counselorcourse_changelist"),
+        }
+        return TemplateResponse(request, "admin/counselor/counselorcourse/delete_course.html", context)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
