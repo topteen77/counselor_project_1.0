@@ -125,12 +125,23 @@
     .course-hero-nav {
       grid-column: 1 / -1;
     }
+    .course-hero-copy {
+      min-width: 0;
+    }
     .course-hero-inner h1 {
       font-size: 34px !important;
-      line-height: 1.25 !important;
+      line-height: 1.22 !important;
       color: #111827 !important;
-      margin: 0 0 14px !important;
+      margin: 0 0 12px !important;
       font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .course-hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
     }
     .course-price-pill {
       display: inline-flex;
@@ -138,13 +149,69 @@
       background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
       color: #fff;
       font-weight: 700;
-      font-size: 15px;
-      padding: 8px 16px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      padding: 6px 14px;
       border-radius: 999px;
-      margin: 0 0 16px;
+      margin: 0;
     }
     .course-price-pill.free {
-      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+    .course-hero-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .course-hero-cta .course-overview-actions {
+      width: 100%;
+    }
+    .course-hero-cta .action-btn {
+      width: 100%;
+    }
+    .course-hero-progress {
+      width: 100%;
+      max-width: none;
+      margin-top: 0;
+      padding: 14px 16px 15px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+    .course-hero-progress .ld-progress-wrap {
+      width: 100%;
+    }
+    .course-hero-progress .ld-progress-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .course-hero-progress .ld-progress-percentage {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .course-hero-progress .ld-progress-steps {
+      font-size: 13px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .course-hero-progress .ld-progress-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .course-hero-progress .ld-progress-bar-percentage {
+      height: 100%;
+      background: linear-gradient(90deg, #4CC9F0 0%, #3F37C9 100%);
+      border-radius: 999px;
     }
     .course-hero-photo {
       width: 340px;
@@ -262,6 +329,8 @@
       }
       .course-hero-copy { order: 1; }
       .course-overview-actions { justify-content: center; }
+      .course-hero-meta { justify-content: center; }
+      .course-hero-cta { max-width: none; margin-left: auto; margin-right: auto; }
       .course-hero-nav { order: -2; text-align: center; }
       .course-tablist { justify-content: flex-start; }
       .course-tab { font-size: 13px; padding: 8px 14px; }
@@ -468,7 +537,7 @@
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
-      margin-bottom: 16px;
+      margin: 0;
     }
     .course-overview-actions .action-btn {
       display: inline-flex;
@@ -609,16 +678,6 @@
     .ld-progress-bar-percentage {
       height: 100%;
       background-color: #0073e6;
-
-      /* Secondary background */
-      width: {
-          {
-          completed_percent_value
-        }
-      }
-
-      %;
-      /* transition: width 0.5s ease; */
     }
   </style>
 
@@ -633,7 +692,10 @@
       </div>
       <div class="course-hero-copy">
         <h1 class="boldFont">Study Abroad Counsellor Training for {{ course.title }}</h1>
-        <span class="course-price-pill {% if not price %}free{% endif %}">{% if price %}₹ {{ price }}{% else %}Free{% endif %}</span>
+        <div class="course-hero-meta">
+          <span class="course-price-pill {% if not price %}free{% endif %}">{% if price %}₹ {{ price }}{% else %}Free{% endif %}</span>
+        </div>
+        <div class="course-hero-cta">
         <div class="course-overview-actions">
           {% if is_anonymous %}
             {% if price %}
@@ -664,20 +726,21 @@
             {% if has_paid and payment_id %}
               <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
             {% endif %}
-            <div class="ld-progress course-overview-progress-wrap">
-              <div class="ld-progress-wrap">
-                <div class="ld-progress-heading">
-                  <div class="ld-progress-stats">
-                    <div class="ld-progress-percentage">{{ completed_percent_value }}% Complete</div>
-                    <div class="ld-progress-steps">{{ number_of_completed_parts }}/{{ total_parts }} Steps</div>
-                  </div>
-                </div>
-                <div class="ld-progress-bar">
-                  <div class="ld-progress-bar-percentage" style="width: {{ completed_percent_value }}%;"></div>
-                </div>
-              </div>
-            </div>
           {% endif %}
+        </div>
+        {% if not is_anonymous and not trial_expired and resume %}
+        <div class="ld-progress course-hero-progress">
+          <div class="ld-progress-wrap">
+            <div class="ld-progress-stats">
+              <div class="ld-progress-percentage">{{ completed_percent_value }}% complete</div>
+              <div class="ld-progress-steps">{{ number_of_completed_parts }}/{{ total_parts }} steps</div>
+            </div>
+            <div class="ld-progress-bar">
+              <div class="ld-progress-bar-percentage" style="width: {{ completed_percent_value }}%;"></div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
         </div>
       </div>
       <div class="course-hero-photo">
