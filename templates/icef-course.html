@@ -128,72 +128,49 @@
         /* Hidden by default */
       }
 
-      /* Completed ribbon styles */
+      .completed-ribbon,
+      .inprogress-ribbon,
+      .paid-ribbon,
+      .trial-ended-ribbon,
+      .free-ribbon {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 148px;
+        padding: 7px 0;
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        text-align: center;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transform: rotate(45deg) translate(36px, -6px);
+        transform-origin: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 20;
+      }
+
       .completed-ribbon {
-        position: absolute;
-        top: 10px;
-        right: -35px;
         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        padding: 5px 40px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        transform: rotate(45deg);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 10;
-        letter-spacing: 0.5px;
       }
-
-      /* In Progress ribbon styles */
       .inprogress-ribbon {
-        position: absolute;
-        top: 10px;
-        right: -35px;
+        top: 0;
+        right: 0;
+        width: 168px;
+        transform: rotate(45deg) translate(42px, -4px);
         background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-        color: white;
-        padding: 5px 40px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        transform: rotate(45deg);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 10;
-        letter-spacing: 0.5px;
       }
-
-      /* Paid ribbon styles */
       .paid-ribbon {
-        position: absolute;
-        top: 10px;
-        right: -35px;
         background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
-        color: white;
-        padding: 5px 40px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        transform: rotate(45deg);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 10;
-        letter-spacing: 0.5px;
       }
-
-      /* Trial ended ribbon styles */
       .trial-ended-ribbon {
-        position: absolute;
-        top: 10px;
-        right: -35px;
+        width: 160px;
+        transform: rotate(45deg) translate(40px, -5px);
         background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        color: white;
-        padding: 5px 40px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        transform: rotate(45deg);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 10;
-        letter-spacing: 0.5px;
+      }
+      .free-ribbon {
+        background: linear-gradient(135deg, #28a745 0%, #218838 100%);
       }
 
       /* User Avatar Dropdown Styles */
@@ -490,6 +467,8 @@
             <div class="trial-ended-ribbon">{{ labels.trial_ended_ribbon|default:"Trial ended" }}</div>
             {% elif course.has_paid %}
             <div class="paid-ribbon">Paid</div>
+            {% elif not course.price %}
+            <div class="free-ribbon">Free</div>
             {% endif %}
             <div class="event_card_cont">
               <a href="{% url 'counselor:course_overview' course_name=course.title %}" class="course_card_link">

@@ -1,0 +1,24 @@
+<p class="file-upload">
+  {% if preview_url %}
+  <a href="{{ preview_url }}" target="_blank" rel="noopener">
+    <img src="{{ preview_url }}" alt="" style="display:block;max-width:180px;max-height:180px;margin:0 0 8px;border-radius:8px;background:#f4f4f5;object-fit:contain;" />
+  </a>
+  {% endif %}
+  {% if widget.is_initial %}
+  Currently:
+  {% if preview_url %}
+  <a href="{{ preview_url }}" target="_blank" rel="noopener">{% if widget.value %}{{ widget.value }}{% else %}View image{% endif %}</a>
+  {% else %}
+  {{ widget.value }}
+  {% endif %}
+  {% if not widget.required %}
+  <span class="clearable-file-input">
+    <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+    <label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
+  </span>
+  {% endif %}
+  <br>
+  {{ widget.input_text }}:
+  {% endif %}
+  <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+</p>

@@ -1,0 +1,19 @@
+{% extends "admin/change_list.html" %}
+
+{% block result_list %}
+  {% if quiz_nav %}
+    <p class="counselor-quiz-nav" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;background:var(--darkened-bg,#f8f8f8);border-radius:8px;">
+      {% if quiz_nav.prev_url %}
+        <a href="{{ quiz_nav.prev_url }}">&larr; Previous quiz</a>
+      {% endif %}
+      <span>
+        <strong>{{ quiz_nav.current }}</strong>
+        {% if quiz_nav.chapter %}<span> · {{ quiz_nav.chapter }}</span>{% endif %}
+      </span>
+      {% if quiz_nav.next_url %}
+        <a href="{{ quiz_nav.next_url }}">Next quiz &rarr;</a>
+      {% endif %}
+    </p>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

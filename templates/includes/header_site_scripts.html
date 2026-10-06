@@ -1,5 +1,8 @@
 <script>
 (function() {
+  if (window.__headerSiteBound) return;
+  window.__headerSiteBound = true;
+
   if (!document.querySelector('link[data-space-grotesk="true"]')) {
     var fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -16,7 +19,8 @@
 
   function toggleUserDropdown() {
     var dd = document.getElementById('userDropdown');
-    if (dd) dd.classList.toggle('show');
+    if (!dd) return;
+    dd.classList.toggle('show');
   }
   window.toggleUserDropdown = toggleUserDropdown;
   document.addEventListener('click', function(e) {

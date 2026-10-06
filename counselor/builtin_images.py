@@ -17,6 +17,8 @@ FLAG_FILES = {
     "dubai": "icef-dubai-flag.svg",
     "canada": "icef-canada-flag.svg",
     "australia": "icef-australia-flag.svg",
+    "japan": "icef-japan-flag.svg",
+    "china": "icef-china-flag.svg",
 }
 
 
@@ -63,6 +65,23 @@ def find_flag(title: str) -> Path | None:
     if not filename:
         return None
     return _find_file("topteenfrontend", "assets", "images", filename)
+
+
+def static_url(static_name: str) -> str:
+    from django.templatetags.static import static
+    return static(static_name)
+
+
+def stored_file_url(field) -> str:
+    name = getattr(field, "name", "") or ""
+    if not name:
+        return ""
+    try:
+        if not field.storage.exists(name):
+            return ""
+        return field.url
+    except Exception:
+        return ""
 
 
 def flag_asset(title: str):

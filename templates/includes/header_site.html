@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'topteenfrontend/assets/css/site_header.css' %}">
 <div class="mx-auto hidden lg:flex justify-between py-[16px] border-b-[2px] border-[#EBEBEE]">
   <div class="hidden lg:flex justify-between lg:container mx-auto">
     <ul class="flex gap-[24px] mb-0 w-full justify-between">
@@ -10,7 +11,7 @@
       <li class="flex items-center">
         {% if user and not hide_header_avatar %}
         <div class="user-avatar-container">
-          <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()" style="color: #fff; font-size: 1rem; font-weight: 600;">{% if user.username %}{{ user.username|first|upper }}{% elif user.email %}{{ user.email|first|upper }}{% else %}U{% endif %}</div>
+          <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()" title="{{ user.username }}">{% if user.username %}{{ user.username|first|upper }}{% elif user.email %}{{ user.email|first|upper }}{% else %}U{% endif %}</div>
           <div class="user-avatar-dropdown" id="userDropdown">
             <div class="user-avatar-dropdown-header">
               <div class="user-avatar-dropdown-name">{{ user.username }}</div>
@@ -24,11 +25,9 @@
             </form>
           </div>
         </div>
-        {% else %}
-        <!-- <a href="{% url 'counselor:login_view' %}" class="btn btn-sm me-2" style="background: #3f37c9; color: #fff;">Login</a>
-        <a href="{% url 'counselor:signup_view' %}" class="btn btn-sm" style="background: #4CC9F0; color: #fff;">Sign up</a> -->
         {% endif %}
       </li>
     </ul>
   </div>
 </div>
+{% include 'includes/header_site_scripts.html' %}

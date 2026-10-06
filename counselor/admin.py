@@ -9,8 +9,7 @@ import html
 import re
 from django.utils.http import urlencode
 from django.db import models
-from django.db.models import Count
-import nested_admin
+from django.db.models import Count, Prefetch
 from .models import CounselorCertification, CounselorCourse, Chapter, CounselorUser, CourseContentProgress, CourseOverviewPoints, CourseOverviewSummary, CoursePayment, DiscountCoupon, Part, PaymentReceipt, Quiz, Question, QuizAnswers, QuizResults, SiteLabel, UserProgressTrack, UserQuizAttemptTrack
 from ckeditor.widgets import CKEditorWidget
 
@@ -21,6 +20,37 @@ def _overview_plain(value):
     if len(text) > 180:
         return text[:180] + "…"
     return text or "—"
+
+class CourseImageInput(forms.ClearableFileInput):
+    template_name = "django/forms/widgets/course_image.html"
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        instance = getattr(self, "instance", None)
+        preview = ""
+        if instance and instance.pk:
+            if name == "logo":
+                preview = instance.flag_url()
+            elif name == "overview_image":
+                preview = instance.overview_image_url()
+        context["preview_url"] = preview
+        return context
+
+
+class CourseAdminForm(forms.ModelForm):
+    class Meta:
+        model = CounselorCourse
+        fields = "__all__"
+        widgets = {
+            "logo": CourseImageInput,
+            "overview_image": CourseImageInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in ("logo", "overview_image"):
+            self.fields[name].widget.instance = self.instance
+
 
 class PartAdminForm(forms.ModelForm):
     description = forms.CharField(widget=CKEditorWidget(), required=False)
@@ -118,32 +148,286 @@ class CounselorUserAdmin(admin.ModelAdmin):
     
     reset_course_data.short_description = "Reset course data for selected users"
 
-class QuizAnswersInline(nested_admin.NestedTabularInline):
+class QuizAnswersInline(admin.TabularInline):
     model = QuizAnswers
     fields = ('answer_text', 'is_correct')
-    extra = 1
+    extra = 0
+    ordering = ('id',)
 
-class QuestionInline(nested_admin.NestedStackedInline):
-    model = Question
-    fields = ('question_text',)
-    extra = 1
+
+class _DropdownFilter(admin.SimpleListFilter):
+    template = "admin/counselor/dropdown_filter.html"
+    clear_params = ()
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(**{self.parameter_name: self.value()})
+        return queryset
+
+    def choices(self, changelist):
+        from django.utils.translation import gettext_lazy as _
+
+        yield {
+            "selected": self.value() is None,
+            "query_string": changelist.get_query_string(
+                remove=[self.parameter_name, *self.clear_params]
+            ),
+            "display": _("All"),
+        }
+        for lookup, title in self.lookup_choices:
+            yield {
+                "selected": str(self.value()) == str(lookup),
+                "query_string": changelist.get_query_string(
+                    {self.parameter_name: str(lookup)},
+                    list(self.clear_params),
+                ),
+                "display": title,
+            }
+
+
+class QuestionCourseFilter(_DropdownFilter):
+    title = "course"
+    parameter_name = "quiz__quiz_part__chapter__course__id__exact"
+    clear_params = (
+        "quiz__quiz_part__chapter__id__exact",
+        "quiz__id__exact",
+    )
+
+    def lookups(self, request, model_admin):
+        return [(c.pk, c.title) for c in CounselorCourse.objects.order_by("title")]
+
+
+class QuestionChapterFilter(_DropdownFilter):
+    title = "chapter"
+    parameter_name = "quiz__quiz_part__chapter__id__exact"
+    clear_params = ("quiz__id__exact",)
+
+    def lookups(self, request, model_admin):
+        qs = Chapter.objects.select_related("course").order_by("course__title", "index", "id")
+        course_id = request.GET.get("quiz__quiz_part__chapter__course__id__exact")
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+        return [(c.pk, c.title) for c in qs]
+
+
+class QuestionQuizFilter(_DropdownFilter):
+    title = "quiz"
+    parameter_name = "quiz__id__exact"
+
+    def lookups(self, request, model_admin):
+        qs = Quiz.objects.select_related("quiz_part__chapter__course").order_by(
+            "quiz_part__chapter__course__title",
+            "quiz_part__chapter__index",
+            "quiz_part__index",
+            "id",
+        )
+        chapter_id = request.GET.get("quiz__quiz_part__chapter__id__exact")
+        course_id = request.GET.get("quiz__quiz_part__chapter__course__id__exact")
+        if chapter_id:
+            qs = qs.filter(quiz_part__chapter_id=chapter_id)
+        elif course_id:
+            qs = qs.filter(quiz_part__chapter__course_id=course_id)
+        return [(q.pk, q.title or str(q.pk)) for q in qs]
+
+
+class QuizCourseFilter(_DropdownFilter):
+    title = "course"
+    parameter_name = "quiz_part__chapter__course__id__exact"
+    clear_params = (
+        "quiz_part__chapter__id__exact",
+        "quiz_part__id__exact",
+    )
+
+    def lookups(self, request, model_admin):
+        return [(c.pk, c.title) for c in CounselorCourse.objects.order_by("title")]
+
+
+class QuizChapterFilter(_DropdownFilter):
+    title = "chapter"
+    parameter_name = "quiz_part__chapter__id__exact"
+    clear_params = ("quiz_part__id__exact",)
+
+    def lookups(self, request, model_admin):
+        qs = Chapter.objects.select_related("course").order_by("course__title", "index", "id")
+        course_id = request.GET.get("quiz_part__chapter__course__id__exact")
+        if course_id:
+            qs = qs.filter(course_id=course_id)
+        return [(c.pk, c.title) for c in qs]
+
+
+class QuizPartFilter(_DropdownFilter):
+    title = "quiz"
+    parameter_name = "quiz_part__id__exact"
+
+    def lookups(self, request, model_admin):
+        qs = Part.objects.select_related("chapter__course").order_by(
+            "chapter__course__title",
+            "chapter__index",
+            "index",
+            "id",
+        )
+        chapter_id = request.GET.get("quiz_part__chapter__id__exact")
+        course_id = request.GET.get("quiz_part__chapter__course__id__exact")
+        if chapter_id:
+            qs = qs.filter(chapter_id=chapter_id)
+        elif course_id:
+            qs = qs.filter(chapter__course_id=course_id)
+        return [(p.pk, p.title) for p in qs]
+
+
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('question_preview', 'correct_answer', 'quiz_link', 'chapter_title', 'course_title')
+    list_display_links = ('question_preview',)
+    ordering = (
+        'quiz__quiz_part__chapter__index',
+        'quiz__quiz_part__index',
+        'id',
+    )
+    search_fields = (
+        'question_text',
+        'answers__answer_text',
+        'quiz__title',
+        'quiz__quiz_part__title',
+        'quiz__quiz_part__chapter__course__title',
+    )
+    list_filter = (QuestionCourseFilter, QuestionChapterFilter, QuestionQuizFilter)
+    list_select_related = (
+        'quiz',
+        'quiz__quiz_part',
+        'quiz__quiz_part__chapter',
+        'quiz__quiz_part__chapter__course',
+    )
     inlines = [QuizAnswersInline]
+    change_list_template = "admin/counselor/question/change_list.html"
 
-class QuizAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('title', 'part_link')
+    def lookup_allowed(self, lookup, value, request=None):
+        allowed = {
+            "quiz__id__exact",
+            "quiz__quiz_part__chapter__id__exact",
+            "quiz__quiz_part__chapter__course__id__exact",
+        }
+        if lookup in allowed:
+            return True
+        return super().lookup_allowed(lookup, value, request)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related(
+            Prefetch(
+                'answers',
+                queryset=QuizAnswers.objects.filter(is_correct=True).order_by('id'),
+                to_attr='correct_answers',
+            )
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["quiz_nav"] = self._quiz_nav(request)
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def _quiz_nav(self, request):
+        quiz_id = request.GET.get("quiz__id__exact")
+        if not quiz_id:
+            return None
+        quiz = Quiz.objects.select_related("quiz_part__chapter").filter(pk=quiz_id).first()
+        if not quiz or not quiz.quiz_part_id:
+            return None
+        quizzes = list(
+            Quiz.objects.filter(quiz_part__chapter_id=quiz.quiz_part.chapter_id)
+            .select_related("quiz_part")
+            .order_by("quiz_part__index", "id")
+        )
+        ids = [item.pk for item in quizzes]
+        try:
+            position = ids.index(quiz.pk)
+        except ValueError:
+            return None
+        params = request.GET.copy()
+        base = reverse("admin:counselor_question_changelist")
+
+        def url_for(pk):
+            params["quiz__id__exact"] = str(pk)
+            return "%s?%s" % (base, params.urlencode())
+
+        previous_quiz = quizzes[position - 1] if position > 0 else None
+        next_quiz = quizzes[position + 1] if position < len(quizzes) - 1 else None
+        return {
+            "current": quiz.title or quiz.pk,
+            "chapter": quiz.quiz_part.chapter.title if quiz.quiz_part.chapter_id else "",
+            "prev_url": url_for(previous_quiz.pk) if previous_quiz else "",
+            "next_url": url_for(next_quiz.pk) if next_quiz else "",
+        }
+
+    @admin.display(description='Question', ordering='id')
+    def question_preview(self, obj):
+        text = " ".join((obj.question_text or "").split())
+        if len(text) > 140:
+            text = text[:140] + "…"
+        return text or "—"
+
+    @admin.display(description='Correct answer')
+    def correct_answer(self, obj):
+        answers = getattr(obj, 'correct_answers', None)
+        if answers is None:
+            answers = list(obj.answers.filter(is_correct=True).order_by('id'))
+        texts = [" ".join((a.answer_text or "").split()) for a in answers]
+        texts = [t for t in texts if t]
+        return "; ".join(texts) if texts else "—"
+
+    @admin.display(description='Quiz')
+    def quiz_link(self, obj):
+        quiz = obj.quiz
+        if not quiz:
+            return "—"
+        url = reverse('admin:counselor_question_changelist')
+        return format_html(
+            '<a href="{}">{}</a>',
+            "%s?%s" % (url, urlencode({"quiz__id__exact": quiz.pk})),
+            quiz.title or quiz.pk,
+        )
+
+    @admin.display(description='Chapter')
+    def chapter_title(self, obj):
+        try:
+            return obj.quiz.quiz_part.chapter.title
+        except AttributeError:
+            return "—"
+
+    @admin.display(description='Course')
+    def course_title(self, obj):
+        try:
+            return obj.quiz.quiz_part.chapter.course.title
+        except AttributeError:
+            return "—"
+
+
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ('title', 'part_link', 'questions_link')
+    ordering = (
+        'quiz_part__chapter__index',
+        'quiz_part__index',
+        'id',
+    )
     search_fields = (
         'title',
         'quiz_part__title',
         'quiz_part__chapter__title',
         'quiz_part__chapter__course__title',
     )
-    list_filter = (
-        ('quiz_part__chapter__course', admin.RelatedOnlyFieldListFilter),
-        ('quiz_part__chapter', admin.RelatedOnlyFieldListFilter),
-        'quiz_part',
-    )
+    list_filter = (QuizCourseFilter, QuizChapterFilter, QuizPartFilter)
     list_select_related = ('quiz_part', 'quiz_part__chapter', 'quiz_part__chapter__course')
-    inlines = [QuestionInline]
+
+    def lookup_allowed(self, lookup, value, request=None):
+        allowed = {
+            "quiz_part__id__exact",
+            "quiz_part__chapter__id__exact",
+            "quiz_part__chapter__course__id__exact",
+        }
+        if lookup in allowed:
+            return True
+        return super().lookup_allowed(lookup, value, request)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_question_count=Count('questions'))
 
     @admin.display(description='Part')
     def part_link(self, obj):
@@ -157,6 +441,16 @@ class QuizAdmin(nested_admin.NestedModelAdmin):
             params['chapter__id__exact'] = str(part.chapter_id)
         url = f'{base}?{urlencode(params)}' if params else base
         return format_html('<a href="{}">{}</a>', url, part)
+
+    @admin.display(description='Questions')
+    def questions_link(self, obj):
+        n = getattr(obj, '_question_count', obj.questions.count())
+        url = reverse('admin:counselor_question_changelist')
+        return format_html(
+            '<a href="{}">{}</a>',
+            f'{url}?{urlencode({"quiz__id__exact": str(obj.pk)})}',
+            n,
+        )
 
 class PartAdmin(admin.ModelAdmin):
     form = PartAdminForm
@@ -213,12 +507,23 @@ def _default_asset_preview(asset, missing_message):
 
 @admin.register(CounselorCourse)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'chapter_count', 'course_preview', 'created_at', 'updated_at')
+    list_display = (
+        'title',
+        'flag_preview',
+        'overview_photo_preview',
+        'price',
+        'chapter_count',
+        'course_overview_link',
+        'course_summary_link',
+        'created_at',
+        'updated_at',
+    )
     fields = (
         'title', 'price',
         'default_logo_preview', 'logo',
         'default_overview_preview', 'overview_image',
     )
+    form = CourseAdminForm
     readonly_fields = ('default_logo_preview', 'default_overview_preview')
     search_fields = ('title',)
     inlines = [ChapterInline]
@@ -289,12 +594,44 @@ class CourseAdmin(admin.ModelAdmin):
             return "Enter a course name and save to see the default overview image."
         return _default_asset_preview(overview_asset(obj.title), "No default overview image for this course name.")
 
-    @admin.display(description="Preview")
-    def course_preview(self, obj):
+    @admin.display(description="Overview")
+    def course_overview_link(self, obj):
         if not obj.title:
-            return ""
+            return "—"
         url = reverse("counselor:course_overview", kwargs={"course_name": obj.title})
-        return format_html('<a href="{}" target="_blank">Preview</a>', url)
+        return format_html('<a href="{}" target="_blank">Overview</a>', url)
+
+    @admin.display(description="Summary")
+    def course_summary_link(self, obj):
+        summary = obj.summarys.first()
+        if summary:
+            url = reverse("admin:counselor_courseoverviewsummary_change", args=[summary.pk])
+            return format_html('<a href="{}">Summary</a>', url)
+        add_url = reverse("admin:counselor_courseoverviewsummary_add")
+        return format_html(
+            '<a href="{}">Add summary</a>',
+            "%s?%s" % (add_url, urlencode({"course": obj.pk})),
+        )
+
+    def _list_image(self, url, alt):
+        if not url:
+            return "—"
+        return format_html(
+            '<a href="{0}" target="_blank" rel="noopener">'
+            '<img src="{0}" alt="{1}" style="height:52px;width:auto;max-width:80px;'
+            'border-radius:6px;background:#111;object-fit:contain;display:block;" />'
+            '</a>',
+            url,
+            alt or "",
+        )
+
+    @admin.display(description="Flag")
+    def flag_preview(self, obj):
+        return self._list_image(obj.flag_url(), obj.title)
+
+    @admin.display(description="Overview image")
+    def overview_photo_preview(self, obj):
+        return self._list_image(obj.overview_image_url(), obj.title)
 
     def delete_view(self, request, object_id, extra_context=None):
         course = self.get_object(request, object_id)
@@ -357,7 +694,7 @@ class CourseAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.annotate(_chapter_count=Count('chapters'))
+        return qs.annotate(_chapter_count=Count('chapters')).prefetch_related('summarys')
 
     @admin.display(description='Chapters')
     def chapter_count(self, obj):
@@ -606,4 +943,5 @@ class SiteLabelAdmin(admin.ModelAdmin):
 admin.site.register(Chapter, ChapterAdmin)
 admin.site.register(Part, PartAdmin)
 admin.site.register(Quiz, QuizAdmin)
+admin.site.register(Question, QuestionAdmin)
 

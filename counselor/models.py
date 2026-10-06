@@ -48,36 +48,24 @@ class CounselorCourse(models.Model):
         return self.title
 
     def flag_url(self):
-        if self.logo:
-            return self.logo.url
-        filename = {
-            "germany": "icef-germany-flag.svg",
-            "uk": "icef-uk-flag.svg",
-            "usa": "icef-usa-flag.svg",
-            "singapore": "icef-singapore-flag.svg",
-            "newzealand": "icef-nz-flag.svg",
-            "ireland": "icef-ireland-flag.svg",
-            "france": "icef-france-flag.svg",
-            "dubai": "icef-dubai-flag.svg",
-            "canada": "icef-canada-flag.svg",
-            "australia": "icef-australia-flag.svg",
-        }.get((self.title or "").strip().lower().replace(" ", ""))
-        if not filename:
+        from counselor.builtin_images import flag_asset, static_url, stored_file_url
+        uploaded = stored_file_url(self.logo)
+        if uploaded:
+            return uploaded
+        asset = flag_asset(self.title)
+        if not asset:
             return ""
-        from django.templatetags.static import static
-        return static("topteenfrontend/assets/images/%s" % filename)
+        return static_url(asset["static_name"])
 
     def overview_image_url(self):
-        if self.overview_image:
-            return self.overview_image.url
-        title = (self.title or "").strip()
-        if not title or title in (".", "..") or "/" in title or "\\" in title:
+        from counselor.builtin_images import overview_asset, static_url, stored_file_url
+        uploaded = stored_file_url(self.overview_image)
+        if uploaded:
+            return uploaded
+        asset = overview_asset(self.title)
+        if not asset or not asset.get("exists"):
             return ""
-        from counselor.builtin_images import find_overview_image
-        photo = find_overview_image(title)
-        filename = photo.name if photo else "%s.png" % title
-        from django.templatetags.static import static
-        return static("topteenfrontend/assets/images/course_overview/%s" % filename)
+        return static_url(asset["static_name"])
 
     @property
     def is_free(self):
