@@ -84,6 +84,51 @@ def stored_file_url(field) -> str:
         return ""
 
 
+def _stored_name(field) -> str:
+    return Path(getattr(field, "name", "") or "").name
+
+
+STOCK_OVERVIEW_FILES = {
+    "australia.png", "canada.png", "dubai.png", "france.png", "germany.png",
+    "ireland.png", "newzealand.png", "singapore.png", "uk.png", "usa.png",
+    "japan.png", "china.png",
+}
+
+
+def _is_custom_upload(field, builtin_filename: str) -> bool:
+    stored = _stored_name(field)
+    if not stored:
+        return False
+    stored_key = stored.lower()
+    if builtin_filename and stored_key == builtin_filename.lower():
+        return False
+    if stored_key in STOCK_OVERVIEW_FILES or stored_key in {name.lower() for name in FLAG_FILES.values()}:
+        return False
+    return bool(stored_file_url(field))
+
+
+def public_flag_url(course) -> str:
+    """Flag URL that nginx can serve. Built-in SVGs live under static, not media."""
+    asset = flag_asset(getattr(course, "title", ""))
+    builtin = Path(asset["static_name"]).name if asset else ""
+    if _is_custom_upload(getattr(course, "logo", None), builtin):
+        return stored_file_url(course.logo)
+    if asset:
+        return static_url(asset["static_name"])
+    return stored_file_url(getattr(course, "logo", None)) or ""
+
+
+def public_overview_url(course) -> str:
+    """Overview photo URL that nginx can serve. Built-in PNGs live under static, not media."""
+    asset = overview_asset(getattr(course, "title", ""))
+    builtin = Path(asset["static_name"]).name if asset else ""
+    if _is_custom_upload(getattr(course, "overview_image", None), builtin):
+        return stored_file_url(course.overview_image)
+    if asset and asset.get("exists"):
+        return static_url(asset["static_name"])
+    return ""
+
+
 def flag_asset(title: str):
     """Relative path of the built-in flag, or None when this country has no flag file."""
     filename = FLAG_FILES.get(course_key(title))

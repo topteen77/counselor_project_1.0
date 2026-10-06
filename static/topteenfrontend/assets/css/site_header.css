@@ -10,6 +10,18 @@
   .site-header-wrap li a img { height: 38.5px; width: auto; max-width: 140px; display: block; }
 }
 
+.course-header-courses {
+  color: #3F37C9;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.course-header-courses:hover {
+  color: #2d28a0;
+  text-decoration: underline;
+}
+
 .user-avatar-container {
   position: relative;
   display: inline-flex;

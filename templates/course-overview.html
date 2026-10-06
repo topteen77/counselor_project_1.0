@@ -41,40 +41,230 @@
     }
 
     .course-overview-html {
-      max-width: 1082px;
+      color: #374151;
+      font-size: 16.5px;
+      line-height: 1.75;
+      max-width: 760px;
       margin: 0 auto;
-      padding: 0 16px 32px;
-      color: #333333;
-      font-size: 16px;
-      line-height: 1.7;
     }
     .course-overview-html p {
-      margin: 0 0 12px;
+      margin: 0 0 16px;
     }
     .course-overview-html h1,
     .course-overview-html h2,
     .course-overview-html h3,
     .course-overview-html h4 {
-      margin: 22px 0 10px;
-      color: #1a1a1a;
+      margin: 28px 0 12px;
+      color: #111827;
       font-weight: 700;
       line-height: 1.3;
     }
     .course-overview-html ul,
     .course-overview-html ol {
-      margin: 0 0 16px 1.4rem;
+      margin: 8px 0 20px;
       padding: 0;
+      list-style: none;
     }
-    .course-overview-html ul { list-style: disc !important; }
-    .course-overview-html ol { list-style: decimal !important; }
-    .course-overview-html li { margin: 0 0 8px; display: list-item; }
-    .course-overview-html strong { font-weight: 700; }
-    .course-overview-closing {
-      background: #ffffff;
-      border: 1px solid #e4e4e7;
-      border-radius: 16px;
-      padding: 28px 32px 16px;
-      margin: 28px auto 8px;
+    .course-overview-html ul li,
+    .course-overview-html ol li {
+      position: relative;
+      margin: 0 0 10px;
+      padding-left: 28px;
+      display: block;
+      color: #1f2937;
+    }
+    .course-overview-html ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ecfeff;
+      box-shadow: inset 0 0 0 2px #4CC9F0;
+    }
+    .course-overview-html ul li::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 12px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #3CBAE1;
+    }
+    .course-overview-html strong { font-weight: 700; color: #111827; }
+
+    .course-hero {
+      padding: 28px 16px 12px;
+    }
+    .course-hero-inner {
+      max-width: 1082px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(240px, 380px);
+      gap: 36px 48px;
+      align-items: center;
+      padding: 12px 16px 28px;
+    }
+    .course-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #3F37C9;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      margin: 0 0 16px;
+    }
+    .course-back-link:hover {
+      color: #2d28a0;
+      text-decoration: underline;
+    }
+    .course-hero-nav {
+      grid-column: 1 / -1;
+    }
+    .course-hero-inner h1 {
+      font-size: 34px !important;
+      line-height: 1.25 !important;
+      color: #111827 !important;
+      margin: 0 0 14px !important;
+      font-weight: 700;
+    }
+    .course-price-pill {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(135deg, #4CC9F0 0%, #3CBAE1 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      margin: 0 0 16px;
+    }
+    .course-price-pill.free {
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    }
+    .course-hero-photo {
+      width: 340px;
+      height: 340px;
+      max-width: 100%;
+      margin: 0 auto;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+      flex-shrink: 0;
+    }
+    .course-hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      background: #fff;
+    }
+
+    .course-curriculum {
+      padding-top: 12px;
+    }
+    .course-section-label {
+      color: #3F37C9;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 16px;
+      text-align: center;
+    }
+    .course-detail-tabs {
+      max-width: 1082px;
+      margin: 0 auto;
+      padding: 4px 16px 40px;
+    }
+    .course-tablist {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 0 28px;
+    }
+    .course-tab {
+      background: #fff;
+      border: 2px solid #3F37C9;
+      color: #3F37C9;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .course-tab:hover {
+      background: #f0efff;
+    }
+    .course-tab.is-active {
+      background: #3F37C9;
+      color: #fff;
+    }
+    .course-tab-panel {
+      display: none;
+    }
+    .course-tab-panel.is-active {
+      display: block;
+    }
+    .course-tab-pager {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .course-tab-pager .course-tab-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 2px solid #3F37C9;
+      color: #3F37C9;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .course-tab-pager .course-tab-nav:hover {
+      background: #f0efff;
+    }
+    .course-tab-pager .course-tab-nav.is-next {
+      background: #3F37C9;
+      color: #fff;
+      margin-left: auto;
+    }
+    .course-tab-pager .course-tab-nav.is-next:hover {
+      background: #2d28a0;
+    }
+
+    @media (max-width: 991px) {
+      .course-hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .course-hero-inner h1 { font-size: 26px !important; }
+      .course-hero-photo {
+        width: 240px;
+        height: 240px;
+        order: -1;
+      }
+      .course-hero-copy { order: 1; }
+      .course-overview-actions { justify-content: center; }
+      .course-hero-nav { order: -2; text-align: center; }
+      .course-tablist { justify-content: flex-start; }
+      .course-tab { font-size: 13px; padding: 8px 14px; }
     }
 
     body {
@@ -436,82 +626,100 @@
 
 <body>
   <div class="site-header-wrap">{% include 'includes/header_site.html' %}</div>
-  <section
-    class="mx-auto relative z-10 icef-hero-section py-md-8 lg:landingPageDesktopGradient landingPageMobileGradient">
-    <div
-      class="max-w-[1082px] mx-auto  flex lg:flex-row lg:justify-between lg:items-center flex-col-reverse hero-slider">
-      <div class="grid lg:grid-cols-2 gap-4 mb-4 item-center  px-5 px-md-0">
-        <div class="left-panel order-md-1 order-2 flex items-center">
-          <div>
-            <h1
-              class="boldFont lg:leading-[1.35em] lg:text-[30px] text-[#333333] mb-[9px] boldFont  lg:text-left text-[24px] leading-[32px] mt-md-5 mt-0"
-              style="line-height: 35px;">
-              Welcome to
-              the Study Abroad Counsellor Training Course for the {{ course.title }}</h1>
-            <div class="font-normal text-[16px] leading-[1.68em] text-[#0F0F0F] text-opacity-70 mb-[34px] course-overview-html">{{ intro|safe }}
-            </div>
-            <p class="font-semibold text-[18px] text-[#333333] mb-3">Price: {% if price %}₹ {{ price }}{% else %}Free{% endif %}</p>
-            <div class="course-overview-actions">
-              {% if is_anonymous %}
-                {% if price %}
-                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
-                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
-                {% else %}
-                  <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
-                {% endif %}
-              {% elif trial_expired %}
-                <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.pay_now|default:"Pay now" }}</a>
-              {% elif resume == 0 %}
-                {% if not has_paid and price %}
-                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
-                  <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
-                {% else %}
-                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
-                {% endif %}
-                {% if has_paid and payment_id %}
-                  <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
-                {% endif %}
-              {% else %}
-                {% if not has_paid and price %}
-                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
-                  <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
-                {% else %}
-                  <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
-                {% endif %}
-                {% if has_paid and payment_id %}
-                  <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
-                {% endif %}
-                <div class="ld-progress course-overview-progress-wrap">
-                  <div class="ld-progress-wrap">
-                    <div class="ld-progress-heading">
-                      <div class="ld-progress-stats">
-                        <div class="ld-progress-percentage">{{ completed_percent_value }}% Complete</div>
-                        <div class="ld-progress-steps">{{ number_of_completed_parts }}/{{ total_parts }} Steps</div>
-                      </div>
-                    </div>
-                    <div class="ld-progress-bar">
-                      <div class="ld-progress-bar-percentage" style="width: {{ completed_percent_value }}%;"></div>
-                    </div>
+  <section class="mx-auto relative z-10 icef-hero-section course-hero lg:landingPageDesktopGradient landingPageMobileGradient">
+    <div class="course-hero-inner">
+      <div class="course-hero-nav">
+        <a href="{% url 'counselor:icef_view' %}" class="course-back-link">&larr; {{ labels.back_to_course_list|default:"Back to course list" }}</a>
+      </div>
+      <div class="course-hero-copy">
+        <h1 class="boldFont">Study Abroad Counsellor Training for {{ course.title }}</h1>
+        <span class="course-price-pill {% if not price %}free{% endif %}">{% if price %}₹ {{ price }}{% else %}Free{% endif %}</span>
+        <div class="course-overview-actions">
+          {% if is_anonymous %}
+            {% if price %}
+              <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min) — Login required</a>
+              <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+            {% else %}
+              <a href="{% url 'counselor:login_view' %}?next={% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
+            {% endif %}
+          {% elif trial_expired %}
+            <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.pay_now|default:"Pay now" }}</a>
+          {% elif resume == 0 %}
+            {% if not has_paid and price %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_trial|default:"Start Trial" }} ({{ trial_minutes|default:2 }} min)</a>
+              <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+            {% else %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.start_course|default:"Start Course" }}</a>
+            {% endif %}
+            {% if has_paid and payment_id %}
+              <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
+            {% endif %}
+          {% else %}
+            {% if not has_paid and price %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
+              <a href="{% url 'counselor:course_payment' course_name=course.title %}" class="action-btn action-btn-outline">{{ labels.book_course|default:"Book course" }}</a>
+            {% else %}
+              <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="action-btn action-btn-primary">{{ labels.resume_course|default:"Resume Course" }}</a>
+            {% endif %}
+            {% if has_paid and payment_id %}
+              <a href="{% url 'counselor:receipt_download' payment_id=payment_id %}" class="action-btn action-btn-outline">{{ labels.download_invoice|default:"Download Invoice" }}</a>
+            {% endif %}
+            <div class="ld-progress course-overview-progress-wrap">
+              <div class="ld-progress-wrap">
+                <div class="ld-progress-heading">
+                  <div class="ld-progress-stats">
+                    <div class="ld-progress-percentage">{{ completed_percent_value }}% Complete</div>
+                    <div class="ld-progress-steps">{{ number_of_completed_parts }}/{{ total_parts }} Steps</div>
                   </div>
                 </div>
-              {% endif %}
+                <div class="ld-progress-bar">
+                  <div class="ld-progress-bar-percentage" style="width: {{ completed_percent_value }}%;"></div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="right-panel flex justify-center order-md-2 order-1">
-          {% if course.overview_image_url %}
-          <img src="{{ course.overview_image_url }}" alt="{{ course.title }}" onerror="this.remove()" />
           {% endif %}
         </div>
       </div>
+      <div class="course-hero-photo">
+        {% if course.overview_image_url %}
+        <img src="{{ course.overview_image_url }}?v=overview2" alt="{{ course.title }}" onerror="this.remove()" />
+        {% endif %}
+      </div>
     </div>
   </section>
-  <section class="mx-auto relative z-10  py-md-11 py-5 px-md-0 px-4">
-    <div class="lg:flex flex-col justify-start items-center max-w-[1082px]  mx-auto">
 
-      <h3
-        class="w-[617px] text-center text-[30px] leading-[45px] tracking-[0.035em] text-[#333333] semibold mb-[58px] boldFont heading-width">
-        Course Overview</h3>
+  {% if overview_tab_count %}
+  <section class="course-detail-tabs">
+    {% if overview_tab_count > 1 %}
+    <div class="course-tablist" role="tablist">
+      {% if has_overview_tab %}
+      <button type="button" class="course-tab {% if active_overview_tab == 'overview' %}is-active{% endif %}" data-tab="panel-overview" role="tab">Overview</button>
+      {% endif %}
+      {% if has_curriculum_tab %}
+      <button type="button" class="course-tab {% if active_overview_tab == 'curriculum' %}is-active{% endif %}" data-tab="panel-curriculum" role="tab">Curriculum</button>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if has_overview_tab %}
+    <div id="panel-overview" class="course-tab-panel {% if active_overview_tab == 'overview' %}is-active{% endif %}" role="tabpanel">
+      <div class="course-overview-html">
+        {% if intro %}{{ intro|safe }}{% endif %}
+        {% if conclusion %}{{ conclusion|safe }}{% endif %}
+      </div>
+      {% if has_curriculum_tab %}
+      <div class="course-tab-pager">
+        <button type="button" class="course-tab-nav is-next" data-tab="panel-curriculum">Curriculum &rarr;</button>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if has_curriculum_tab %}
+    <div id="panel-curriculum" class="course-tab-panel course-curriculum {% if active_overview_tab == 'curriculum' %}is-active{% endif %}" role="tabpanel">
+      {% if overview_tab_count < 2 %}
+      <p class="course-section-label">Curriculum</p>
+      {% endif %}
       <div class="w-full custom-faq">
         <div class="accordion" id="accordionExample">
           {% for chapter in course.chapters.all %}
@@ -537,11 +745,15 @@
           {% endfor %}
         </div>
       </div>
+      {% if has_overview_tab %}
+      <div class="course-tab-pager">
+        <button type="button" class="course-tab-nav" data-tab="panel-overview">&larr; Overview</button>
+      </div>
+      {% endif %}
     </div>
-    <div class="course-overview-html course-overview-closing">{{ conclusion|safe }}</div>
-
-    </div>
+    {% endif %}
   </section>
+  {% endif %}
 
   <div class="w-full lg:h-[115px] ">
     {% if price and not has_paid and not trial_expired %}
@@ -664,6 +876,35 @@
 
 
 
+
+  /** Overview section tabs **/
+  (function() {
+    var tabs = document.querySelectorAll('.course-tab');
+    if (!tabs.length) return;
+    function showTab(target) {
+      if (!target) return;
+      tabs.forEach(function(item) {
+        item.classList.toggle('is-active', item.getAttribute('data-tab') === target);
+      });
+      document.querySelectorAll('.course-tab-panel').forEach(function(panel) {
+        panel.classList.toggle('is-active', panel.id === target);
+      });
+      var tablist = document.querySelector('.course-tablist');
+      if (tablist && tablist.scrollIntoView) {
+        tablist.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        showTab(tab.getAttribute('data-tab'));
+      });
+    });
+    document.querySelectorAll('.course-tab-nav').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        showTab(btn.getAttribute('data-tab'));
+      });
+    });
+  })();
 
   /** mobile drawer js – only run if elements exist **/
   (function() {

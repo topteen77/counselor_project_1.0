@@ -21,7 +21,10 @@ from django.core.signing import BadSignature, SignatureExpired, Signer, Timestam
 from urllib.parse import quote, unquote, urlencode
 from django.db.models import Count
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.utils.http import url_has_allowed_host_and_scheme
+import html as html_lib
+import re
 from django.views import View
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -541,6 +544,10 @@ def getUserProgress(user,course_with_related_data,course_name):
 
     return total_parts,part_ids,user_progress,scores,found,answers_data,part_scores,correct_answers,incorrect_answers,complete_status,introduction_id,user_progress_quiz
 
+def html_has_text(html):
+    return bool(" ".join(html_lib.unescape(strip_tags(html or "")).split()))
+
+
 def course_overview(request, course_name):
     course = get_object_or_404(CounselorCourse, title=course_name)
     course_overview_with_related_data = CounselorCourse.objects.prefetch_related(
@@ -550,8 +557,18 @@ def course_overview(request, course_name):
     conclusion = ''
     summaries = CourseOverviewSummary.objects.filter(course__title=course_name).values('title1', 'title2')
     if summaries:
-        intro = summaries[0].get('title1', '')
-        conclusion = summaries[0].get('title2', '')
+        intro = summaries[0].get('title1', '') or ''
+        conclusion = summaries[0].get('title2', '') or ''
+    has_overview_tab = html_has_text(intro) or html_has_text(conclusion)
+    has_curriculum_tab = bool(
+        course_overview_with_related_data
+        and course_overview_with_related_data.chapters.exists()
+    )
+    overview_tab_count = sum([has_curriculum_tab, has_overview_tab])
+    if has_overview_tab:
+        active_overview_tab = "overview"
+    else:
+        active_overview_tab = "curriculum"
     price = course.price if course.price is not None else 0
     is_anonymous = not request.session.get('id')
     trial_minutes = getattr(settings, 'TRIAL_MINUTES', 2)
@@ -562,6 +579,11 @@ def course_overview(request, course_name):
             'image_name': 'ukcourse',
             'intro': intro,
             'conclusion': conclusion,
+            'has_overview_tab': has_overview_tab,
+            'has_curriculum_tab': has_curriculum_tab,
+            'overview_tab_count': overview_tab_count,
+            'active_overview_tab': active_overview_tab,
+            'show_course_list_nav': True,
             'resume': 0,
             'total_parts': 0,
             'number_of_completed_parts': 0,
@@ -602,6 +624,11 @@ def course_overview(request, course_name):
         'image_name': 'ukcourse',
         'intro': intro,
         'conclusion': conclusion,
+        'has_overview_tab': has_overview_tab,
+        'has_curriculum_tab': has_curriculum_tab,
+        'overview_tab_count': overview_tab_count,
+        'active_overview_tab': active_overview_tab,
+        'show_course_list_nav': True,
         'resume': resume,
         'total_parts': total_parts,
         'number_of_completed_parts': number_of_completed_parts,

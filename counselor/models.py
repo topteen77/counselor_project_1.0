@@ -48,24 +48,12 @@ class CounselorCourse(models.Model):
         return self.title
 
     def flag_url(self):
-        from counselor.builtin_images import flag_asset, static_url, stored_file_url
-        uploaded = stored_file_url(self.logo)
-        if uploaded:
-            return uploaded
-        asset = flag_asset(self.title)
-        if not asset:
-            return ""
-        return static_url(asset["static_name"])
+        from counselor.builtin_images import public_flag_url
+        return public_flag_url(self)
 
     def overview_image_url(self):
-        from counselor.builtin_images import overview_asset, static_url, stored_file_url
-        uploaded = stored_file_url(self.overview_image)
-        if uploaded:
-            return uploaded
-        asset = overview_asset(self.title)
-        if not asset or not asset.get("exists"):
-            return ""
-        return static_url(asset["static_name"])
+        from counselor.builtin_images import public_overview_url
+        return public_overview_url(self)
 
     @property
     def is_free(self):

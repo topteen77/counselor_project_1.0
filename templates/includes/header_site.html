@@ -8,7 +8,10 @@
           <img src="{% static 'images_new/logos/logo.svg' %}" class="h-[38.5px] w-auto max-w-[140px]" alt="TopTeen">
         </a>
       </li>
-      <li class="flex items-center">
+      <li class="flex items-center gap-[20px] ml-auto">
+        {% if show_course_list_nav %}
+        <a href="{% url 'counselor:icef_view' %}" class="course-header-courses">Courses</a>
+        {% endif %}
         {% if user and not hide_header_avatar %}
         <div class="user-avatar-container">
           <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()" title="{{ user.username }}">{% if user.username %}{{ user.username|first|upper }}{% elif user.email %}{{ user.email|first|upper }}{% else %}U{% endif %}</div>
