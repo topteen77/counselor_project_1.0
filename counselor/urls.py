@@ -1,5 +1,8 @@
 
+from django.conf import settings
+from django.http import Http404
 from django.urls import path
+from django.views.static import serve
 
 from counselor import views 
 from counselor.views import *
@@ -10,6 +13,12 @@ from counselor.views_v2 import (
     update_part_status as update_part_status_v2
 )
 app_name='counselor'
+
+def course_media(request, path):
+    """Serve uploaded course flags and overview photos. Other media stays private."""
+    if path.startswith(("course_logos/", "course_overview_images/")) and ".." not in path.split("/"):
+        return serve(request, path, document_root=settings.MEDIA_ROOT)
+    raise Http404
 
 urlpatterns = [
     path('', icef_view, name='landing'),  # Course list with prices as landing page
@@ -37,7 +46,8 @@ urlpatterns = [
     path('counselor_enrolled_course/<str:course_name>/autocomplete-full/', course_autocomplete, name='course_autocomplete'),
     path('fetch_current_part/<str:course_name>/autocomplete/', quiz_autocomplete, name='quiz_autocomplete_activate'),
     path('fetch_current_part/<str:course_name>/<int:current_part_id>/<int:part_or_quiz>/', FetchCurrentPartViewV2.as_view(), name='fetch_current_part'),
-    path('update_part_status/<int:part_id>/', update_part_status_v2, name='update_part_status')
+    path('update_part_status/<int:part_id>/', update_part_status_v2, name='update_part_status'),
+    path('media/<path:path>', course_media, name='course_media'),
     # path('update_progress/', views.update_progress, name='update_progress'),  # Update progress
     # path('get_progress_and_duration/<str:video_id>/', views.get_progress_and_duration, name='get_progress_and_duration'),  # Get progress
 
