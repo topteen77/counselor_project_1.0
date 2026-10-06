@@ -115,6 +115,9 @@
             box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.18);
             background: #fff;
         }
+        .form-control.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
         .django-messages .alert,
         #formErrorMessage {
             border-radius: 10px;
@@ -193,7 +196,7 @@
             <div class="row">
                 <div class="col-lg-5 col-md-7 col-sm-10 mx-auto">
                
-                    <form method="post" action="{% url 'counselor:user_signup' %}" id="signupForm">
+                    <form method="post" action="{% url 'counselor:signup_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}" id="signupForm" novalidate>
                         {% csrf_token %}
                         {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                         <div class="login-screen signup-card text-center p-5">
@@ -213,35 +216,30 @@
                                 {% endfor %}
                             </div>
                             {% endif %}
-                            <div id="formErrorMessage" class="alert alert-danger" style="display: none;">
-                                Please fill in all required fields.
-                            </div>
+                            <div id="formErrorMessage" class="alert alert-danger" style="display: none;"></div>
                             <div class="form-row">
                                 <!-- Username -->
                                 <div class="col mb-4">
                                     <label for="username" class="form-label text-start d-block required-field">Username</label>
-                                    <input type="text" id="username" name="username" class="form-control custom-input"
-                                        placeholder="Username" autocomplete="off" required>
-                                    <div class="invalid-feedback float-start text-start mt-0">Please enter your
-                                        username.</div>
+                                    <input type="text" id="username" name="username" class="form-control custom-input{% if field_errors.username %} is-invalid{% endif %}"
+                                        placeholder="Username" autocomplete="username" value="{{ form.username }}" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">{{ field_errors.username|default:"Please enter your username." }}</div>
                                 </div>
 
                                 <!-- Email -->
                                 <div class="col mb-4">
                                     <label for="email" class="form-label text-start d-block required-field">Email</label>
-                                    <input type="email" id="email" name="email" class="form-control custom-input"
-                                        placeholder="Enter your email" required>
-                                    <div class="invalid-feedback float-start text-start mt-0">Please enter a valid email
-                                        address.</div>
+                                    <input type="email" id="email" name="email" class="form-control custom-input{% if field_errors.email %} is-invalid{% endif %}"
+                                        placeholder="Enter your email" autocomplete="email" value="{{ form.email }}" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">{{ field_errors.email|default:"Please enter a valid email address." }}</div>
                                 </div>
 
                                 <!-- Password -->
                                 <div class="col mb-4">
                                     <label for="password" class="form-label text-start d-block required-field">Password</label>
                                     <input type="password" id="password" name="password"
-                                        class="form-control custom-input" placeholder="Password" required minlength="6">
-                                    <div class="invalid-feedback float-start text-start mt-0">Please enter a password
-                                        (min. 6 characters).</div>
+                                        class="form-control custom-input{% if field_errors.password %} is-invalid{% endif %}" placeholder="Password" value="{{ form.password }}" autocomplete="new-password" required minlength="6">
+                                    <div class="invalid-feedback float-start text-start mt-0">{{ field_errors.password|default:"Please enter a password (min. 6 characters)." }}</div>
                                 </div>
 
                                 <!-- Confirm Password -->
@@ -249,8 +247,8 @@
                                     <label for="confirm_password" class="form-label text-start d-block required-field">Confirm
                                         Password</label>
                                     <input type="password" id="confirm_password" name="confirm_password"
-                                        class="form-control custom-input" placeholder="Confirm Password" required>
-                                    <div class="invalid-feedback float-start text-start mt-0">Re enter password</div>
+                                        class="form-control custom-input{% if field_errors.confirm_password %} is-invalid{% endif %}" placeholder="Confirm Password" value="{{ form.confirm_password }}" autocomplete="new-password" required>
+                                    <div class="invalid-feedback float-start text-start mt-0">{{ field_errors.confirm_password|default:"Re-enter your password." }}</div>
                                 </div>
 
                                 <!-- Register Button -->
@@ -261,7 +259,7 @@
                                 <!-- Redirect to Login -->
                                 <p class="mt-4" style="font-size: 14px; color: #4b5563;">
                                     Already a member?
-                                    <a class="text-blue signin-link" href="{% url 'counselor:login_view' %}">SIGN IN</a>
+                                    <a class="text-blue signin-link" href="{% url 'counselor:login_view' %}{% if next %}?next={{ next|urlencode }}{% endif %}">SIGN IN</a>
                                 </p>
                             </div>
                         </div>
@@ -287,69 +285,60 @@
             
             form.addEventListener('submit', function(event) {
                 let isValid = true;
+                let message = '';
                 const requiredFields = form.querySelectorAll('[required]');
                 const errorMessage = document.getElementById('formErrorMessage');
-                
-                // Reset validation state
+                const password = document.getElementById('password');
+                const confirmPassword = document.getElementById('confirm_password');
+
                 errorMessage.style.display = 'none';
                 requiredFields.forEach(field => {
                     field.classList.remove('is-invalid');
                 });
-                
-                // Check each required field
+
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         isValid = false;
                         field.classList.add('is-invalid');
+                        if (!message) {
+                            message = 'Please fill in the highlighted fields. What you already typed is still here.';
+                        }
                     }
                 });
-                
-                // Check if passwords match
-                const password = document.getElementById('password');
-                const confirmPassword = document.getElementById('confirm_password');
-                
+
+                if (password.value && password.value.length < 6) {
+                    isValid = false;
+                    password.classList.add('is-invalid');
+                    message = 'Password must be at least 6 characters.';
+                }
+
                 if (password.value !== confirmPassword.value) {
                     isValid = false;
                     confirmPassword.classList.add('is-invalid');
-                    confirmPassword.nextElementSibling.textContent = 'Passwords do not match';
+                    confirmPassword.nextElementSibling.textContent = 'Passwords do not match.';
+                    message = 'Passwords do not match.';
                 }
-                
-                // Prevent form submission if validation fails
+
                 if (!isValid) {
                     event.preventDefault();
+                    errorMessage.textContent = message;
                     errorMessage.style.display = 'block';
-                    window.scrollTo(0, 0);
+                    const firstInvalid = form.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.focus();
+                    }
                 }
             });
-            
-            // Real-time validation
-            const inputs = form.querySelectorAll('input');
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    if (this.hasAttribute('required') && !this.value.trim()) {
-                        this.classList.add('is-invalid');
-                    } else {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-                
+
+            form.querySelectorAll('input').forEach(input => {
                 input.addEventListener('input', function() {
                     if (this.classList.contains('is-invalid') && this.value.trim()) {
+                        if (this.id === 'confirm_password' && this.value !== document.getElementById('password').value) {
+                            return;
+                        }
                         this.classList.remove('is-invalid');
                     }
                 });
-            });
-            
-            // Password match validation
-            const confirmPassword = document.getElementById('confirm_password');
-            confirmPassword.addEventListener('input', function() {
-                const password = document.getElementById('password');
-                if (this.value !== password.value) {
-                    this.classList.add('is-invalid');
-                    this.nextElementSibling.textContent = 'Passwords do not match';
-                } else {
-                    this.classList.remove('is-invalid');
-                }
             });
         });
     </script>

@@ -47,12 +47,11 @@ def landing_view(request):
 
 
 def login_view(request):
-    return render(request, 'login.html', {'hide_header_avatar': True})
+    return _login(request)
 
 
 def signup_view(request):
-    next_url = request.GET.get('next', '')
-    return render(request, 'register.html', {'next': next_url})
+    return _signup(request)
 
 
 def user_logout(request):
@@ -265,25 +264,48 @@ def update_part_status(request, part_id):
         logger.error(f"Error updating part status: {str(e)}")
         return JsonResponse({'success': False, 'message': 'Internal server error'}, status=500)
 
-def user_login(request):
-    next_url = request.GET.get('next') or request.POST.get('next', '')
+def _safe_next(request, next_url):
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return next_url
+    return ''
+
+
+def _login(request):
+    next_url = _safe_next(request, request.GET.get('next') or request.POST.get('next', ''))
+    email = ''
+    password = ''
+    field_errors = {}
     if request.method == "POST":
-        username = request.POST.get('Username')
-        password = request.POST.get('password')
-        try:
-            user = CounselorUser.objects.get(email=username)
-            if user.password == password:
-                request.session['id'] = user.id
-                if next_url:
-                    return redirect(next_url)
-                return redirect('counselor:icef_view')
+        email = (request.POST.get('Username') or '').strip()
+        password = request.POST.get('password') or ''
+        if not email:
+            field_errors['email'] = "Please enter your email."
+        elif not password:
+            field_errors['password'] = "Please enter your password."
+        else:
+            try:
+                user = CounselorUser.objects.get(email__iexact=email)
+            except CounselorUser.DoesNotExist:
+                field_errors['email'] = "No account found with this email."
             else:
-                messages.error(request, "Incorrect password!")
-        except CounselorUser.DoesNotExist:
-            messages.error(request, "Username not found.")
-    list(messages.get_messages(request))
-    context = {'next': next_url, 'hide_header_avatar': True}
-    return render(request, 'login.html', context)
+                if user.password != password:
+                    field_errors['password'] = "Incorrect password."
+                else:
+                    request.session['id'] = user.id
+                    if next_url:
+                        return redirect(next_url)
+                    return redirect('counselor:icef_view')
+    return render(request, 'login.html', {
+        'next': next_url,
+        'hide_header_avatar': True,
+        'email': email,
+        'password': password,
+        'field_errors': field_errors,
+    })
+
+
+def user_login(request):
+    return _login(request)
 
 
 def forgot_password_view(request):
@@ -295,7 +317,7 @@ def forgot_password_view(request):
             return render(
                 request,
                 'forgot_password.html',
-                {'next': next_url, 'hide_header_avatar': True},
+                {'next': next_url, 'hide_header_avatar': True, 'email': email},
             )
         try:
             user = CounselorUser.objects.get(email__iexact=email)
@@ -304,7 +326,7 @@ def forgot_password_view(request):
             return render(
                 request,
                 'forgot_password.html',
-                {'next': next_url, 'hide_header_avatar': True},
+                {'next': next_url, 'hide_header_avatar': True, 'email': email},
             )
         token = PW_RESET_SIGNER.sign(str(user.id))
         params = {'token': token}
@@ -356,36 +378,62 @@ def reset_password_view(request):
             'token': token,
             'next': next_url,
             'hide_header_avatar': True,
+            'password': request.POST.get('password', '') if request.method == 'POST' else '',
+            'confirm_password': request.POST.get('confirm_password', '') if request.method == 'POST' else '',
         },
     )
 
 
-def user_signup(request):
-    next_url = request.GET.get('next') or request.POST.get('next', '')
+def _signup(request):
+    next_url = _safe_next(request, request.GET.get('next') or request.POST.get('next', ''))
+    form = {
+        'username': '',
+        'email': '',
+        'password': '',
+        'confirm_password': '',
+    }
+    field_errors = {}
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-        next_url = request.POST.get('next', next_url)
-        # Check if passwords match
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match!")
-            return redirect('counselor:user_signup')
-        # Save user details
-        try:
-            user = CounselorUser(username=username, email=email, password=password)
-            user.save()
-            # Auto-login and send to payment (or next) so user goes directly to Razorpay
-            request.session['id'] = user.id
-            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=request.get_host()):
-                return redirect(next_url)
-            messages.success(request, "Registration successful!")
-            return redirect('counselor:landing')
-        except IntegrityError:
-            messages.error(request, "The email or username is already in use. Please try another.")
-            return redirect('counselor:user_signup')
-    return render(request, 'register.html', {'next': next_url})
+        form['username'] = (request.POST.get('username') or '').strip()
+        form['email'] = (request.POST.get('email') or '').strip()
+        form['password'] = request.POST.get('password') or ''
+        form['confirm_password'] = request.POST.get('confirm_password') or ''
+        if not form['username']:
+            field_errors['username'] = "Please enter a username."
+        if not form['email']:
+            field_errors['email'] = "Please enter your email."
+        if len(form['password']) < 6:
+            field_errors['password'] = "Password must be at least 6 characters."
+        if form['password'] != form['confirm_password']:
+            field_errors['confirm_password'] = "Passwords do not match."
+        if not field_errors:
+            if CounselorUser.objects.filter(email__iexact=form['email']).exists():
+                field_errors['email'] = "This email is already registered. Sign in instead."
+            else:
+                try:
+                    user = CounselorUser(
+                        username=form['username'],
+                        email=form['email'],
+                        password=form['password'],
+                    )
+                    user.save()
+                except IntegrityError:
+                    field_errors['email'] = "This email is already registered. Sign in instead."
+                else:
+                    request.session['id'] = user.id
+                    if next_url:
+                        return redirect(next_url)
+                    messages.success(request, "Registration successful!")
+                    return redirect('counselor:landing')
+    return render(request, 'register.html', {
+        'next': next_url,
+        'form': form,
+        'field_errors': field_errors,
+    })
+
+
+def user_signup(request):
+    return _signup(request)
 
 def get_course_with_related_data(course_name):
     course_with_related_data = []
