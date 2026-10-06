@@ -11,6 +11,11 @@ counselor_project/settings.py
 counselor_project/urls.py
 staticfiles/
 
+# Built-in flags and overview photos live under static/. Media copies are generated
+# on each machine and must not block git pull on the server.
+media/course_logos/
+media/course_overview_images/
+
 
 # Virtual environment
 venv/

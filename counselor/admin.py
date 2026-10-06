@@ -27,13 +27,33 @@ class CourseImageInput(forms.ClearableFileInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         instance = getattr(self, "instance", None)
-        preview = ""
-        if instance and instance.pk:
+        default_url = ""
+        custom = False
+        if instance is not None and (getattr(instance, "title", "") or "").strip():
+            from pathlib import Path
+            from counselor.builtin_images import (
+                _is_custom_upload,
+                flag_asset,
+                overview_asset,
+                static_url,
+                stored_file_url,
+            )
             if name == "logo":
-                preview = instance.flag_url()
-            elif name == "overview_image":
-                preview = instance.overview_image_url()
-        context["preview_url"] = preview
+                asset = flag_asset(instance.title)
+                field = instance.logo
+            else:
+                asset = overview_asset(instance.title)
+                field = instance.overview_image
+            builtin = Path(asset["static_name"]).name if asset else ""
+            custom = _is_custom_upload(field, builtin)
+            if custom:
+                default_url = stored_file_url(field)
+            elif asset and asset.get("exists"):
+                default_url = static_url(asset["static_name"])
+        if not custom:
+            context["widget"]["is_initial"] = False
+        context["preview_url"] = default_url
+        context["is_custom"] = custom
         return context
 
 
@@ -484,27 +504,6 @@ class PartInline(admin.StackedInline):
     model = Part
     extra = 1
 
-def _default_asset_preview(asset, missing_message):
-    if not asset:
-        return missing_message
-    from django.templatetags.static import static
-    preview = ""
-    if asset["exists"]:
-        preview = format_html(
-            '<img src="{}" alt="" style="display:block;max-width:160px;max-height:160px;margin:0 0 8px;border-radius:8px;background:#f4f4f5;" />',
-            static(asset["static_name"]),
-        )
-    status = ""
-    if not asset["exists"]:
-        status = format_html('<div>This file is not in the folder yet.</div>')
-    return format_html(
-        '{}<code style="display:block;white-space:normal;word-break:break-all;">{}</code>{}',
-        preview,
-        asset["relative"],
-        status,
-    )
-
-
 @admin.register(CounselorCourse)
 class CourseAdmin(admin.ModelAdmin):
     list_display = (
@@ -520,11 +519,10 @@ class CourseAdmin(admin.ModelAdmin):
     )
     fields = (
         'title', 'price',
-        'default_logo_preview', 'logo',
-        'default_overview_preview', 'overview_image',
+        'logo',
+        'overview_image',
     )
     form = CourseAdminForm
-    readonly_fields = ('default_logo_preview', 'default_overview_preview')
     search_fields = ('title',)
     inlines = [ChapterInline]
     list_filter = ('created_at',)
@@ -580,20 +578,6 @@ class CourseAdmin(admin.ModelAdmin):
             return None
         return reverse("counselor:course_overview", kwargs={"course_name": obj.title})
 
-    @admin.display(description="Default flag")
-    def default_logo_preview(self, obj):
-        from counselor.builtin_images import flag_asset
-        if not obj or not (obj.title or "").strip():
-            return "Enter a course name and save to see the default flag."
-        return _default_asset_preview(flag_asset(obj.title), "No built-in flag for this course name.")
-
-    @admin.display(description="Default overview image")
-    def default_overview_preview(self, obj):
-        from counselor.builtin_images import overview_asset
-        if not obj or not (obj.title or "").strip():
-            return "Enter a course name and save to see the default overview image."
-        return _default_asset_preview(overview_asset(obj.title), "No default overview image for this course name.")
-
     @admin.display(description="Overview")
     def course_overview_link(self, obj):
         if not obj.title:
@@ -619,7 +603,7 @@ class CourseAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="{0}" target="_blank" rel="noopener">'
             '<img src="{0}" alt="{1}" style="height:52px;width:auto;max-width:80px;'
-            'border-radius:6px;background:#111;object-fit:contain;display:block;" />'
+            'border-radius:6px;background:#fff;object-fit:contain;display:block;" />'
             '</a>',
             url,
             alt or "",

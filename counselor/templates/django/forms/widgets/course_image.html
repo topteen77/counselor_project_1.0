@@ -4,6 +4,9 @@
     <img src="{{ preview_url }}" alt="" style="display:block;max-width:180px;max-height:180px;margin:0 0 8px;border-radius:8px;background:#f4f4f5;object-fit:contain;" />
   </a>
   {% endif %}
+  {% if preview_url and not is_custom %}
+  <span style="display:block;margin:0 0 8px;color:var(--body-quiet-color,#666);">Default image. Upload a file only to replace it.</span>
+  {% endif %}
   {% if widget.is_initial %}
   Currently:
   {% if preview_url %}
