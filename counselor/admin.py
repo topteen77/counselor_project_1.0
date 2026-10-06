@@ -4,13 +4,23 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.html import format_html
+from django.utils.html import format_html, strip_tags
+import html
+import re
 from django.utils.http import urlencode
 from django.db import models
 from django.db.models import Count
 import nested_admin
 from .models import CounselorCertification, CounselorCourse, Chapter, CounselorUser, CourseContentProgress, CourseOverviewPoints, CourseOverviewSummary, CoursePayment, DiscountCoupon, Part, PaymentReceipt, Quiz, Question, QuizAnswers, QuizResults, SiteLabel, UserProgressTrack, UserQuizAttemptTrack
 from ckeditor.widgets import CKEditorWidget
+
+def _overview_plain(value):
+    text = re.sub(r"<(br|/p|/div|/li|/h[1-6]|/tr)\s*/?>", " ", value or "", flags=re.I)
+    text = html.unescape(strip_tags(text))
+    text = " ".join(text.split())
+    if len(text) > 180:
+        return text[:180] + "…"
+    return text or "—"
 
 class PartAdminForm(forms.ModelForm):
     description = forms.CharField(widget=CKEditorWidget(), required=False)
@@ -180,9 +190,36 @@ class PartInline(admin.StackedInline):
     model = Part
     extra = 1
 
+def _default_asset_preview(asset, missing_message):
+    if not asset:
+        return missing_message
+    from django.templatetags.static import static
+    preview = ""
+    if asset["exists"]:
+        preview = format_html(
+            '<img src="{}" alt="" style="display:block;max-width:160px;max-height:160px;margin:0 0 8px;border-radius:8px;background:#f4f4f5;" />',
+            static(asset["static_name"]),
+        )
+    status = ""
+    if not asset["exists"]:
+        status = format_html('<div>This file is not in the folder yet.</div>')
+    return format_html(
+        '{}<code style="display:block;white-space:normal;word-break:break-all;">{}</code>{}',
+        preview,
+        asset["relative"],
+        status,
+    )
+
+
 @admin.register(CounselorCourse)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'chapter_count', 'created_at', 'updated_at')
+    list_display = ('title', 'price', 'chapter_count', 'course_preview', 'created_at', 'updated_at')
+    fields = (
+        'title', 'price',
+        'default_logo_preview', 'logo',
+        'default_overview_preview', 'overview_image',
+    )
+    readonly_fields = ('default_logo_preview', 'default_overview_preview')
     search_fields = ('title',)
     inlines = [ChapterInline]
     list_filter = ('created_at',)
@@ -232,6 +269,32 @@ class CourseAdmin(admin.ModelAdmin):
     def import_word_done_view(self, request):
         from counselor.word_course_admin import import_word_done
         return import_word_done(self, request)
+
+    def view_on_site(self, obj):
+        if not obj or not obj.title:
+            return None
+        return reverse("counselor:course_overview", kwargs={"course_name": obj.title})
+
+    @admin.display(description="Default flag")
+    def default_logo_preview(self, obj):
+        from counselor.builtin_images import flag_asset
+        if not obj or not (obj.title or "").strip():
+            return "Enter a course name and save to see the default flag."
+        return _default_asset_preview(flag_asset(obj.title), "No built-in flag for this course name.")
+
+    @admin.display(description="Default overview image")
+    def default_overview_preview(self, obj):
+        from counselor.builtin_images import overview_asset
+        if not obj or not (obj.title or "").strip():
+            return "Enter a course name and save to see the default overview image."
+        return _default_asset_preview(overview_asset(obj.title), "No default overview image for this course name.")
+
+    @admin.display(description="Preview")
+    def course_preview(self, obj):
+        if not obj.title:
+            return ""
+        url = reverse("counselor:course_overview", kwargs={"course_name": obj.title})
+        return format_html('<a href="{}" target="_blank">Preview</a>', url)
 
     def delete_view(self, request, object_id, extra_context=None):
         course = self.get_object(request, object_id)
@@ -416,9 +479,30 @@ class CourseOverviewPointsAdmin(admin.ModelAdmin):
 
 @admin.register(CourseOverviewSummary)
 class CourseOverviewSummaryAdmin(admin.ModelAdmin):
-    list_display=('title1','title2')
-    search_fields=('title1','title2')
-    list_filter=('course',)
+    list_display = ('course', 'intro_preview', 'closing_preview')
+    search_fields = ('course__title',)
+    list_filter = ('course',)
+    list_select_related = ('course',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        class OverviewSummaryForm(forms.ModelForm):
+            title1 = forms.CharField(label="Introduction", widget=CKEditorWidget(), required=False)
+            title2 = forms.CharField(label="Closing", widget=CKEditorWidget(), required=False)
+
+            class Meta:
+                model = CourseOverviewSummary
+                fields = '__all__'
+
+        kwargs['form'] = OverviewSummaryForm
+        return super().get_form(request, obj, **kwargs)
+
+    @admin.display(description="Introduction")
+    def intro_preview(self, obj):
+        return _overview_plain(obj.title1)
+
+    @admin.display(description="Closing")
+    def closing_preview(self, obj):
+        return _overview_plain(obj.title2)
 
 @admin.register(UserProgressTrack)
 class UserProgressTrackAdmin(admin.ModelAdmin):

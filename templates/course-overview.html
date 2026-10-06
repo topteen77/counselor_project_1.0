@@ -40,8 +40,41 @@
       margin-bottom: 0px;
     }
 
+    .course-overview-html {
+      max-width: 1082px;
+      margin: 0 auto;
+      padding: 0 16px 32px;
+      color: #333333;
+      font-size: 16px;
+      line-height: 1.7;
+    }
     .course-overview-html p {
-      margin-bottom: 12px;
+      margin: 0 0 12px;
+    }
+    .course-overview-html h1,
+    .course-overview-html h2,
+    .course-overview-html h3,
+    .course-overview-html h4 {
+      margin: 22px 0 10px;
+      color: #1a1a1a;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .course-overview-html ul,
+    .course-overview-html ol {
+      margin: 0 0 16px 1.4rem;
+      padding: 0;
+    }
+    .course-overview-html ul { list-style: disc !important; }
+    .course-overview-html ol { list-style: decimal !important; }
+    .course-overview-html li { margin: 0 0 8px; display: list-item; }
+    .course-overview-html strong { font-weight: 700; }
+    .course-overview-closing {
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 16px;
+      padding: 28px 32px 16px;
+      margin: 28px auto 8px;
     }
 
     body {
@@ -224,15 +257,18 @@
     }
     .trial-popup-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      background: none;
+      top: 8px;
+      right: 8px;
+      background: #f3f4f6;
       border: none;
-      font-size: 24px;
-      color: #999;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      font-size: 22px;
+      color: #333;
       cursor: pointer;
       line-height: 1;
-      padding: 4px;
+      z-index: 2;
     }
     .trial-popup-close:hover { color: #333; }
 
@@ -462,8 +498,11 @@
             </div>
           </div>
         </div>
-        <div class="right-panel flex justify-center order-md-2 order-1"> <img
-            src="{% static 'topteenfrontend/assets/images/course_overview/' %}{{ course.title }}.png" /> </div>
+        <div class="right-panel flex justify-center order-md-2 order-1">
+          {% if course.overview_image_url %}
+          <img src="{{ course.overview_image_url }}" alt="{{ course.title }}" onerror="this.remove()" />
+          {% endif %}
+        </div>
       </div>
     </div>
   </section>
@@ -499,7 +538,7 @@
         </div>
       </div>
     </div>
-    <div class="mt-5 course-overview-html">{{ conclusion|safe }}</div>
+    <div class="course-overview-html course-overview-closing">{{ conclusion|safe }}</div>
 
     </div>
   </section>
@@ -538,7 +577,7 @@
         {% else %}
           <a href="{% url 'counselor:counselor_enrolled_course_param' course_name=course.title %}" class="btn-trial btn-trial-primary">{{ labels.start_course|default:"Start Course" }}</a>
         {% endif %}
-        <button type="button" class="btn-trial btn-trial-secondary" id="trialPopupStay">Stay on page</button>
+        <button type="button" class="btn-trial btn-trial-secondary" id="trialPopupStay">Close</button>
       </div>
     </div>
   </div>
@@ -659,20 +698,26 @@
   /** mobile drawer js **/
 
   {% if price and not has_paid and not trial_expired %}
-  /** Trial popup: show on back button or tab/window close **/
+  /** Trial popup: first Back shows the offer. Close lets the visitor leave. **/
   (function() {
     var trialOverlay = document.getElementById('trialPopupOverlay');
     var trialCloseBtn = document.getElementById('trialPopupClose');
     var trialStayBtn = document.getElementById('trialPopupStay');
     if (!trialOverlay) return;
 
+    var dismissed = false;
+
     function showTrialPopup() {
       trialOverlay.classList.add('show');
       trialOverlay.setAttribute('aria-hidden', 'false');
     }
     function hideTrialPopup() {
+      dismissed = true;
       trialOverlay.classList.remove('show');
       trialOverlay.setAttribute('aria-hidden', 'true');
+      if (history.state && history.state.trialPage) {
+        history.back();
+      }
     }
 
     if (trialCloseBtn) trialCloseBtn.addEventListener('click', hideTrialPopup);
@@ -680,27 +725,18 @@
     trialOverlay.addEventListener('click', function(e) {
       if (e.target === trialOverlay) hideTrialPopup();
     });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') hideTrialPopup();
+    });
 
-    // Back button: push state so we can intercept first "back"
     if (typeof history !== 'undefined' && history.pushState) {
       history.pushState({ trialPage: true }, '', window.location.href);
-      window.addEventListener('popstate', function(e) {
+      window.addEventListener('popstate', function() {
+        if (dismissed) return;
         showTrialPopup();
         history.pushState({ trialPage: true }, '', window.location.href);
       });
     }
-
-    // Tab/window close: show native "Leave site?" only when leaving (close/refresh), not when clicking in-page links
-    var allowLeave = false;
-    document.querySelectorAll('.trial-popup-overlay a[href], .course-overview-actions a[href], .footer-trial-cta a[href]').forEach(function(link) {
-      link.addEventListener('click', function() { allowLeave = true; });
-    });
-    window.addEventListener('beforeunload', function(e) {
-      if (!allowLeave) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    });
   })();
   {% endif %}
 

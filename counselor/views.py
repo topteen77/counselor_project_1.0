@@ -68,9 +68,16 @@ def catalogue_course_names():
 
 
 def extra_catalogue_cards(course_statuses):
+    saved = {
+        course.title: course
+        for course in CounselorCourse.objects.filter(title__in=list(course_statuses))
+    }
     cards = []
     for title, status in course_statuses.items():
-        card = {'title': title}
+        course = saved.get(title)
+        if course is None:
+            continue
+        card = {'title': title, 'flag_url': course.flag_url()}
         card.update(status)
         cards.append(card)
     cards.sort(key=lambda item: item['title'])

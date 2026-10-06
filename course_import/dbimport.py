@@ -250,6 +250,9 @@ def write_course(payload: dict, config: dict, dry_run: bool, database_label: str
                 summary["course_id"] = None
                 summary["message"] = "Dry run finished. Every insert was rolled back. Nothing was saved."
             else:
+                from counselor.builtin_images import attach_builtin_images
+
+                summary["builtin_images"] = attach_builtin_images(course)
                 summary["message"] = "Course saved."
             return summary
     except CourseImportError:

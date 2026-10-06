@@ -28,12 +28,56 @@ class CounselorCourse(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)  # Course creation date
     updated_at = models.DateTimeField(auto_now=True)  # Course last update time
+    logo = models.FileField(
+        upload_to="course_logos/",
+        blank=True,
+        null=True,
+        help_text="Country flag shown on the course card. SVG, PNG, or JPG. Leave empty to use the built-in flag for this country, if one exists.",
+    )
+    overview_image = models.FileField(
+        upload_to="course_overview_images/",
+        blank=True,
+        null=True,
+        help_text="Photo shown on the course overview page. Leave empty to use the existing image for this country, if one exists.",
+    )
 
     class Meta:
         verbose_name_plural = "CounselorCourses"
 
     def __str__(self):
         return self.title
+
+    def flag_url(self):
+        if self.logo:
+            return self.logo.url
+        filename = {
+            "germany": "icef-germany-flag.svg",
+            "uk": "icef-uk-flag.svg",
+            "usa": "icef-usa-flag.svg",
+            "singapore": "icef-singapore-flag.svg",
+            "newzealand": "icef-nz-flag.svg",
+            "ireland": "icef-ireland-flag.svg",
+            "france": "icef-france-flag.svg",
+            "dubai": "icef-dubai-flag.svg",
+            "canada": "icef-canada-flag.svg",
+            "australia": "icef-australia-flag.svg",
+        }.get((self.title or "").strip().lower().replace(" ", ""))
+        if not filename:
+            return ""
+        from django.templatetags.static import static
+        return static("topteenfrontend/assets/images/%s" % filename)
+
+    def overview_image_url(self):
+        if self.overview_image:
+            return self.overview_image.url
+        title = (self.title or "").strip()
+        if not title or title in (".", "..") or "/" in title or "\\" in title:
+            return ""
+        from counselor.builtin_images import find_overview_image
+        photo = find_overview_image(title)
+        filename = photo.name if photo else "%s.png" % title
+        from django.templatetags.static import static
+        return static("topteenfrontend/assets/images/course_overview/%s" % filename)
 
     @property
     def is_free(self):
@@ -140,7 +184,8 @@ class CourseOverviewSummary(models.Model):
     title2 = models.TextField(blank=True,null=True)  
 
     def __str__(self):
-        return f"Introduction: {self.title1}\n Conclusion: {self.title2}"
+        course_name = self.course.title if self.course_id and self.course else "Course overview"
+        return course_name
     
 class UserProgressTrack(models.Model):
     user = models.ForeignKey(CounselorUser, on_delete=models.CASCADE, blank=True, null=True)

@@ -21,6 +21,28 @@ SESSION_RESULT = "word_course_import_result"
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024
 
 
+def _logo_path(request) -> Path:
+    if not request.session.session_key:
+        request.session.save()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    return OUTPUT_DIR / ("logo-%s" % request.session.session_key)
+
+
+def _store_logo(request, upload):
+    name = _safe_filename(upload.name)
+    ext = Path(name).suffix.lower()
+    if ext not in {".svg", ".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        return "The country flag must be an SVG, PNG, JPG, WEBP, or GIF file."
+    dest = _logo_path(request).with_suffix(ext)
+    for old in OUTPUT_DIR.glob("logo-%s.*" % request.session.session_key):
+        if old != dest:
+            old.unlink(missing_ok=True)
+    problem = _write_upload(upload, dest)
+    if problem:
+        return problem
+    return dest
+
+
 def _store_path(request) -> Path:
     if not request.session.session_key:
         request.session.save()
@@ -145,6 +167,25 @@ def _prepare_upload(uploads) -> tuple[str | None, Path | None, str | None]:
         return None, temp_root, "The uploaded files could not be saved for conversion."
 
 
+def _attach_logo(course_id, logo_path):
+    if not course_id or not logo_path:
+        return
+    path = Path(logo_path)
+    try:
+        path.resolve().relative_to(OUTPUT_DIR.resolve())
+    except ValueError:
+        return
+    if not path.is_file():
+        return
+    from django.core.files import File
+    from counselor.models import CounselorCourse
+    course = CounselorCourse.objects.filter(pk=course_id).first()
+    if course is None:
+        return
+    with path.open("rb") as handle:
+        course.logo.save(path.name, File(handle), save=True)
+
+
 def _importer():
     from course_import.convert import convert_folder
     from course_import.dbimport import CourseImportError, write_course
@@ -256,8 +297,18 @@ def import_word(modeladmin, request):
             }
             job["settings_saved"] = True
             job["step"] = 3
+            logo = request.FILES.get("logo")
+            if logo:
+                stored = _store_logo(request, logo)
+                if isinstance(stored, str):
+                    banner = stored
+                    job["settings_saved"] = False
+                    job["step"] = 2
+                else:
+                    job["logo_path"] = str(stored)
+                    job["logo_name"] = _safe_filename(logo.name)
             _save_job(request, job)
-            step = 3
+            step = job["step"]
     elif request.method == "POST" and action == "back":
         target = 2 if request.POST.get("to") == "2" and (job.get("payload") or {}).get("ready") else 1
         job["step"] = target
@@ -287,6 +338,7 @@ def import_word(modeladmin, request):
                     request.session[SESSION_RESULT] = summary
                     request.session.modified = True
                     if not summary.get("dry_run"):
+                        _attach_logo(summary.get("course_id"), job.get("logo_path"))
                         return redirect("admin:counselor_counselorcourse_import_word_done")
                     banner = summary.get("message") or "Dry run finished."
                     banner_ok = True
@@ -313,6 +365,7 @@ def import_word(modeladmin, request):
         "stats": payload.get("stats") or {},
         "result": request.session.get(SESSION_RESULT) or {},
         "settings_saved": bool(job.get("settings_saved")),
+        "logo_name": job.get("logo_name") or "",
     }
     return TemplateResponse(request, "admin/counselor/counselorcourse/import_word.html", context)
 
@@ -361,6 +414,7 @@ def import_word_done(modeladmin, request):
         "opts": modeladmin.model._meta,
         "summary": summary,
         "overview_url": reverse("counselor:course_overview", kwargs={"course_name": title}),
+        "preview_url": reverse("admin:counselor_counselorcourse_import_word_preview"),
         "player_url": reverse("counselor:counselor_enrolled_course_param", kwargs={"course_name": title}),
         "admin_url": reverse("admin:counselor_counselorcourse_change", args=[course_id]) if course_id else "",
         "list_url": reverse("admin:counselor_counselorcourse_changelist"),

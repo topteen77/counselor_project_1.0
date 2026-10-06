@@ -496,6 +496,9 @@
                 <div class="event-card-inner text-center">
                   <div class="event-card-bottom">
                     <div class="flex_vert_center text-center flex flex-row justify-center row py-5">
+                      {% if course.flag_url %}
+                      <img class="mb-3 w-[140px]" src="{{ course.flag_url }}" alt="{{ course.title }}" />
+                      {% endif %}
                       <p class="text-[21px] text-white fw-500">{{ course.title }}</p>
                       <div class="w-100 mt-2">
                         <span class="course-price-badge {% if not course.price %}free{% endif %}">{% if course.price %}₹ {{ course.price }}{% else %}Free{% endif %}</span>

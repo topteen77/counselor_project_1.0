@@ -120,7 +120,7 @@
   <p>The country key is the course name on the site, for example China or Japan. The overview introduction and closing are edited as formatted text.</p>
   {{ config.intro_html|default:""|json_script:"intro-data" }}
   {{ config.conclusion_html|default:""|json_script:"conclusion-data" }}
-  <form method="post" id="settings-form">
+  <form method="post" id="settings-form" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" name="action" value="configure">
     <label for="country">Country key</label>
@@ -129,6 +129,9 @@
     <input id="display_title" name="display_title" type="text" value="{{ config.display_title }}">
     <label for="price">Price in INR (0 means free)</label>
     <input id="price" name="price" type="text" value="{{ config.price|default:'0' }}">
+    <label for="logo">Country flag</label>
+    <input id="logo" name="logo" type="file" accept=".svg,.png,.jpg,.jpeg,.webp,.gif,image/*">
+    {% if logo_name %}<p>Current flag: {{ logo_name }}. Choose another file to replace it.</p>{% else %}<p>Optional. Countries that already have a built-in flag keep that flag until you upload a new one. You can also change the flag later on the course page.</p>{% endif %}
     <label>Overview introduction</label>
     <div class="editor-tools">
       <button type="button" onmousedown="event.preventDefault()" onclick="document.execCommand('bold')">Bold</button>

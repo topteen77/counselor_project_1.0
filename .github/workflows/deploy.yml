@@ -31,7 +31,7 @@ jobs:
             source counselor_env/bin/activate
             cd /home/ubuntu/Ankit/counselor_project
             git pull origin main
-            pip install -r requirements.txt
+            pip install -r requirement.txt
             python3 manage.py makemigrations
             python3 manage.py migrate
             python3 manage.py collectstatic --noinput
